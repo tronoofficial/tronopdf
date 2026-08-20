@@ -1,4 +1,4 @@
-/* TronoPDF - Merge PDF v1 | previews, drag-drop, stable */
+/* TronoPDF - Split PDF v2 | visual selector, multiple ranges, thumbnails */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -22,155 +22,240 @@ function ensurePdfjs(){
  return pdfjsReady;
 }
 root.innerHTML='<style>'+
-'.mg-wrap{max-width:1400px;margin:0 auto}'+
-'.mg-hero{text-align:center;padding:50px 16px 40px}'+
-'.mg-hero h1{font-size:42px;font-weight:900;margin-bottom:12px;letter-spacing:-1px}'+
-'.mg-hero p{font-size:18px;color:#7a7a85;margin-bottom:36px}'+
-'.mg-big{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:20px;font-weight:800;padding:20px 70px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 14px 34px rgba(124,58,237,.35)}'+
-'.mg-big:hover{transform:translateY(-2px)}'+
-'.mg-drop-hint{margin-top:16px;color:#9a9aa5;font-size:15px}'+
-'.mg-zone{border:2px dashed transparent;border-radius:18px}'+
-'.mg-zone.on{border-color:#7c3aed;background:#f3f0ff}'+
-'.mg-work{display:flex;min-height:70vh;background:#f7f6fc;border-radius:14px;overflow:hidden}'+
-'.mg-main{flex:1;padding:40px;overflow-y:auto}'+
-'.mg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:20px}'+
-'.mg-card{background:#fff;border-radius:10px;box-shadow:0 2px 10px rgba(30,20,60,.08);padding:14px;text-align:center;position:relative;cursor:grab}'+
-'.mg-card.drag{opacity:.4}'+
-'.mg-card:hover{box-shadow:0 8px 24px rgba(124,58,237,.14)}'+
-'.mg-x{position:absolute;top:8px;right:8px;width:26px;height:26px;border:none;border-radius:50%;background:#f1f2f8;color:#666;font-size:12px;cursor:pointer;opacity:0;transition:.15s}'+
-'.mg-card:hover .mg-x{opacity:1}'+
-'.mg-x:hover{background:#fdeaea;color:#dc2626}'+
-'.mg-thumb{height:210px;display:flex;align-items:center;justify-content:center;background:#fafbfe;border:1px solid #eef0f6;border-radius:6px;overflow:hidden;margin-bottom:10px}'+
-'.mg-thumb img{max-width:100%;max-height:100%;object-fit:contain}'+
-'.mg-ph{color:#c3c6d4;font-size:30px}'+
-'.mg-load{width:26px;height:26px;border:3px solid #e0e7ff;border-top-color:#7c3aed;border-radius:50%;animation:mgsp .8s linear infinite;display:inline-block}'+
-'@keyframes mgsp{to{transform:rotate(360deg)}}'+
-'.mg-nm{font-size:12.5px;font-weight:600;color:#4b4b55;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}'+
-'.mg-card.bad .mg-thumb{background:#fdeaea}'+
-'.mg-addcard{border:2px dashed #c9cddd;border-radius:10px;min-height:260px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#8a8fa3;cursor:pointer;font-weight:700}'+
-'.mg-addcard:hover{border-color:#7c3aed;color:#7c3aed;background:#f3f0ff}'+
-'.mg-addcircle{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:26px;border:none;cursor:pointer;box-shadow:0 10px 24px rgba(124,58,237,.4)}'+
-'.mg-side{width:330px;background:#fff;border-left:1px solid #eceaf6;padding:30px 26px;display:flex;flex-direction:column}'+
-'.mg-side h2{font-size:26px;font-weight:900;text-align:center;margin-bottom:18px}'+
-'.mg-tip{background:#ede9fe;border-radius:10px;padding:14px 16px;font-size:13.5px;color:#5b21b6;line-height:1.55}'+
-'.mg-side-foot{margin-top:auto;display:flex;flex-direction:column;gap:12px}'+
-'.mg-sort{background:#f4f5fa;border:none;border-radius:10px;padding:12px;font-weight:800;color:#4b4b55;cursor:pointer}'+
-'.mg-sort:hover{background:#e6e8f5}'+
-'.mg-go{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:18px;font-weight:800;padding:17px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 14px 34px rgba(124,58,237,.35)}'+
-'.mg-go:disabled{opacity:.5;cursor:not-allowed}'+
-'.mg-busy{padding:80px 20px;text-align:center}'+
-'.mg-busy h2{font-size:30px;font-weight:900;margin-bottom:8px}'+
-'.mg-busy .fn{color:#7a7a85;font-size:15px;margin-bottom:26px}'+
-'.mg-bar{max-width:760px;margin:0 auto 18px;height:16px;background:#fff;border-radius:999px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.08)}'+
-'.mg-bar div{height:100%;width:0;background:linear-gradient(90deg,#7c3aed,#a855f7);border-radius:999px;transition:width .3s}'+
-'.mg-pct{font-size:40px;font-weight:900}'+
-'.mg-note{color:#9a9aa5;font-size:13px;margin-top:14px}'+
-'.mg-done{text-align:center;padding:70px 20px}'+
-'.mg-done-ic{width:80px;height:80px;border-radius:50%;background:#eafbef;color:#16a34a;font-size:38px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}'+
-'.mg-dl{display:inline-block;background:#16a34a;color:#fff;font-weight:800;font-size:18px;padding:17px 50px;border-radius:12px;box-shadow:0 14px 34px rgba(22,163,74,.35)}'+
-'.mg-again{display:inline-block;margin-left:12px;background:#f4f5fa;color:#333;font-weight:700;font-size:14px;padding:17px 26px;border-radius:12px;border:none;cursor:pointer}'+
-'@media(max-width:900px){.mg-work{flex-direction:column}.mg-side{width:auto;border-left:none;border-top:1px solid #eceaf6}}'+
+'.sp-wrap{max-width:1400px;margin:0 auto}'+
+'.sp-hero{text-align:center;padding:50px 16px 40px}'+
+'.sp-hero h1{font-size:42px;font-weight:900;margin-bottom:12px;letter-spacing:-1px}'+
+'.sp-hero p{font-size:18px;color:#7a7a85;margin-bottom:36px}'+
+'.sp-big{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:20px;font-weight:800;padding:20px 70px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 14px 34px rgba(124,58,237,.35)}'+
+'.sp-big:hover{transform:translateY(-2px)}'+
+'.sp-drop-hint{margin-top:16px;color:#9a9aa5;font-size:15px}'+
+'.sp-zone{border:2px dashed transparent;border-radius:18px}'+
+'.sp-zone.on{border-color:#7c3aed;background:#f3f0ff}'+
+'.sp-work{display:none;background:#f7f6fc;border-radius:14px;overflow:hidden}'+
+'.sp-main{display:flex;min-height:600px}'+
+'.sp-pages{flex:1;padding:40px;overflow-y:auto}'+
+'.sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:16px}'+
+'.sp-page{background:#fff;border:2px solid #eceaf6;border-radius:10px;padding:12px;text-align:center;cursor:pointer;transition:.2s;position:relative}'+
+'.sp-page:hover{border-color:#7c3aed;transform:translateY(-2px)}'+
+'.sp-page.selected{border-color:#7c3aed;background:#f3f0ff}'+
+'.sp-page .thumb{height:160px;display:flex;align-items:center;justify-content:center;background:#fafbfe;border-radius:6px;margin-bottom:8px;overflow:hidden}'+
+'.sp-page .thumb img{max-width:100%;max-height:100%;object-fit:contain}'+
+'.sp-page .num{font-size:12px;font-weight:700;color:#4b4b5a}'+
+'.sp-page .check{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:50%;background:#7c3aed;color:#fff;display:none;align-items:center;justify-content:center;font-size:14px}'+
+'.sp-page.selected .check{display:flex}'+
+'.sp-side{width:380px;background:#fff;border-left:1px solid #eceaf6;padding:30px;display:flex;flex-direction:column}'+
+'.sp-side h2{font-size:24px;font-weight:900;text-align:center;margin-bottom:20px}'+
+'.sp-tabs{display:flex;gap:8px;margin-bottom:20px}'+
+'.sp-tab{flex:1;padding:12px;border:1px solid #eceaf6;border-radius:10px;background:#fff;font-size:13px;font-weight:700;text-align:center;cursor:pointer;transition:.2s}'+
+'.sp-tab:hover{border-color:#7c3aed}'+
+'.sp-tab.active{background:#7c3aed;color:#fff;border-color:#7c3aed}'+
+'.sp-ranges{flex:1;overflow-y:auto}'+
+'.sp-range{background:#f7f6fc;border:1px solid #eceaf6;border-radius:10px;padding:16px;margin-bottom:12px}'+
+'.sp-range-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}'+
+'.sp-range-title{font-size:13px;font-weight:700;color:#4b4b5a}'+
+'.sp-range-del{background:none;border:none;color:#dc2626;font-size:18px;cursor:pointer}'+
+'.sp-range-inputs{display:flex;gap:8px;align-items:center}'+
+'.sp-range-inputs input{flex:1;padding:8px 12px;border:1px solid #ddd;border-radius:8px;font-size:13px;text-align:center}'+
+'.sp-range-inputs span{color:#9a9aa5;font-size:13px}'+
+'.sp-add-range{background:#f3f0ff;border:1px dashed #7c3aed;color:#7c3aed;font-size:13px;font-weight:700;padding:10px;border-radius:8px;cursor:pointer;width:100%;margin-top:8px}'+
+'.sp-add-range:hover{background:#ede9fe}'+
+'.sp-merge-opt{display:flex;align-items:center;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid #eceaf6}'+
+'.sp-merge-opt input{width:18px;height:18px;accent-color:#7c3aed}'+
+'.sp-merge-opt label{font-size:13px;color:#4b4b5a;cursor:pointer}'+
+'.sp-go{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:18px;font-weight:800;padding:17px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 14px 34px rgba(124,58,237,.35);margin-top:auto}'+
+'.sp-go:disabled{opacity:.5;cursor:not-allowed}'+
+'.sp-busy{display:none;padding:60px 20px;text-align:center}'+
+'.sp-busy h2{font-size:28px;font-weight:900;margin-bottom:8px}'+
+'.sp-busy .fn{color:#7a7a85;font-size:15px;margin-bottom:26px}'+
+'.sp-bar{max-width:600px;margin:0 auto 18px;height:14px;background:#fff;border-radius:999px;overflow:hidden;box-shadow:inset 0 1px 3px rgba(0,0,0,.08)}'+
+'.sp-bar div{height:100%;width:0;background:linear-gradient(90deg,#7c3aed,#a855f7);border-radius:999px;transition:width .3s}'+
+'.sp-pct{font-size:36px;font-weight:900}'+
+'.sp-done{display:none;text-align:center;padding:60px 20px}'+
+'.sp-done-ic{width:80px;height:80px;border-radius:50%;background:#eafbef;color:#16a34a;font-size:38px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}'+
+'.sp-dl{display:inline-block;background:#16a34a;color:#fff;font-weight:800;font-size:16px;padding:15px 40px;border-radius:12px;box-shadow:0 14px 34px rgba(22,163,74,.35);margin:8px}'+
+'.sp-again{display:inline-block;background:#f4f5fa;color:#333;font-weight:700;font-size:14px;padding:15px 26px;border-radius:12px;border:none;cursor:pointer;margin-top:16px}'+
+'@media(max-width:900px){.sp-main{flex-direction:column}.sp-side{width:auto;border-left:none;border-top:1px solid #eceaf6}}'+
 '</style>'+
-'<div class="mg-wrap">'+
-'<div id="mgPick"><div class="mg-hero"><h1>Merge PDF files</h1><p>Combine PDFs in the order you want with the easiest PDF merger available.</p>'+
-'<div class="mg-zone" id="mgZone"><button class="mg-big" id="mgBtn" type="button">Select PDF files</button><p class="mg-drop-hint">or drop PDFs here</p></div></div></div>'+
-'<div id="mgWork" style="display:none" class="mg-work">'+
-'<div class="mg-main"><div class="mg-grid" id="mgList"></div></div>'+
-'<aside class="mg-side"><h2>Merge PDF</h2>'+
-'<div class="mg-tip">ℹ️ To change the order of your PDFs, drag and drop the files as you want. Files are processed on your device - nothing is uploaded.</div>'+
-'<div class="mg-side-foot"><button class="mg-sort" id="mgSort" type="button">↓A-Z Sort by name</button><button class="mg-go" id="mgGo" type="button">Merge PDF →</button></div></aside></div>'+
-'<div id="mgBusy" style="display:none" class="mg-busy"><h2 id="mgBusyTitle">Processing files...</h2><p class="fn" id="mgBusyName"></p><div class="mg-bar"><div id="mgBarFill"></div></div><div class="mg-pct" id="mgPct">0%</div><p class="mg-note">⚡ Processed locally on your device - no upload needed, fully private</p></div>'+
-'<div id="mgDone" style="display:none" class="mg-done"><div class="mg-done-ic">✓</div><h1 style="font-size:28px;font-weight:900;margin-bottom:8px">PDFs merged successfully!</h1><p style="color:#7a7a85;font-size:15px;margin-bottom:28px" id="mgDoneInfo"></p><a class="mg-dl" id="mgDl" href="#">⬇ Download merged PDF</a><button class="mg-again" id="mgAgain" type="button">Merge more files</button></div>'+
-'<input type="file" id="mgFile" accept="application/pdf,.pdf" multiple style="display:none">'+
+'<div class="sp-wrap">'+
+'<div id="spPick"><div class="sp-hero"><h1>Split PDF files</h1><p>Extract specific pages or split your PDF into multiple files. Free, private and unlimited.</p>'+
+'<div class="sp-zone" id="spZone"><button class="sp-big" id="spBtn" type="button">Select PDF file</button><p class="sp-drop-hint">or drop PDF here</p></div></div></div>'+
+'<div class="sp-work" id="spWork"><div class="sp-main"><div class="sp-pages"><div class="sp-grid" id="spGrid"></div></div>'+
+'<aside class="sp-side"><h2>Split</h2>'+
+'<div class="sp-tabs"><div class="sp-tab active" data-mode="range">Range</div><div class="sp-tab" data-mode="pages">Pages</div></div>'+
+'<div class="sp-ranges" id="spRanges"></div>'+
+'<button class="sp-add-range" id="spAddRange" type="button">+ Add Range</button>'+
+'<div class="sp-merge-opt"><input type="checkbox" id="spMerge"><label for="spMerge">Merge all ranges in one PDF file</label></div>'+
+'<button class="sp-go" id="spGo" type="button">Split PDF →</button></aside></div></div>'+
+'<div class="sp-busy" id="spBusy"><h2 id="spBusyTitle">Splitting PDF...</h2><p class="fn" id="spBusyName"></p><div class="sp-bar"><div id="spBarFill"></div></div><div class="sp-pct" id="spPct">0%</div></div>'+
+'<div class="sp-done" id="spDone"><div class="sp-done-ic">✓</div><h1 style="font-size:28px;font-weight:900;margin-bottom:8px">PDF split successfully!</h1><p style="color:#7a7a85;font-size:15px;margin-bottom:28px" id="spDoneInfo"></p><div id="spDownloads"></div><button class="sp-again" id="spAgain" type="button">Split another PDF</button></div>'+
+'<input type="file" id="spFile" accept="application/pdf,.pdf" style="display:none">'+
 '</div>';
-var files=[];var queue=[];var processing=false;var dragIdx=null;
-var pick=document.getElementById('mgPick'),work=document.getElementById('mgWork'),busy=document.getElementById('mgBusy'),done=document.getElementById('mgDone');
-var zone=document.getElementById('mgZone'),btn=document.getElementById('mgBtn'),inp=document.getElementById('mgFile'),list=document.getElementById('mgList'),go=document.getElementById('mgGo');
+var file=null;var totalPages=0;var doc=null;var ranges=[{from:1,to:1}];var mode='range';
+var pick=document.getElementById('spPick'),work=document.getElementById('spWork'),busy=document.getElementById('spBusy'),done=document.getElementById('spDone');
+var zone=document.getElementById('spZone'),btn=document.getElementById('spBtn'),inp=document.getElementById('spFile');
+var go=document.getElementById('spGo'),grid=document.getElementById('spGrid'),rangesEl=document.getElementById('spRanges');
 function fmtB(n){return n<1024?n+' B':(n<1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
-function addFiles(fl){
- var added=0;
- for(var i=0;i<fl.length;i++){var f=fl[i];if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){var it={f:f,size:f.size,pages:null,thumb:null,bad:false,done:false};files.push(it);queue.push(it);added++;}}
- if(!added){return;}
- pick.style.display='none';work.style.display='flex';
- render();processQueue();
-}
-function processQueue(){
- if(processing){return;}
- var it=queue.shift();
- if(!it){return;}
- processing=true;
+function addFile(f){
+ if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){alert('Please select a PDF file.');return;}
+ file=f;pick.style.display='none';work.style.display='block';
  ensurePdfjs().then(function(ok){
-  if(!ok){it.done=true;processing=false;render();processQueue();return;}
-  it.f.arrayBuffer().then(function(buf){
-   return window.pdfjsLib.getDocument({data:buf}).promise.then(function(doc){
-    it.pages=doc.numPages;
-    return doc.getPage(1).then(function(p){
-     var vp=p.getViewport({scale:1});
-     var vp2=p.getViewport({scale:Math.min(2,220/vp.width)});
-     var canvas=document.createElement('canvas');
-     canvas.width=Math.floor(vp2.width);canvas.height=Math.floor(vp2.height);
-     return p.render({canvasContext:canvas.getContext('2d'),viewport:vp2}).promise.then(function(){it.thumb=canvas.toDataURL('image/png');doc.destroy();});
+  if(!ok){alert('Error loading PDF library');return;}
+  f.arrayBuffer().then(function(buf){
+   return window.pdfjsLib.getDocument({data:buf}).promise.then(function(d){
+    doc=d;totalPages=d.numPages;
+    ranges=[{from:1,to:totalPages}];
+    renderPages();renderRanges();
+   });
+  }).catch(function(){alert('Error reading PDF');});
+ });
+}
+function renderPages(){
+ grid.innerHTML='';
+ for(var i=1;i<=totalPages;i++){
+  (function(pg){
+   var div=document.createElement('div');div.className='sp-page';div.setAttribute('data-page',pg);
+   div.innerHTML='<div class="thumb"><span style="color:#c3c6d4;font-size:24px">📄</span></div><div class="num">Page '+pg+'</div><div class="check">✓</div>';
+   div.onclick=function(){this.classList.toggle('selected');updateRangesFromSelection();};
+   grid.appendChild(div);
+   doc.getPage(pg).then(function(page){
+    var vp=page.getViewport({scale:1});
+    var scale=Math.min(1,140/vp.width);
+    var vp2=page.getViewport({scale:scale});
+    var canvas=document.createElement('canvas');
+    canvas.width=Math.floor(vp2.width);canvas.height=Math.floor(vp2.height);
+    page.render({canvasContext:canvas.getContext('2d'),viewport:vp2}).promise.then(function(){
+     var thumb=div.querySelector('.thumb');
+     thumb.innerHTML='<img src="'+canvas.toDataURL('image/png')+'" alt="Page '+pg+'">';
     });
    });
-  }).catch(function(){}).then(function(){it.done=true;processing=false;render();processQueue();});
+  })(i);
+ }
+}
+function renderRanges(){
+ rangesEl.innerHTML='';
+ ranges.forEach(function(r,idx){
+  var div=document.createElement('div');div.className='sp-range';
+  div.innerHTML='<div class="sp-range-head"><span class="sp-range-title">Range '+(idx+1)+'</span>'+(ranges.length>1?'<button class="sp-range-del" type="button">×</button>':'')+'</div>'+
+   '<div class="sp-range-inputs"><input type="number" min="1" max="'+totalPages+'" value="'+r.from+'" data-idx="'+idx+'" data-field="from"><span>to</span><input type="number" min="1" max="'+totalPages+'" value="'+r.to+'" data-idx="'+idx+'" data-field="to"></div>';
+  if(ranges.length>1){
+   div.querySelector('.sp-range-del').onclick=function(){ranges.splice(idx,1);renderRanges();};
+  }
+  div.querySelectorAll('input').forEach(function(inp){
+   inp.onchange=function(){
+    var i=parseInt(this.getAttribute('data-idx'));
+    var f=this.getAttribute('data-field');
+    var v=parseInt(this.value)||1;
+    v=Math.max(1,Math.min(totalPages,v));
+    ranges[i][f]=v;
+    if(ranges[i].from>ranges[i].to){ranges[i].to=ranges[i].from;}
+    renderRanges();
+   };
+  });
+  rangesEl.appendChild(div);
  });
 }
-function render(){
- list.innerHTML='';
- files.forEach(function(it,i){
-  var c=document.createElement('div');c.className='mg-card'+(it.bad?' bad':'');c.draggable=true;
-  var th=it.thumb?'<img src="'+it.thumb+'" alt="">':(it.bad?'<span class="mg-ph">⚠️</span>':(it.done?'<span class="mg-ph">📄</span>':'<span class="mg-load"></span>'));
-  c.innerHTML='<button class="mg-x" type="button" title="Remove">✕</button><div class="mg-thumb">'+th+'</div><div class="mg-nm">'+it.f.name+(it.pages?' <span style="color:#9a9aa5;font-weight:600">• '+it.pages+'p</span>':'')+'</div>';
-  c.querySelector('.mg-x').onclick=function(){files.splice(i,1);render();};
-  c.addEventListener('dragstart',function(){dragIdx=i;c.classList.add('drag');});
-  c.addEventListener('dragend',function(){c.classList.remove('drag');dragIdx=null;});
-  c.addEventListener('dragover',function(e){e.preventDefault();});
-  c.addEventListener('drop',function(e){e.preventDefault();if(dragIdx===null||dragIdx===i){return;}files.splice(i,0,files.splice(dragIdx,1)[0]);dragIdx=null;render();});
-  list.appendChild(c);
- });
- var add=document.createElement('div');add.className='mg-addcard';
- add.innerHTML='<button class="mg-addcircle" type="button">+</button><span>Add more files</span>';
- add.onclick=function(){inp.click();};
- list.appendChild(add);
- var good=files.filter(function(x){return !x.bad;});
- go.disabled=good.length<2;
+function updateRangesFromSelection(){
+ var selected=[];
+ document.querySelectorAll('.sp-page.selected').forEach(function(p){selected.push(parseInt(p.getAttribute('data-page')));});
+ if(selected.length>0){
+  selected.sort(function(a,b){return a-b;});
+  ranges=[];var start=selected[0],end=selected[0];
+  for(var i=1;i<selected.length;i++){
+   if(selected[i]===end+1){end=selected[i];}
+   else{ranges.push({from:start,to:end});start=end=selected[i];}
+  }
+  ranges.push({from:start,to:end});
+  renderRanges();
+ }
 }
-document.getElementById('mgSort').onclick=function(){files.sort(function(a,b){return a.f.name.toLowerCase()<b.f.name.toLowerCase()?-1:1;});render();};
+document.getElementById('spAddRange').onclick=function(){
+ ranges.push({from:1,to:Math.min(totalPages,ranges[ranges.length-1].to+1)});
+ renderRanges();
+};
+document.querySelectorAll('.sp-tab').forEach(function(tab){
+ tab.onclick=function(){
+  document.querySelectorAll('.sp-tab').forEach(function(t){t.classList.remove('active');});
+  this.classList.add('active');
+  mode=this.getAttribute('data-mode');
+  if(mode==='pages'){
+   document.querySelectorAll('.sp-page').forEach(function(p){p.classList.remove('selected');});
+   ranges=[{from:1,to:1}];
+   renderRanges();
+  }
+ };
+});
 btn.onclick=function(){inp.click();};
-inp.onchange=function(){addFiles(inp.files);inp.value='';};
+inp.onchange=function(){if(inp.files[0]){addFile(inp.files[0]);}inp.value='';};
 zone.ondragover=function(e){e.preventDefault();zone.classList.add('on');};
 zone.ondragleave=function(){zone.classList.remove('on');};
-zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');addFiles(e.dataTransfer.files);};
+zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){addFile(e.dataTransfer.files[0]);}};
 go.onclick=function(){
- var good=files.filter(function(x){return !x.bad;});
- if(good.length<2){return;}
+ if(!file||!doc){return;}
+ var mergeAll=document.getElementById('spMerge').checked;
+ var allPages=[];
+ ranges.forEach(function(r){
+  for(var i=r.from;i<=r.to;i++){if(allPages.indexOf(i)===-1){allPages.push(i);}}
+ });
+ allPages.sort(function(a,b){return a-b;});
+ if(allPages.length===0){alert('Please select at least one page.');return;}
  work.style.display='none';busy.style.display='block';
- var skipped=0;
- function pct(p){document.getElementById('mgPct').textContent=Math.round(p)+'%';document.getElementById('mgBarFill').style.width=p+'%';}
- function step(i,out){
-  pct(i/good.length*100);
-  if(i>=good.length){
-   out.save().then(function(bytes){
-    var blob=new Blob([bytes],{type:'application/pdf'});
-    var u=URL.createObjectURL(blob);
-    pct(100);
-    setTimeout(function(){
-     busy.style.display='none';done.style.display='block';
-     document.getElementById('mgDoneInfo').textContent=out.getPageCount()+' pages • '+fmtB(blob.size)+(skipped?' • '+skipped+' unreadable file(s) skipped':'');
-     var dl=document.getElementById('mgDl');dl.href=u;dl.download='tronopdf-merged.pdf';
-    },400);
-   }).catch(function(){busy.style.display='none';work.style.display='flex';});
-   return;
-  }
-  document.getElementById('mgBusyTitle').textContent='Merging file '+(i+1)+' of '+good.length;
-  document.getElementById('mgBusyName').textContent=good[i].f.name+' ('+fmtB(good[i].size)+')';
-  good[i].f.arrayBuffer().then(function(buf){
+ document.getElementById('spBusyName').textContent=file.name;
+ function pct(p){document.getElementById('spPct').textContent=Math.round(p)+'%';document.getElementById('spBarFill').style.width=p+'%';}
+ pct(0);
+ setTimeout(function(){
+  file.arrayBuffer().then(function(buf){
    return PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(src){
-    return out.copyPages(src,src.getPageIndices()).then(function(pg){pg.forEach(function(p){out.addPage(p);});});
+    if(mergeAll){
+     PDFLib.PDFDocument.create().then(function(out){
+      return out.copyPages(src,allPages.map(function(p){return p-1;})).then(function(copied){
+       copied.forEach(function(p){out.addPage(p);});
+       return out.save().then(function(bytes){
+        pct(100);
+        setTimeout(function(){showResults([{name:'extracted-pages.pdf',bytes:bytes}]);},400);
+       });
+      });
+     });
+    }else{
+     var chain=Promise.resolve();var results=[];
+     ranges.forEach(function(r,idx){
+      chain=chain.then(function(){
+       pct((idx/ranges.length)*90);
+       var pages=[];for(var i=r.from;i<=r.to;i++){pages.push(i-1);}
+       return PDFLib.PDFDocument.create().then(function(out){
+        return out.copyPages(src,pages).then(function(copied){
+         copied.forEach(function(p){out.addPage(p);});
+         return out.save().then(function(bytes){
+          results.push({name:'pages-'+r.from+'-'+r.to+'.pdf',bytes:bytes});
+         });
+        });
+       });
+      });
+     });
+     chain.then(function(){
+      pct(100);
+      setTimeout(function(){showResults(results);},400);
+     });
+    }
    });
-  }).catch(function(){skipped++;}).then(function(){step(i+1,out);});
- }
- PDFLib.PDFDocument.create().then(function(out){step(0,out);});
+  }).catch(function(){
+   busy.style.display='none';work.style.display='block';
+   alert('Error splitting PDF. Please try again.');
+  });
+ },100);
 };
-document.getElementById('mgAgain').onclick=function(){files=[];queue=[];done.style.display='none';busy.style.display='none';work.style.display='none';pick.style.display='block';};
+function showResults(files){
+ busy.style.display='none';done.style.display='block';
+ document.getElementById('spDoneInfo').textContent=files.length+' file(s) created • '+fmtB(files.reduce(function(a,f){return a+f.bytes.length;},0));
+ var dl=document.getElementById('spDownloads');dl.innerHTML='';
+ files.forEach(function(f){
+  var blob=new Blob([f.bytes],{type:'application/pdf'});
+  var u=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=u;a.download=f.name;a.className='sp-dl';a.textContent='⬇ '+f.name;
+  dl.appendChild(a);
+ });
+}
+document.getElementById('spAgain').onclick=function(){
+ file=null;totalPages=0;doc=null;ranges=[{from:1,to:1}];
+ done.style.display='none';work.style.display='none';pick.style.display='block';
+};
 })();
