@@ -1,4 +1,4 @@
-/* TronoPDF - Rotate PDF v1 | visual thumbnails, per-page + bulk rotation */
+/* TronoPDF - Rotate PDF v2 | fixed: fresh buffer on apply, exact rotation */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -42,6 +42,7 @@ root.innerHTML='<style>'+
 '.rt-angle{position:absolute;top:6px;right:6px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:10px;font-weight:800;padding:3px 7px;border-radius:999px}'+
 '.rt-side{width:380px;background:#fff;border-left:1px solid #eceaf6;padding:30px;display:flex;flex-direction:column}'+
 '.rt-side h2{font-size:22px;font-weight:900;text-align:center;margin-bottom:22px}'+
+'.rt-tip{background:#ede9fe;border-radius:10px;padding:14px 16px;font-size:13px;color:#5b21b6;line-height:1.55;margin-bottom:18px}'+
 '.rt-info{background:#f7f6fc;border:1px solid #eceaf6;border-radius:10px;padding:14px;margin-bottom:20px;font-size:13px;color:#4b4b5a}'+
 '.rt-info strong{color:#7c3aed}'+
 '.rt-lbl{font-size:13px;font-weight:800;color:#4b4b5a;margin-bottom:10px}'+
@@ -70,7 +71,8 @@ root.innerHTML='<style>'+
 '<div id="rtPick"><div class="rt-hero"><h1>Rotate PDF pages</h1><p>Rotate all or specific pages of your PDF. Free, private and unlimited.</p>'+
 '<div class="rt-zone" id="rtZone"><button class="rt-big" id="rtBtn" type="button">Select PDF file</button><p class="rt-drop-hint">or drop PDF here</p></div></div></div>'+
 '<div class="rt-work" id="rtWork"><div class="rt-main"><div class="rt-pages"><div class="rt-grid" id="rtGrid"></div></div>'+
-'<aside class="rt-side"><h2>Rotate</h2>'+
+'<aside class="rt-side"><h2>Rotate PDF</h2>'+
+'<div class="rt-tip">ℹ️ Click on any page thumbnail to rotate it. Use the buttons below to rotate ALL pages at once. Only the pages you rotate will change - everything else stays exactly the same.</div>'+
 '<div class="rt-info" id="rtInfo">Click on any page to rotate it individually, or use the buttons below.</div>'+
 '<div class="rt-sec"><div class="rt-lbl">Rotate all pages</div>'+
 '<div class="rt-bulk"><button class="rt-btn" id="rtAllL" type="button"><span class="ic">↺</span><span>Left 90°</span></button><button class="rt-btn" id="rtAll180" type="button"><span class="ic">🔄</span><span>180°</span></button><button class="rt-btn" id="rtAllR" type="button"><span class="ic">↻</span><span>Right 90°</span></button></div>'+
@@ -80,7 +82,7 @@ root.innerHTML='<style>'+
 '<div class="rt-done" id="rtDone"><div class="rt-done-ic">✓</div><h1 style="font-size:28px;font-weight:900;margin-bottom:8px">PDF rotated successfully!</h1><p style="color:#7a7a85;font-size:15px;margin-bottom:28px" id="rtDoneInfo"></p><a class="rt-dl" id="rtDl" href="#">⬇ Download rotated PDF</a><button class="rt-again" id="rtAgain" type="button">Rotate another PDF</button></div>'+
 '<input type="file" id="rtFile" accept="application/pdf,.pdf" style="display:none">'+
 '</div>';
-var file=null;var buf=null;var doc=null;var totalPages=0;
+var file=null;var doc=null;var totalPages=0;
 var rotations=[];
 var pick=document.getElementById('rtPick'),work=document.getElementById('rtWork'),busy=document.getElementById('rtBusy'),done=document.getElementById('rtDone');
 var zone=document.getElementById('rtZone'),btn=document.getElementById('rtBtn'),inp=document.getElementById('rtFile'),grid=document.getElementById('rtGrid');
@@ -92,7 +94,7 @@ function renderPages(){
   (function(pg){
    var ang=rotations[pg-1]||0;if(ang!==0){any=true;}
    var div=document.createElement('div');div.className='rt-page'+(ang!==0?' rotated':'');div.setAttribute('data-page',pg);
-   div.innerHTML='<div class="rt-thumb"><span style="color:#c3c6d4;font-size:24px">📄</span>'+(ang!==0?'<span class="rt-angle">'+ang+'°</span>':'')+'</div><div class="rt-num">Page '+pg+(ang!==0?' • '+ang+'°':'')+'</div>';
+   div.innerHTML='<div class="rt-thumb"><span style="color:#c3c6d4;font-size:24px">📄</span></div><div class="rt-num">Page '+pg+(ang!==0?' • '+ang+'°':'')+'</div>';
    div.onclick=function(){
     var cur=rotations[pg-1]||0;
     cur=(cur+90)%360;
@@ -123,17 +125,16 @@ function renderPages(){
  go.disabled=!any;
 }
 function updateInfo(){
- var any=false;var count=0;
- for(var i=0;i<rotations.length;i++){if((rotations[i]||0)!==0){any=true;count++;}}
- if(!any){infoEl.innerHTML='Click on any page to rotate it individually, or use the buttons below.';}
+ var count=0;
+ for(var i=0;i<rotations.length;i++){if((rotations[i]||0)!==0){count++;}}
+ if(count===0){infoEl.innerHTML='Click on any page to rotate it individually, or use the buttons below.';}
  else{infoEl.innerHTML='<strong>'+count+'</strong> page(s) rotated. Click Apply Rotation to save.';}
- go.disabled=!any;
+ go.disabled=count===0;
 }
 function rotateAll(delta){
  for(var i=0;i<totalPages;i++){
   var cur=rotations[i]||0;
-  cur=(cur+delta+360)%360;
-  rotations[i]=cur;
+  rotations[i]=(cur+delta+360)%360;
  }
  renderPages();updateInfo();
 }
@@ -148,7 +149,6 @@ function addFile(f){
   if(!ok){alert('Error loading PDF library');return;}
   window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
   f.arrayBuffer().then(function(b){
-   buf=b;
    return window.pdfjsLib.getDocument({data:b}).promise.then(function(d){
     doc=d;totalPages=d.numPages;
     rotations=new Array(totalPages).fill(0);
@@ -168,43 +168,43 @@ zone.ondragleave=function(){zone.classList.remove('on');};
 zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){addFile(e.dataTransfer.files[0]);}};
 function pct(p){document.getElementById('rtPct').textContent=Math.round(p)+'%';document.getElementById('rtBarFill').style.width=p+'%';}
 go.onclick=function(){
- if(!file||!buf){return;}
+ if(!file){return;}
  work.style.display='none';busy.style.display='block';
  document.getElementById('rtBusyName').textContent=file.name;
  pct(5);
- waitLib('PDFLib').then(function(ok){
-  if(!ok){busy.style.display='none';work.style.display='block';alert('Error loading PDF library.');return;}
-  PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(pdf){
-   var pages=pdf.getPages();
-   for(var i=0;i<pages.length;i++){
-    var ang=rotations[i]||0;
-    if(ang!==0){
-     var cur=pages[i].getRotation().angle;
-     pages[i].setRotation(PDFLib.degrees((cur+ang)%360));
+ Promise.all([waitLib('pdfjsLib'),waitLib('PDFLib')]).then(function(ok){
+  if(ok[0]===false||ok[1]===false){throw new Error('libs');}
+  window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
+  return file.arrayBuffer().then(function(buf){
+   return PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(pdf){
+    var pages=pdf.getPages();
+    for(var i=0;i<pages.length;i++){
+     var ang=rotations[i]||0;
+     if(ang!==0){
+      var cur=pages[i].getRotation().angle;
+      pages[i].setRotation(PDFLib.degrees((cur+ang)%360));
+     }
+     pct(10+(i/pages.length)*80);
     }
-    pct(10+(i/pages.length)*80);
-   }
-   pdf.save().then(function(bytes){
-    pct(100);
-    setTimeout(function(){
-     busy.style.display='none';done.style.display='block';
-     var rotated=0;for(var i=0;i<rotations.length;i++){if((rotations[i]||0)!==0){rotated++;}}
-     document.getElementById('rtDoneInfo').textContent=rotated+' page(s) rotated • '+fmtB(bytes.length);
-     var blob=new Blob([bytes],{type:'application/pdf'});
-     var dl=document.getElementById('rtDl');dl.href=URL.createObjectURL(blob);dl.download='rotated-'+file.name;
-    },300);
-   }).catch(function(){
-    busy.style.display='none';work.style.display='block';
-    alert('Error saving PDF. Please try again.');
+    return pdf.save().then(function(bytes){
+     pct(100);
+     setTimeout(function(){
+      busy.style.display='none';done.style.display='block';
+      var rotated=0;for(var i=0;i<rotations.length;i++){if((rotations[i]||0)!==0){rotated++;}}
+      document.getElementById('rtDoneInfo').textContent=rotated+' page(s) rotated • '+fmtB(bytes.length);
+      var blob=new Blob([bytes],{type:'application/pdf'});
+      var dl=document.getElementById('rtDl');dl.href=URL.createObjectURL(blob);dl.download='rotated-'+file.name;
+     },300);
+    });
    });
-  }).catch(function(){
-   busy.style.display='none';work.style.display='block';
-   alert('Error processing PDF. Please try again.');
   });
+ }).catch(function(){
+  busy.style.display='none';work.style.display='block';
+  alert('Error processing PDF. Please try again.');
  });
 };
 document.getElementById('rtAgain').onclick=function(){
- file=null;buf=null;doc=null;totalPages=0;rotations=[];
+ file=null;doc=null;totalPages=0;rotations=[];
  done.style.display='none';work.style.display='none';pick.style.display='block';
 };
 })();
