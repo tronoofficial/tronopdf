@@ -1,4 +1,4 @@
-/* TronoPDF - Sign PDF v1 | draw/type/upload signature, drag place, browser-based */
+/* TronoPDF - Sign PDF v2 | fixed fresh buffer + error catch */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -77,7 +77,7 @@ html+='<div class="sg-pagenav"><button id="sgPrev" type="button">←</button><sp
 html+='<aside class="sg-side"><h2>Create signature</h2><p class="sg-sub">Choose a method, then drag it onto the page</p>';
 html+='<div class="sg-tabs"><div class="sg-tab active" id="sgTabDraw">✍️ Draw</div><div class="sg-tab" id="sgTabType">⌨️ Type</div><div class="sg-tab" id="sgTabUp">🖼 Upload</div></div>';
 html+='<div id="sgDrawSec"><canvas class="sg-draw" id="sgDraw"></canvas><div class="sg-row"><button id="sgClear" type="button">Clear</button><span style="font-size:12px;color:#9a9aa5">Draw with mouse or finger</span></div></div>';
-html+='<div id="sgTypeSec" style="display:none"><input class="sg-inp" id="sgType" placeholder="Type your name" value=""/><div class="sg-row"><select class="sg-inp" id="sgFont"><option value="cursive">Cursive</option><option value="italic">Italic</option><option value="bold">Bold</option></select><input type="color" id="sgColor" value="#1e293b"/></div></div>';
+html+='<div id="sgTypeSec" style="display:none"><input class="sg-inp" id="sgType" placeholder="Type your name"/><div class="sg-row"><select class="sg-inp" id="sgFont"><option value="cursive">Cursive</option><option value="italic">Italic</option><option value="bold">Bold</option></select><input type="color" id="sgColor" value="#1e293b"/></div></div>';
 html+='<div id="sgUpSec" style="display:none"><button class="sg-big" id="sgUpBtn" style="font-size:14px;padding:12px 24px" type="button">+ Upload signature image</button></div>';
 html+='<div class="sg-lbl">Signature size</div><div class="sg-row"><input type="range" id="sgSize" min="60" max="320" value="160"/></div>';
 html+='<div class="sg-chk"><input type="checkbox" id="sgAll"/><label for="sgAll">Apply to all pages</label></div>';
@@ -88,11 +88,11 @@ html+='<input type="file" id="sgFile" accept="application/pdf,.pdf" style="displ
 html+='<input type="file" id="sgUpFile" accept="image/*" style="display:none"/>';
 html+='</div>';
 root.innerHTML=html;
-var file=null;var buf=null;var doc=null;var totalPages=0;var curPage=1;var pdfScale=1;
-var sigData=null; // dataURL of signature
+var file=null;var doc=null;var totalPages=0;var curPage=1;var pdfScale=1;
+var sigData=null;
 var pick=document.getElementById('sgPick'),work=document.getElementById('sgWork'),busy=document.getElementById('sgBusy'),done=document.getElementById('sgDone');
 var zone=document.getElementById('sgZone'),btn=document.getElementById('sgBtn'),inp=document.getElementById('sgFile');
-var pageBox=document.getElementById('sgPageBox'),canvas=document.getElementById('sgCanvas'),ctx=canvas.getContext('2d');
+var canvas=document.getElementById('sgCanvas'),ctx=canvas.getContext('2d');
 var sigEl=document.getElementById('sgSig'),sigImg=document.getElementById('sgSigImg');
 var pageLbl=document.getElementById('sgPageLbl');
 var elSize=document.getElementById('sgSize');
@@ -117,22 +117,20 @@ document.getElementById('sgUpFile').onchange=function(){
  rd.readAsDataURL(f);
  this.value='';
 };
-// draw pad
 var dOn=false;
 dctx.lineWidth=2.5;dctx.lineCap='round';dctx.lineJoin='round';dctx.strokeStyle='#1e293b';
 drawC.addEventListener('pointerdown',function(e){dOn=true;dctx.beginPath();var r=drawC.getBoundingClientRect();dctx.moveTo(e.clientX-r.left,e.clientY-r.top);drawC.setPointerCapture(e.pointerId);});
 drawC.addEventListener('pointermove',function(e){if(!dOn){return;}var r=drawC.getBoundingClientRect();dctx.lineTo(e.clientX-r.left,e.clientY-r.top);dctx.stroke();});
 drawC.addEventListener('pointerup',function(){dOn=false;useDraw();});
 document.getElementById('sgClear').onclick=function(){dctx.clearRect(0,0,drawC.width,drawC.height);sigData=null;sigEl.style.display='none';};
-function useDraw(){
- var blank=isCanvasBlank(drawC);
- sigData=blank?null:drawC.toDataURL('image/png');
- if(sigData){showSig();}
-}
 function isCanvasBlank(c){
  var d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
  for(var i=3;i<d.length;i+=4){if(d[i]!==0){return false;}}
  return true;
+}
+function useDraw(){
+ sigData=isCanvasBlank(drawC)?null:drawC.toDataURL('image/png');
+ if(sigData){showSig();}else{sigEl.style.display='none';}
 }
 function useType(){
  var txt=document.getElementById('sgType').value.trim();
@@ -142,8 +140,7 @@ function useType(){
  var c=document.createElement('canvas');c.width=600;c.height=160;
  var x=c.getContext('2d');
  x.fillStyle=col;
- var style=font==='cursive'?'italic 700 70px "Brush Script MT","Segoe Script",cursive':(font==='italic'?'italic 700 70px Georgia,serif':'900 70px Inter,sans-serif');
- x.font=style;
+ x.font=font==='cursive'?'italic 700 70px "Brush Script MT","Segoe Script",cursive':(font==='italic'?'italic 700 70px Georgia,serif':'900 70px Inter,sans-serif');
  x.textBaseline='middle';
  x.fillText(txt,20,80);
  sigData=c.toDataURL('image/png');
@@ -161,26 +158,23 @@ function showSig(){
  sigEl.style.height=Math.round(w*0.4)+'px';
  if(!sigEl.style.left){sigEl.style.left='40px';sigEl.style.top='40px';}
 }
-elSize.oninput=function(){showSig();};
-// drag signature on page
+elSize.oninput=showSig;
 var sOn=false,sx=0,sy=0;
 sigEl.addEventListener('pointerdown',function(e){sOn=true;sx=e.clientX;sy=e.clientY;sigEl.setPointerCapture(e.pointerId);e.preventDefault();});
 sigEl.addEventListener('pointermove',function(e){
  if(!sOn){return;}
- var nx=sigEl.offsetLeft+(e.clientX-sx);
- var ny=sigEl.offsetTop+(e.clientY-sy);
+ sigEl.style.left=(sigEl.offsetLeft+(e.clientX-sx))+'px';
+ sigEl.style.top=(sigEl.offsetTop+(e.clientY-sy))+'px';
  sx=e.clientX;sy=e.clientY;
- sigEl.style.left=nx+'px';sigEl.style.top=ny+'px';
 });
 sigEl.addEventListener('pointerup',function(){sOn=false;});
 function addFile(f){
  if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){alert('Please select a PDF file.');return;}
  file=f;pick.style.display='none';work.style.display='block';done.style.display='none';
- Promise.all([waitLib('pdfjsLib')]).then(function(ok){
-  if(!ok[0]){return;}
+ waitLib('pdfjsLib').then(function(ok){
+  if(!ok){return;}
   window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
   f.arrayBuffer().then(function(b){
-   buf=b;
    return window.pdfjsLib.getDocument({data:b}).promise.then(function(d){
     doc=d;totalPages=d.numPages;curPage=1;renderPage();
    });
@@ -207,51 +201,43 @@ zone.ondragleave=function(){zone.classList.remove('on');};
 zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){addFile(e.dataTransfer.files[0]);}};
 function pct(p){document.getElementById('sgPct').textContent=Math.round(p)+'%';document.getElementById('sgBarFill').style.width=p+'%';}
 document.getElementById('sgGo').onclick=function(){
- if(!file||!buf){return;}
+ if(!file){return;}
  if(!sigData){alert('Please create a signature first (draw, type or upload).');return;}
  work.style.display='none';busy.style.display='block';
  document.getElementById('sgBusyName').textContent=file.name;
  pct(5);
- Promise.all([waitLib('PDFLib')]).then(function(ok){
-  if(!ok[0]){busy.style.display='none';work.style.display='block';return;}
-  PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(pdf){
+ waitLib('PDFLib').then(function(ok){
+  if(!ok){throw new Error('libs');}
+  return file.arrayBuffer();
+ }).then(function(buf){
+  return PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(pdf){
    return pdf.embedPng(sigData).then(function(sigImgLib){
     var pages=pdf.getPages();
     var targets=document.getElementById('sgAll').checked?pages:[pages[curPage-1]];
-    // map preview coords -> pdf points using current page scale
     var leftCss=parseFloat(sigEl.style.left)||40;
     var topCss=parseFloat(sigEl.style.top)||40;
-    var wCss=sigEl.offsetWidth;
-    var hCss=sigEl.offsetHeight;
-    var vp1=pages[0].getSize();
-    var scaleUsed=pdfScale;
-    var wPdf=wCss/scaleUsed;
-    var hPdf=hCss/scaleUsed;
-    var xPdf=leftCss/scaleUsed;
-    var yPdfTop=topCss/scaleUsed;
-    var chain=Promise.resolve();
-    targets.forEach(function(pg,idx){
-     chain=chain.then(function(){
-      pct(10+(idx/Math.max(1,targets.length))*80);
-      var size=pg.getSize();
-      var yPdf=size.height-yPdfTop-hPdf;
-      pg.drawImage(sigImgLib,{x:xPdf,y:yPdf,width:wPdf,height:hPdf});
-      return null;
-     });
-    });
-    return chain.then(function(){return pdf.save();});
+    var wCss=sigEl.offsetWidth||160;
+    var hCss=sigEl.offsetHeight||64;
+    var wPdf=wCss/pdfScale,hPdf=hCss/pdfScale,xPdf=leftCss/pdfScale,yTop=topCss/pdfScale;
+    for(var i=0;i<targets.length;i++){
+     var pg=targets[i];
+     var size=pg.getSize();
+     pg.drawImage(sigImgLib,{x:xPdf,y:size.height-yTop-hPdf,width:wPdf,height:hPdf});
+     pct(10+((i+1)/targets.length)*70);
+    }
+    return pdf.save();
    });
-  }).then(function(bytes){
-   pct(100);
-   setTimeout(function(){
-    busy.style.display='none';done.style.display='block';
-    document.getElementById('sgDoneInfo').textContent=fmtB(bytes.length);
-    var blob=new Blob([bytes],{type:'application/pdf'});
-    var dl=document.getElementById('sgDl');
-    dl.href=URL.createObjectURL(blob);
-    dl.download='signed-'+(file.name||'document.pdf');
-   },200);
   });
+ }).then(function(bytes){
+  pct(100);
+  setTimeout(function(){
+   busy.style.display='none';done.style.display='block';
+   document.getElementById('sgDoneInfo').textContent=fmtB(bytes.length);
+   var blob=new Blob([bytes],{type:'application/pdf'});
+   var dl=document.getElementById('sgDl');
+   dl.href=URL.createObjectURL(blob);
+   dl.download='signed-'+(file.name||'document.pdf');
+  },200);
  }).catch(function(){
   busy.style.display='none';work.style.display='block';
   alert('Error signing PDF. Please try again.');
@@ -259,7 +245,7 @@ document.getElementById('sgGo').onclick=function(){
 };
 document.getElementById('sgAgain').onclick=function(){
  done.style.display='none';pick.style.display='block';work.style.display='none';
- file=null;buf=null;doc=null;totalPages=0;sigData=null;sigEl.style.display='none';
+ file=null;doc=null;totalPages=0;sigData=null;sigEl.style.display='none';
  dctx.clearRect(0,0,drawC.width,drawC.height);
 };
 })();
