@@ -165,11 +165,11 @@ function addFile(f){
      var canvas=document.createElement('canvas');
      canvas.width=Math.floor(vp2.width);canvas.height=Math.floor(vp2.height);
      page.render({canvasContext:canvas.getContext('2d'),viewport:vp2}).promise.then(function(){
-      bg.src=canvas.toDataURL('image/png');
+            bg.src=canvas.toDataURL('image/png');
       updatePreview();
+      d.destroy();
      });
     });
-    d.destroy();
    });
   }).catch(function(){alert('Error reading PDF');});
  });
