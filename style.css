@@ -126,3 +126,4 @@ footer{background:#14102a;color:#a29fc0;padding:50px 0 22px}
 @media(max-width:1100px){.mnav{display:none}}
 @media(max-width:1024px){.fgrid{grid-template-columns:1fr 1fr}}
 @media(max-width:768px){.way-grid{grid-template-columns:1fr}.fgrid{grid-template-columns:1fr}.hwrap{gap:10px}.hero-simple h1{font-size:32px}.lword{font-size:20px}.tgrid{grid-template-columns:repeat(auto-fill,minmax(220px,1fr))}}
+#toolRoot>div[style*="padding:40px"]{display:none}
