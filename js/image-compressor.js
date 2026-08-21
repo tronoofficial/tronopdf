@@ -1,4 +1,4 @@
-/* TronoPDF - Image Compressor v2 | no ZIP, full photo preview, exact KB */
+/* TronoPDF - Image Compressor v3 | English UI, exact KB target, no ZIP, full preview */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -47,9 +47,9 @@ root.innerHTML='<style>'+
 '@media(max-width:900px){.ic-main{flex-direction:column}.ic-side{width:auto;border-left:none;border-top:1px solid #eceaf6}}'+
 '</style>'+
 '<div class="ic-wrap">'+
-'<div id="icPick"><div class="ic-hero"><h1>Image Compressor</h1><p>Compress JPG & PNG to exact KB. Perfect for SSC, Bank, UPSC forms. Free & private.</p>'+
+'<div id="icPick"><div class="ic-hero"><h1>Image Compressor</h1><p>Compress JPG & PNG to an exact KB size. Perfect for SSC, Bank, UPSC and job application forms. Free & private.</p>'+
 '<div class="ic-zone" id="icZone"><button class="ic-big" id="icBtn" type="button">Select images</button><p class="ic-drop-hint">or drop images here</p></div></div></div>'+
-'<div class="ic-work" id="icWork"><div class="ic-main"><div class="ic-list"><div class="ic-note">💡 Har image ke neeche apna Download button hai — seedha phone/PC me save hogi, koi ZIP nahi!</div><div class="ic-grid" id="icGrid"></div></div>'+
+'<div class="ic-work" id="icWork"><div class="ic-main"><div class="ic-list"><div class="ic-note">💡 Each image has its own Download button - files save directly to your phone or PC. No ZIP needed!</div><div class="ic-grid" id="icGrid"></div></div>'+
 '<aside class="ic-side"><h2>Compression settings</h2>'+
 '<div class="ic-tabs"><div class="ic-tab active" id="icTabTarget">🎯 Target KB</div><div class="ic-tab" id="icTabQuality">⚙️ Quality</div></div>'+
 '<div id="icTargetSec"><div class="ic-lbl">Exact size target</div><div class="ic-row"><input type="number" id="icTarget" min="5" value="50"/><select id="icUnit"><option value="KB">KB</option><option value="MB">MB</option></select></div>'+
@@ -75,7 +75,7 @@ function addFiles(fl){
  for(var i=0;i<fl.length;i++){
   var f=fl[i];
   if(f.type.indexOf('image/')===0||/\.(jpg|jpeg|png|webp)$/i.test(f.name)){
-   files.push({f:f,url:URL.createObjectURL(f),result:null});added++;
+   files.push({f:f,url:URL.createObjectURL(f),result:null,error:false});added++;
   }
  }
  if(!added){alert('Please select image files.');return;}
@@ -87,7 +87,9 @@ function render(){
  files.forEach(function(it){
   var c=document.createElement('div');c.className='ic-card';
   var body='<img src="'+(it.result?it.result.dataURL:it.url)+'" alt=""><div class="ic-nm">'+it.f.name+'</div>';
-  if(it.result){
+  if(it.error){
+   body+='<div class="ic-sizes" style="color:#dc2626;font-weight:700">Could not compress this image</div>';
+  }else if(it.result){
    var saved=Math.max(0,(1-it.result.bytes/it.f.size)*100);
    body+='<div class="ic-badge">↓ '+saved.toFixed(0)+'%</div><div class="ic-sizes"><span class="ic-old">'+fmtB(it.f.size)+'</span><span>→</span><span class="ic-new">'+fmtB(it.result.bytes)+'</span></div><a class="ic-dl" href="'+it.result.dataURL+'" download="compressed-'+it.f.name.replace(/\.[^.]+$/,'')+'.jpg">⬇ Download</a>';
   }else{
@@ -115,20 +117,22 @@ function compressOne(it,opts,cb){
    cb({dataURL:d,bytes:bytesOf(d)});
    return;
   }
+  var smallest=null;
   var attempt=0;
   (function tryAt(w,h){
    var c2=document.createElement('canvas');c2.width=w;c2.height=h;
    var x=c2.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,w,h);x.drawImage(base,0,0,w,h);
-   var lo=0.05,hi=0.95,best=null;
-   for(var i=0;i<7;i++){
+   var lo=0.02,hi=0.95,best=null;
+   for(var i=0;i<9;i++){
     var q=(lo+hi)/2;
     var d=c2.toDataURL('image/jpeg',q);
     var b=bytesOf(d);
+    if(!smallest||b<smallest.bytes){smallest={dataURL:d,bytes:b};}
     if(b<=opts.target){best={dataURL:d,bytes:b};lo=q;}else{hi=q;}
    }
    if(best){cb(best);}
-   else if(w>150&&attempt<6){attempt++;tryAt(Math.round(w*0.85),Math.round(h*0.85));}
-   else{var d2=c2.toDataURL('image/jpeg',0.05);cb({dataURL:d2,bytes:bytesOf(d2)});}
+   else if(w>120&&attempt<8){attempt++;tryAt(Math.round(w*0.8),Math.round(h*0.8));}
+   else{cb(smallest);}
   })(base.width,base.height);
  };
  img.onerror=function(){cb(null);};
@@ -149,11 +153,11 @@ go.onclick=function(){
   opts={mode:'quality',q:elQ.value/100};
  }
  var doneCount=0;
- files.forEach(function(it){it.result=null;});
+ files.forEach(function(it){it.result=null;it.error=false;});
  render();
  files.forEach(function(it){
   compressOne(it,opts,function(res){
-   it.result=res;
+   if(res){it.result=res;}else{it.error=true;}
    doneCount++;
    render();
   });
