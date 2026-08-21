@@ -1,4 +1,4 @@
-/* TronoPDF - Passport Photo Maker v1 | presets, crop+zoom, bg replace, exact KB, print sheet */
+/* TronoPDF - Passport Photo Maker v2 | fixed syntax, presets, crop, bg replace, KB, print sheet */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -63,13 +63,13 @@ root.innerHTML='<style>'+
 '<div class="pp-lbl">Background</div><div class="pp-bg"><button class="active" data-bg="orig" type="button">Original</button><button data-bg="white" type="button">White</button><button data-bg="blue" type="button">Blue</button><button data-bg="red" type="button">Red</button></div>'+
 '<div class="pp-lbl">Background match: <span id="ppTolVal">45</span></div><div class="pp-row"><input type="range" id="ppTol" min="5" max="100" value="45"/></div>'+
 '<div class="pp-chk"><input type="checkbox" id="ppKb"><label for="ppKb">Set exact file size (for forms)</label></div>'+
-'<div id="ppKbBox" style="display:none"><div class="pp-row"><input type="number" id="ppKbVal" value="50" min="5"/><select id="ppKbUnit"><option value="KB">KB</option></select></div><div class="pp-quick"><button type="button" data-kb="20">20 KB</button><button type="button" data-kb="50">50 KB</button><button type="button" data-kb="100">100 KB</button></div></div>'+
+'<div id="ppKbBox" style="display:none"><div class="pp-row"><input type="number" id="ppKbVal" value="50" min="5"/><span style="font-size:12px;color:#9a9aa5">KB</span></div><div class="pp-quick"><button type="button" data-kb="20">20 KB</button><button type="button" data-kb="50">50 KB</button><button type="button" data-kb="100">100 KB</button></div></div>'+
 '<div class="pp-chk"><input type="checkbox" id="ppSheet" checked><label for="ppSheet">Also make 4×6 inch print sheet</label></div>'+
 '<button class="pp-go" id="ppGo" type="button">Make My Photo →</button></aside></div></div>'+
 '<div class="pp-done" id="ppDone"><div class="pp-done-ic">✓</div><h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Your photo is ready!</h1><p style="color:#7a7a85;font-size:15px;margin-bottom:24px" id="ppDoneInfo"></p><div class="pp-dls"><a class="pp-dl" id="ppDlPhoto" href="#">⬇ Download Photo</a><a class="pp-dl sheet" id="ppDlSheet" href="#">⬇ Download Print Sheet</a></div><button class="pp-again" id="ppAgain" type="button">Make another photo</button></div>'+
 '<input type="file" id="ppFile" accept="image/*,.jpg,.jpeg,.png,.webp" style="display:none">'+
 '</div>';
-var img=null;var frameW=300,frameH=386;var base=1,scale=1,zoom=1,ox=0,oy=0;var bgMode='orig';
+var img=null;var frameW=300,frameH=386;var base=1,scale=1,ox=0,oy=0;var bgMode='orig';
 var pick=document.getElementById('ppPick'),work=document.getElementById('ppWork'),done=document.getElementById('ppDone');
 var zone=document.getElementById('ppZone'),btn=document.getElementById('ppBtn'),inp=document.getElementById('ppFile');
 var frame=document.getElementById('ppFrame'),canvas=document.getElementById('ppCanvas'),ctx=canvas.getContext('2d');
@@ -99,7 +99,7 @@ function setupFrame(){
 }
 function resetCrop(){
  base=Math.max(frameW/img.width,frameH/img.height);
- zoom=1;elZoom.value=100;
+ elZoom.value=100;
  scale=base;
  ox=(frameW-img.width*scale)/2;
  oy=(frameH-img.height*scale)/2;
@@ -128,12 +128,10 @@ function drawPreview(withBg){
 elPreset.onchange=function(){elCustomRow.style.display=this.value==='custom'?'flex':'none';setupFrame();};
 elMmW.oninput=setupFrame;elMmH.oninput=setupFrame;
 elZoom.oninput=function(){
- var nz=this.value/100;
- var ns=base*nz;
+ var ns=base*(this.value/100);
  var cx=(frameW/2-ox)/scale,cy=(frameH/2-oy)/scale;
  scale=ns;
  ox=frameW/2-cx*scale;oy=frameH/2-cy*scale;
- zoom=nz;
  drawPreview(false);
 };
 elTol.oninput=function(){document.getElementById('ppTolVal').textContent=this.value;drawPreview(true);};
@@ -184,7 +182,6 @@ document.getElementById('ppGo').onclick=function(){
  x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
  x.drawImage(img,ox*f,oy*f,img.width*scale*f,img.height*scale*f);
  if(bgMode!=='orig'){replaceBg(c,t[0],t[1]);}
- var finalCanvas=c;
  function finish(dataURL,bytes){
   work.style.display='none';done.style.display='block';
   document.getElementById('ppDoneInfo').textContent=t[0]+'×'+t[1]+' px • '+fmtB(bytes);
@@ -192,20 +189,16 @@ document.getElementById('ppGo').onclick=function(){
   var dlS=document.getElementById('ppDlSheet');
   if(elSheet.checked){
    var sheet=document.createElement('canvas');sheet.width=1800;sheet.height=1200;
-   var sx=sheet.getContext('2d');sx.fillStyle='#fff';sx.fillRect(0,0,1800,1200);
+   var sx2=sheet.getContext('2d');sx2.fillStyle='#fff';sx2.fillRect(0,0,1800,1200);
    var pw=t[0],ph=t[1],gap=24;
    var cols=Math.floor((1800-gap)/(pw+gap)),rows=Math.floor((1200-gap)/(ph+gap));
    var gw=cols*(pw+gap)+gap,gh=rows*(ph+gap)+gap;
    var startX=(1800-gw)/2+gap,startY=(1200-gh)/2+gap;
-   for(var r2=0;r2<rows;r2++){
-    for(var c2=0;c2<cols;c2++){
-     sx.drawImage(finalCanvas,startX+c2*(pw+gap),startY+r2*(ph+gap),pw,ph);
-    }
-   }
+   for(var r2=0;r2<rows;r2++){for(var c2=0;c2<cols;c2++){sx2.drawImage(c,startX+c2*(pw+gap),startY+r2*(ph+gap),pw,ph);}}
    var sd=sheet.toDataURL('image/jpeg',0.92);
    dlS.href=sd;dlS.download='print-sheet-4x6.jpg';dlS.style.display='inline-block';
   }else{dlS.style.display='none';}
- },300;
+ }
  if(elKb.checked){
   var target=(parseFloat(elKbVal.value)||50)*1024;
   var lo=0.05,hi=0.95,best=null;
@@ -215,8 +208,7 @@ document.getElementById('ppGo').onclick=function(){
    var b=atob(d.split(',')[1]).length;
    if(b<=target){best={d:d,b:b};lo=q;}else{hi=q;}
   }
-  if(best){finish(best.d,best.b);}
-  else{var d2=c.toDataURL('image/jpeg',0.05);finish(d2,atob(d2.split(',')[1]).length);}
+  if(best){finish(best.d,best.b);}else{var d2=c.toDataURL('image/jpeg',0.05);finish(d2,atob(d2.split(',')[1]).length);}
  }else{
   var d3=c.toDataURL('image/jpeg',0.92);
   finish(d3,atob(d3.split(',')[1]).length);
