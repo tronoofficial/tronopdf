@@ -1,4 +1,4 @@
-/* TronoPDF - Crop PDF v3 | fresh buffer fix + per-page safe clamp */
+/* TronoPDF - Crop PDF v4 | FIXED: use global PDFLib, sequential flow */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -216,35 +216,36 @@ document.getElementById('cpGo').onclick=function(){
  work.style.display='none';busy.style.display='block';
  document.getElementById('cpBusyName').textContent=file.name;
  pct(10);
- Promise.all([waitLib('PDFLib'),file.arrayBuffer()]).then(function(res){
-  var PDFLib=res[0],buf=res[1];
-  return PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(pdf){
-   var pages=pdf.getPages();
-   var targets=elAll.checked?pages:[pages[curPage-1]];
-   for(var i=0;i<targets.length;i++){
-    var pg=targets[i];
-    var pw=pg.getWidth(),ph=pg.getHeight();
-    var w=Math.min(crop.w,pw),h=Math.min(crop.h,ph);
-    var x=Math.max(0,Math.min(crop.x,pw-w));
-    var yTop=Math.max(0,Math.min(crop.y,ph-h));
-    pg.setCropBox(x,ph-yTop-h,w,h);
-    pct(10+((i+1)/targets.length)*80);
-   }
-   return pdf.save().then(function(bytes){
-    pct(100);
-    setTimeout(function(){
-     busy.style.display='none';done.style.display='block';
-     document.getElementById('cpDoneInfo').textContent=targets.length+' page(s) cropped • '+fmtB(bytes.length);
-     var blob=new Blob([bytes],{type:'application/pdf'});
-     var dl=document.getElementById('cpDl');
-     dl.href=URL.createObjectURL(blob);
-     dl.download='cropped-'+(file.name||'document.pdf');
-    },200);
-   });
-  });
- }).catch(function(){
+ waitLib('PDFLib').then(function(){
+  return file.arrayBuffer();
+ }).then(function(buf){
+  return window.PDFLib.PDFDocument.load(buf,{ignoreEncryption:true});
+ }).then(function(pdf){
+  var pages=pdf.getPages();
+  var targets=elAll.checked?pages:[pages[curPage-1]];
+  for(var i=0;i<targets.length;i++){
+   var pg=targets[i];
+   var pw=pg.getWidth(),ph=pg.getHeight();
+   var w=Math.min(crop.w,pw),h=Math.min(crop.h,ph);
+   var x=Math.max(0,Math.min(crop.x,pw-w));
+   var yTop=Math.max(0,Math.min(crop.y,ph-h));
+   pg.setCropBox(x,ph-yTop-h,w,h);
+   pct(10+((i+1)/targets.length)*80);
+  }
+  return pdf.save();
+ }).then(function(bytes){
+  pct(100);
+  setTimeout(function(){
+   busy.style.display='none';done.style.display='block';
+   document.getElementById('cpDoneInfo').textContent=targets.length+' page(s) cropped • '+fmtB(bytes.length);
+   var blob=new Blob([bytes],{type:'application/pdf'});
+   var dl=document.getElementById('cpDl');
+   dl.href=URL.createObjectURL(blob);
+   dl.download='cropped-'+(file.name||'document.pdf');
+  },200);
+ }).catch(function(err){
   busy.style.display='none';work.style.display='block';
-  alert('Error cropping PDF. Please try again.');
+  alert('Error cropping PDF: '+((err&&err.message)||err));
  });
 };
 document.getElementById('cpAgain').onclick=function(){
