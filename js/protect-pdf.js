@@ -1,11 +1,25 @@
-/* TronoPDF - Protect PDF v2 | MuPDF WASM real AES encryption + verify before download */
+/* TronoPDF - Protect PDF v3 | verified mupdf CDN + multi fallback + verify before download */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
-var MUPDF_URL='https://cdn.jsdelivr.net/npm/mupdf@0.4.0/+esm';
+var MUPDF_URLS=[
+ 'https://cdn.jsdelivr.net/npm/mupdf@0.3.0/dist/mupdf.js',
+ 'https://unpkg.com/mupdf@0.3.0/dist/mupdf.js',
+ 'https://cdn.jsdelivr.net/npm/mupdf@1.28.0/dist/mupdf.js'
+];
 var mupdfP=null;
 function loadMupdf(){
- if(!mupdfP){mupdfP=import(MUPDF_URL);}
+ if(!mupdfP){
+  mupdfP=new Promise(function(resolve,reject){
+   var i=0;
+   function tryNext(){
+    if(i>=MUPDF_URLS.length){reject(new Error('Could not load security engine from any CDN'));return;}
+    var url=MUPDF_URLS[i++];
+    import(url).then(function(m){resolve(m);}).catch(function(){tryNext();});
+   }
+   tryNext();
+  });
+ }
  return mupdfP;
 }
 function fmtB(n){return n<1024?n+' B':(n<1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
@@ -121,20 +135,16 @@ togPw(elPwd2,document.getElementById('ptTog2'));
 function addFile(f){
  if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){alert('Please select a PDF file.');return;}
  file=f;hideErr();pick.style.display='none';work.style.display='block';done.style.display='none';
- nameEl.textContent=f.name;metaEl.textContent=fmtB(f.size)+' • Loading security engine...';
+ nameEl.textContent=f.name;metaEl.textContent=fmtB(f.size)+' • Loading security engine (first time ~10MB)...';
  f.arrayBuffer().then(function(b){
   fileBuf=b;
   return loadMupdf().then(function(m){
-   try{
-    var doc=m.Document.openDocument(new Uint8Array(b),'application/pdf');
-    var pages=doc.countPages();
-    var locked=false;
-    try{locked=doc.needsPassword();}catch(e){}
-    metaEl.textContent=pages+' pages • '+fmtB(f.size)+(locked?' • ⚠️ Already password protected':'');
-    if(locked){showErr('This PDF already has a password. Use Unlock PDF first to remove it.');}
-   }catch(e){
-    metaEl.textContent=fmtB(f.size);
-   }
+   var doc=m.Document.openDocument(new Uint8Array(b),'application/pdf');
+   var pages=doc.countPages();
+   var locked=false;
+   try{locked=doc.needsPassword();}catch(e){}
+   metaEl.textContent=pages+' pages • '+fmtB(f.size)+(locked?' • ⚠️ Already password protected':'');
+   if(locked){showErr('This PDF already has a password. Use Unlock PDF first to remove it.');}
   });
  }).catch(function(){
   metaEl.textContent=fmtB(f.size)+' • ⚠️ Could not load security engine. Check internet & retry.';
@@ -146,6 +156,15 @@ zone.ondragover=function(e){e.preventDefault();zone.classList.add('on');};
 zone.ondragleave=function(){zone.classList.remove('on');};
 zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){addFile(e.dataTransfer.files[0]);}};
 function pct(p){document.getElementById('ptPct').textContent=Math.round(p)+'%';document.getElementById('ptBarFill').style.width=p+'%';}
+function buildOptionSets(pw,ow,permStr){
+ var sets=[];
+ var encs=['aes-256','aes-128'];
+ for(var e=0;e<encs.length;e++){
+  sets.push('encrypt='+encs[e]+',user-password='+pw+',owner-password='+ow+',permissions='+permStr);
+  sets.push('encrypt='+encs[e]+',user-password='+pw+',owner-password='+ow);
+ }
+ return sets;
+}
 document.getElementById('ptGo').onclick=function(){
  if(!file||!fileBuf){return;}
  hideErr();
@@ -172,19 +191,17 @@ document.getElementById('ptGo').onclick=function(){
   if(document.getElementById('ptFill').checked){perms.push('form');}
   var permStr=perms.length?perms.join(','):'none';
   var ow=owner||pw;
-  var encTypes=['aes-256','aes-128','rc4-128'];
+  var sets=buildOptionSets(pw,ow,permStr);
   var outBytes=null;
-  for(var i=0;i<encTypes.length;i++){
+  for(var i=0;i<sets.length;i++){
    try{
-    var opts='encrypt='+encTypes[i]+',user-password='+pw+',owner-password='+ow+',permissions='+permStr;
-    var buf=doc.saveToBuffer(opts);
-    outBytes=buf.asUint8Array();
-    if(outBytes&&outBytes.length>0){break;}
+    var buf=doc.saveToBuffer(sets[i]);
+    var bytes=buf.asUint8Array();
+    if(bytes&&bytes.length>0){outBytes=bytes;break;}
    }catch(e){outBytes=null;}
   }
   if(!outBytes){throw new Error('Encryption failed');}
   pct(70);
-  // VERIFY: reopen and confirm password is required
   var chk=m.Document.openDocument(outBytes,'application/pdf');
   var locked=false;
   try{locked=chk.needsPassword();}catch(e){}
@@ -200,7 +217,7 @@ document.getElementById('ptGo').onclick=function(){
   },200);
  }).catch(function(err){
   busy.style.display='none';work.style.display='block';
-  showErr('Could not protect PDF: '+((err&&err.message)||err)+'. Please check your internet connection (security engine loads once) and try again.');
+  showErr('Could not protect PDF: '+((err&&err.message)||err)+'. Please check your internet connection and try again.');
  });
 };
 document.getElementById('ptAgain').onclick=function(){
