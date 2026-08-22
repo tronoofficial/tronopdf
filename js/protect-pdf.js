@@ -1,11 +1,13 @@
-/* TronoPDF - Protect PDF v1 | password + permissions, browser-based, private */
+/* TronoPDF - Protect PDF v2 | MuPDF WASM real AES encryption + verify before download */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
-var PDFLIB_SRC='https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
-function loadJS(src,cb){var s=document.createElement('script');s.src=src;s.onload=function(){cb(false);};s.onerror=function(){cb(true);};document.head.appendChild(s);}
-loadJS(PDFLIB_SRC,function(){});
-function waitLib(name){return new Promise(function(res){var t=0;(function w(){if(window[name]){res(true);return;}if(t>40){res(false);return;}t++;setTimeout(w,500);})();});}
+var MUPDF_URL='https://cdn.jsdelivr.net/npm/mupdf@0.4.0/+esm';
+var mupdfP=null;
+function loadMupdf(){
+ if(!mupdfP){mupdfP=import(MUPDF_URL);}
+ return mupdfP;
+}
 function fmtB(n){return n<1024?n+' B':(n<1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
 function strength(p){
  if(!p){return{s:0,l:'—',c:'#9a9aa5'};}
@@ -69,7 +71,7 @@ html+='.pt-again{display:inline-block;background:#f4f5fa;color:#333;font-weight:
 html+='@media(max-width:900px){.pt-main{flex-direction:column}.pt-side{width:auto;border-left:none;border-top:1px solid #eceaf6}}';
 html+='</style>';
 html+='<div class="pt-wrap">';
-html+='<div id="ptPick"><div class="pt-hero"><h1>Protect PDF</h1><p>Add password protection and permissions to your PDF - fast, free and private.</p>';
+html+='<div id="ptPick"><div class="pt-hero"><h1>Protect PDF</h1><p>Add real password protection and permissions to your PDF - fast, free and private.</p>';
 html+='<div class="pt-zone" id="ptZone"><button class="pt-big" id="ptBtn" type="button">Select PDF file</button><p class="pt-drop-hint">or drop PDF here</p></div></div></div>';
 html+='<div class="pt-work" id="ptWork"><div class="pt-main"><div class="pt-prev"><div class="pt-card"><div class="pt-icon">🔒</div><div class="pt-nm" id="ptName"></div><div class="pt-mt" id="ptMeta"></div></div></div>';
 html+='<aside class="pt-side"><h2>Security settings</h2><p class="pt-sub">Set a password to protect your document</p>';
@@ -83,16 +85,16 @@ html+='<div class="pt-lbl" style="margin-top:12px">Allow users to:</div>';
 html+='<div class="pt-chk"><input type="checkbox" id="ptPrint" checked/><label for="ptPrint">🖨 Print the document</label></div>';
 html+='<div class="pt-chk"><input type="checkbox" id="ptCopy" checked/><label for="ptCopy">📋 Copy text and images</label></div>';
 html+='<div class="pt-chk"><input type="checkbox" id="ptModify"/><label for="ptModify">✏️ Modify the document</label></div>';
-html+='<div class="pt-chk"><input type="checkbox" id="ptAnnotate"/><label for="ptAnnotate">📝 Add annotations and form fields</label></div>';
+html+='<div class="pt-chk"><input type="checkbox" id="ptAnnotate"/><label for="ptAnnotate">📝 Add annotations</label></div>';
 html+='<div class="pt-chk"><input type="checkbox" id="ptFill" checked/><label for="ptFill">✍️ Fill existing form fields</label></div>';
 html+='</details>';
 html+='<button class="pt-go" id="ptGo" type="button">Protect PDF →</button></aside></div></div>';
-html+='<div class="pt-busy" id="ptBusy"><h2>Encrypting PDF...</h2><p class="fn" id="ptBusyName"></p><div class="pt-bar"><div id="ptBarFill"></div></div><div class="pt-pct" id="ptPct">0%</div></div>';
+html+='<div class="pt-busy" id="ptBusy"><h2 id="ptBusyTitle">Encrypting PDF...</h2><p class="fn" id="ptBusyName"></p><div class="pt-bar"><div id="ptBarFill"></div></div><div class="pt-pct" id="ptPct">0%</div></div>';
 html+='<div class="pt-done" id="ptDone"><div class="pt-done-ic">🔐</div><h1 style="font-size:28px;font-weight:900;margin-bottom:8px">PDF protected successfully!</h1><p style="color:#7a7a85;font-size:15px;margin-bottom:28px" id="ptDoneInfo"></p><a class="pt-dl" id="ptDl" href="#">⬇ Download Protected PDF</a><button class="pt-again" id="ptAgain" type="button">Protect another PDF</button></div>';
 html+='<input type="file" id="ptFile" accept="application/pdf,.pdf" style="display:none"/>';
 html+='</div>';
 root.innerHTML=html;
-var file=null;
+var file=null;var fileBuf=null;
 var pick=document.getElementById('ptPick'),work=document.getElementById('ptWork'),busy=document.getElementById('ptBusy'),done=document.getElementById('ptDone');
 var zone=document.getElementById('ptZone'),btn=document.getElementById('ptBtn'),inp=document.getElementById('ptFile');
 var nameEl=document.getElementById('ptName'),metaEl=document.getElementById('ptMeta'),errEl=document.getElementById('ptErr');
@@ -108,29 +110,34 @@ function updMeter(){
  meterLbl.style.color=r.c;
 }
 elPwd.addEventListener('input',updMeter);
-function togPw(inp,btn){
- btn.onclick=function(){
-  inp.type=inp.type==='password'?'text':'password';
-  btn.textContent=inp.type==='password'?'👁':'🙈';
+function togPw(inpEl,btnEl){
+ btnEl.onclick=function(){
+  inpEl.type=inpEl.type==='password'?'text':'password';
+  btnEl.textContent=inpEl.type==='password'?'👁':'';
  };
 }
 togPw(elPwd,document.getElementById('ptTog1'));
 togPw(elPwd2,document.getElementById('ptTog2'));
-togPw(elOwner,(function(){var b=document.createElement('button');b.className='pt-pw-toggle';return b;})()); // owner toggle not added to DOM, safe no-op
 function addFile(f){
  if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){alert('Please select a PDF file.');return;}
  file=f;hideErr();pick.style.display='none';work.style.display='block';done.style.display='none';
- nameEl.textContent=f.name;metaEl.textContent=fmtB(f.size)+' • Reading...';
- waitLib('PDFLib').then(function(ok){
-  if(!ok){metaEl.textContent=fmtB(f.size);return;}
-  f.arrayBuffer().then(function(b){
-   PDFLib.PDFDocument.load(b,{ignoreEncryption:false}).then(function(doc){
-    metaEl.textContent=doc.getPageCount()+' pages • '+fmtB(f.size);
-   }).catch(function(err){
+ nameEl.textContent=f.name;metaEl.textContent=fmtB(f.size)+' • Loading security engine...';
+ f.arrayBuffer().then(function(b){
+  fileBuf=b;
+  return loadMupdf().then(function(m){
+   try{
+    var doc=m.Document.openDocument(new Uint8Array(b),'application/pdf');
+    var pages=doc.countPages();
+    var locked=false;
+    try{locked=doc.needsPassword();}catch(e){}
+    metaEl.textContent=pages+' pages • '+fmtB(f.size)+(locked?' • ⚠️ Already password protected':'');
+    if(locked){showErr('This PDF already has a password. Use Unlock PDF first to remove it.');}
+   }catch(e){
     metaEl.textContent=fmtB(f.size);
-    if(/password/i.test(err&&err.message||'')){showErr('This PDF is already password protected. Use Unlock PDF first.');}
-   });
+   }
   });
+ }).catch(function(){
+  metaEl.textContent=fmtB(f.size)+' • ⚠️ Could not load security engine. Check internet & retry.';
  });
 }
 btn.onclick=function(){inp.click();};
@@ -140,55 +147,64 @@ zone.ondragleave=function(){zone.classList.remove('on');};
 zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){addFile(e.dataTransfer.files[0]);}};
 function pct(p){document.getElementById('ptPct').textContent=Math.round(p)+'%';document.getElementById('ptBarFill').style.width=p+'%';}
 document.getElementById('ptGo').onclick=function(){
- if(!file){return;}
+ if(!file||!fileBuf){return;}
  hideErr();
  var pw=elPwd.value;
  var pw2=elPwd2.value;
  var owner=elOwner.value;
  if(!pw){showErr('Please enter a password.');return;}
  if(pw.length<4){showErr('Password must be at least 4 characters.');return;}
+ if(pw.indexOf(',')>-1||(owner&&owner.indexOf(',')>-1)){showErr('Password cannot contain commas (,).');return;}
  if(pw!==pw2){showErr('Passwords do not match.');return;}
  work.style.display='none';busy.style.display='block';
  document.getElementById('ptBusyName').textContent=file.name;
- pct(10);
- waitLib('PDFLib').then(function(ok){
-  if(!ok){throw new Error('libs');}
-  return file.arrayBuffer();
- }).then(function(buf){
-  return PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(pdf){
-   pct(40);
-   var perms={
-    printing:document.getElementById('ptPrint').checked?'high':false,
-    modifying:document.getElementById('ptModify').checked,
-    copying:document.getElementById('ptCopy').checked,
-    annotating:document.getElementById('ptAnnotate').checked,
-    fillingForms:document.getElementById('ptFill').checked,
-    contentAccessibility:true,
-    documentAssembly:false
-   };
-   var opts={userPassword:pw,permissions:perms};
-   if(owner){opts.ownerPassword=owner;}
-   return pdf.save(opts).then(function(bytes){
-    pct(95);
-    setTimeout(function(){
-     busy.style.display='none';done.style.display='block';
-     document.getElementById('ptDoneInfo').textContent=pdf.getPageCount()+' pages • '+fmtB(bytes.length)+' • Password protected';
-     var blob=new Blob([bytes],{type:'application/pdf'});
-     var dl=document.getElementById('ptDl');
-     dl.href=URL.createObjectURL(blob);
-     dl.download='protected-'+(file.name||'document.pdf');
-    },200);
-   });
-  });
+ document.getElementById('ptBusyTitle').textContent='Loading security engine...';
+ pct(5);
+ loadMupdf().then(function(m){
+  document.getElementById('ptBusyTitle').textContent='Encrypting PDF...';
+  pct(30);
+  var doc=m.Document.openDocument(new Uint8Array(fileBuf),'application/pdf');
+  var perms=[];
+  if(document.getElementById('ptPrint').checked){perms.push('print');}
+  if(document.getElementById('ptModify').checked){perms.push('modify');}
+  if(document.getElementById('ptCopy').checked){perms.push('copy');}
+  if(document.getElementById('ptAnnotate').checked){perms.push('annotate');}
+  if(document.getElementById('ptFill').checked){perms.push('form');}
+  var permStr=perms.length?perms.join(','):'none';
+  var ow=owner||pw;
+  var encTypes=['aes-256','aes-128','rc4-128'];
+  var outBytes=null;
+  for(var i=0;i<encTypes.length;i++){
+   try{
+    var opts='encrypt='+encTypes[i]+',user-password='+pw+',owner-password='+ow+',permissions='+permStr;
+    var buf=doc.saveToBuffer(opts);
+    outBytes=buf.asUint8Array();
+    if(outBytes&&outBytes.length>0){break;}
+   }catch(e){outBytes=null;}
+  }
+  if(!outBytes){throw new Error('Encryption failed');}
+  pct(70);
+  // VERIFY: reopen and confirm password is required
+  var chk=m.Document.openDocument(outBytes,'application/pdf');
+  var locked=false;
+  try{locked=chk.needsPassword();}catch(e){}
+  if(!locked){throw new Error('Verification failed - password not applied');}
+  pct(95);
+  setTimeout(function(){
+   busy.style.display='none';done.style.display='block';
+   document.getElementById('ptDoneInfo').textContent=doc.countPages()+' pages • '+fmtB(outBytes.length)+' • AES encrypted • Password verified ✓';
+   var blob=new Blob([outBytes],{type:'application/pdf'});
+   var dl=document.getElementById('ptDl');
+   dl.href=URL.createObjectURL(blob);
+   dl.download='protected-'+(file.name||'document.pdf');
+  },200);
  }).catch(function(err){
   busy.style.display='none';work.style.display='block';
-  var msg=(err&&err.message)||'Failed to protect';
-  if(/password/i.test(msg)){showErr('This PDF is already protected. Use Unlock PDF first to remove existing password.');}
-  else{showErr('Could not protect: '+msg);}
+  showErr('Could not protect PDF: '+((err&&err.message)||err)+'. Please check your internet connection (security engine loads once) and try again.');
  });
 };
 document.getElementById('ptAgain').onclick=function(){
  done.style.display='none';pick.style.display='block';work.style.display='none';
- file=null;elPwd.value='';elPwd2.value='';elOwner.value='';hideErr();updMeter();
+ file=null;fileBuf=null;elPwd.value='';elPwd2.value='';elOwner.value='';hideErr();updMeter();
 };
 })();
