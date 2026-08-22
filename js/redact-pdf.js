@@ -1,4 +1,4 @@
-/* TronoPDF - Redact PDF v1 | draw rectangles, permanent text removal (image replace) */
+/* TronoPDF - Redact PDF v2 | robust: redacted pages -> image, others copied */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -9,7 +9,7 @@ function loadJS(src,cb){var s=document.createElement('script');s.src=src;s.onloa
 loadJS(PDFLIB_SRC,function(){});
 loadJS(PDFJS_SRC,function(e){if(!e&&window.pdfjsLib){window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;}});
 function waitLib(name){return new Promise(function(res){var t=0;(function w(){if(window[name]){res(true);return;}if(t>40){res(false);return;}t++;setTimeout(w,500);})();});}
-function fmtB(n){return n<1024?n+' B':(n/1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
+function fmtB(n){return n<1024?n+' B':(n<1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
 var html='';
 html+='<style>';
 html+='.rd-wrap{max-width:1400px;margin:0 auto}';
@@ -38,8 +38,7 @@ html+='.rd-sub{text-align:center;font-size:13px;color:#9a9aa5;margin-bottom:16px
 html+='.rd-help{background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;font-weight:600;margin-bottom:12px;line-height:1.5}';
 html+='.rd-btnrow{display:flex;gap:8px;margin-bottom:10px}';
 html+='.rd-btnrow button{flex:1;border:1px solid #eceaf6;background:#fff;border-radius:10px;padding:11px;font-size:13px;font-weight:800;cursor:pointer}';
-html+='.rd-btnrow button:hover{border-color:#7c3aed;color:#7c3aed}';
-html+='.rd-btnrow .danger:hover{border-color:#dc2626;color:#dc2626}';
+html+='.rd-btnrow button:hover{border-color:#dc2626;color:#dc2626}';
 html+='.rd-list{flex:1;overflow-y:auto;border-top:1px solid #eceaf6;padding-top:10px;min-height:60px}';
 html+='.rd-list h4{font-size:12px;font-weight:800;color:#9a9aa5;margin-bottom:8px}';
 html+='.rd-li{display:flex;align-items:center;gap:8px;border:1px solid #eceaf6;border-radius:8px;padding:8px;margin-bottom:6px;font-size:12px;font-weight:700;color:#4b4b5a;cursor:pointer}';
@@ -70,7 +69,7 @@ html+='<div class="rd-work" id="rdWork"><div class="rd-main"><div class="rd-prev
 html+='<div class="rd-pagenav"><button id="rdPrev" type="button">←</button><span id="rdPageLbl" style="font-weight:800"></span><button id="rdNext" type="button">→</button></div></div>';
 html+='<aside class="rd-side"><h2>Redact settings</h2><p class="rd-sub">Drag on the page to black out content</p>';
 html+='<div class="rd-help">💡 Draw rectangles over any text, number or image you want to hide. The content will be permanently removed.</div>';
-html+='<div class="rd-btnrow"><button class="danger" id="rdClearPage" type="button">Clear this page</button><button class="danger" id="rdClearAll" type="button">Clear all pages</button></div>';
+html+='<div class="rd-btnrow"><button id="rdClearPage" type="button">Clear this page</button><button id="rdClearAll" type="button">Clear all pages</button></div>';
 html+='<div class="rd-list"><h4>Redactions on this page (<span id="rdCount">0</span>)</h4><div id="rdList"></div></div>';
 html+='<div class="rd-chk"><input type="checkbox" id="rdAll" checked/><label for="rdAll">Apply redaction to all pages</label></div>';
 html+='<button class="rd-go" id="rdGo" type="button">Apply Redaction →</button></aside></div></div>';
@@ -79,17 +78,17 @@ html+='<div class="rd-done" id="rdDone"><div class="rd-done-ic">✓</div><h1 sty
 html+='<input type="file" id="rdFile" accept="application/pdf,.pdf" style="display:none"/>';
 html+='</div>';
 root.innerHTML=html;
-var file=null,fileBuf=null,doc=null,totalPages=0,curPage=1;
+var file=null,doc=null,totalPages=0,curPage=1;
 var pageW=595,pageH=842,scale=1;
-// perPageRects[pageNum] = [{x,y,w,h}, ...] in PDF points (y from top)
 var perPageRects={};
 var pick=document.getElementById('rdPick'),work=document.getElementById('rdWork'),busy=document.getElementById('rdBusy'),done=document.getElementById('rdDone');
 var zone=document.getElementById('rdZone'),btn=document.getElementById('rdBtn'),inp=document.getElementById('rdFile');
 var wrap=document.getElementById('rdWrap'),canvas=document.getElementById('rdCanvas'),ctx=canvas.getContext('2d');
 var itemsBox=document.getElementById('rdItems'),listBox=document.getElementById('rdList'),countEl=document.getElementById('rdCount');
 var pageLbl=document.getElementById('rdPageLbl');
+var elAll=document.getElementById('rdAll');
 var selIdx=-1;
-var rects=function(){if(!perPageRects[curPage]){perPageRects[curPage]=[];}return perPageRects[curPage];};
+function rects(){if(!perPageRects[curPage]){perPageRects[curPage]=[];}return perPageRects[curPage];}
 function totalRects(){var t=0;Object.keys(perPageRects).forEach(function(p){t+=perPageRects[p].length;});return t;}
 function syncUI(){
  var list=rects();
@@ -170,7 +169,6 @@ function addFile(f){
   if(!ok){return;}
   window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
   f.arrayBuffer().then(function(b){
-   fileBuf=b;
    return window.pdfjsLib.getDocument({data:b}).promise.then(function(d){
     doc=d;totalPages=d.numPages;curPage=1;renderPage();
    });
@@ -199,21 +197,18 @@ zone.ondragover=function(e){e.preventDefault();zone.classList.add('on');};
 zone.ondragleave=function(){zone.classList.remove('on');};
 zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){addFile(e.dataTransfer.files[0]);}};
 function pct(p){document.getElementById('rdPct').textContent=Math.round(p)+'%';document.getElementById('rdBarFill').style.width=p+'%';}
-// Render a page with rectangles as a PNG data URL at full resolution
-function renderPageImage(pageNum,rectsOnPage){
- return doc.getPage(pageNum).then(function(page){
-  var vp=page.getViewport({scale:2});
+function renderPageData(num,rectsOnPage){
+ return doc.getPage(num).then(function(page){
+  var s=2;
+  var vp=page.getViewport({scale:s});
   var cv=document.createElement('canvas');cv.width=Math.floor(vp.width);cv.height=Math.floor(vp.height);
   var cx=cv.getContext('2d');
   return page.render({canvasContext:cx,viewport:vp}).promise.then(function(){
-   var s=vp.width/pageW;
    cx.fillStyle='#000';
    rectsOnPage.forEach(function(r){
     cx.fillRect(Math.floor(r.x*s),Math.floor(r.y*s),Math.ceil(r.w*s),Math.ceil(r.h*s));
    });
-   return new Promise(function(res){
-    cv.toBlob(function(blob){res(blob);},'image/png',1);
-   });
+   return cv.toDataURL('image/png');
   });
  });
 }
@@ -224,36 +219,39 @@ document.getElementById('rdGo').onclick=function(){
  work.style.display='none';busy.style.display='block';
  document.getElementById('rdBusyName').textContent=file.name;
  pct(5);
- var applyAll=document.getElementById('rdAll').checked;
+ var applyAll=elAll.checked;
  waitLib('PDFLib').then(function(){
   return file.arrayBuffer();
  }).then(function(buf){
   return window.PDFLib.PDFDocument.load(buf,{ignoreEncryption:true});
- }).then(function(pdf){
-  var pages=pdf.getPages();
-  var targetNums=applyAll?pages.map(function(_,i){return i+1;}):[curPage];
-  var chain=Promise.resolve();
-  targetNums.forEach(function(num,idx){
-   var pgIdx=num-1;
-   var page=pages[pgIdx];
-   var r=perPageRects[num]||[];
-   chain=chain.then(function(){
-    pct(5+((idx+1)/targetNums.length)*85);
-    if(r.length===0){return null;}
-    return renderPageImage(num,r).then(function(blob){
-     return blob.arrayBuffer();
-    }).then(function(imgBuf){
-     return pdf.embedPng(imgBuf);
-    }).then(function(img){
-     var pw=page.getWidth(),ph=page.getHeight();
-     // remove existing content streams (so original text is truly gone)
-     page.node.set(page.node.context.obj('Contents'),page.node.context.obj([]));
-     page.drawImage(img,{x:0,y:0,width:pw,height:ph});
-     return null;
-    });
-   });
+ }).then(function(srcPdf){
+  return window.PDFLib.PDFDocument.create().then(function(newPdf){
+   var n=srcPdf.getPageCount();
+   var chain=Promise.resolve();
+   for(var i=1;i<=n;i++){
+    (function(num){
+     chain=chain.then(function(){
+      pct(5+((num-1)/n)*85);
+      var rectsOnPage=perPageRects[num]||[];
+      var doRedact=rectsOnPage.length>0&&(applyAll||num===curPage);
+      if(doRedact){
+       return renderPageData(num,rectsOnPage).then(function(dataUrl){
+        return newPdf.embedPng(dataUrl).then(function(img){
+         var sp=srcPdf.getPage(num-1);
+         var pw=sp.getWidth(),ph=sp.getHeight();
+         var pg=newPdf.addPage([pw,ph]);
+         pg.drawImage(img,{x:0,y:0,width:pw,height:ph});
+        });
+       });
+      }else{
+       return newPdf.copyPages(srcPdf,[num-1]).then(function(cp){newPdf.addPage(cp[0]);});
+      }
+     });
+    })(i);
+   }
+   return chain.then(function(){return newPdf.save();});
   });
-  return chain.then(function(){return pdf.save();});
+ });
  }).then(function(bytes){
   pct(100);
   setTimeout(function(){
@@ -271,6 +269,6 @@ document.getElementById('rdGo').onclick=function(){
 };
 document.getElementById('rdAgain').onclick=function(){
  done.style.display='none';pick.style.display='block';work.style.display='none';
- file=null;fileBuf=null;doc=null;totalPages=0;perPageRects={};
+ file=null;doc=null;totalPages=0;perPageRects={};
 };
 })();
