@@ -1,4 +1,4 @@
-/* TronoPDF - Crop PDF v4 | FIXED: use global PDFLib, sequential flow */
+/* TronoPDF - Crop PDF v5 | FIXED: download scope bug (targetCount) */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -88,7 +88,7 @@ html+='<div class="cp-done" id="cpDone"><div class="cp-done-ic">✓</div><h1 sty
 html+='<input type="file" id="cpFile" accept="application/pdf,.pdf" style="display:none"/>';
 html+='</div>';
 root.innerHTML=html;
-var file=null,doc=null,totalPages=0,curPage=1;
+var file=null,doc=null,totalPages=0,curPage=1,targetCount=0;
 var pageW=595,pageH=842,scale=1;
 var crop={x:0,y:0,w:595,h:842};
 var pick=document.getElementById('cpPick'),work=document.getElementById('cpWork'),busy=document.getElementById('cpBusy'),done=document.getElementById('cpDone');
@@ -223,6 +223,7 @@ document.getElementById('cpGo').onclick=function(){
  }).then(function(pdf){
   var pages=pdf.getPages();
   var targets=elAll.checked?pages:[pages[curPage-1]];
+  targetCount=targets.length;
   for(var i=0;i<targets.length;i++){
    var pg=targets[i];
    var pw=pg.getWidth(),ph=pg.getHeight();
@@ -237,7 +238,7 @@ document.getElementById('cpGo').onclick=function(){
   pct(100);
   setTimeout(function(){
    busy.style.display='none';done.style.display='block';
-   document.getElementById('cpDoneInfo').textContent=targets.length+' page(s) cropped • '+fmtB(bytes.length);
+   document.getElementById('cpDoneInfo').textContent=targetCount+' page(s) cropped • '+fmtB(bytes.length);
    var blob=new Blob([bytes],{type:'application/pdf'});
    var dl=document.getElementById('cpDl');
    dl.href=URL.createObjectURL(blob);
@@ -250,6 +251,6 @@ document.getElementById('cpGo').onclick=function(){
 };
 document.getElementById('cpAgain').onclick=function(){
  done.style.display='none';pick.style.display='block';work.style.display='none';
- file=null;doc=null;totalPages=0;
+ file=null;doc=null;totalPages=0;targetCount=0;
 };
 })();
