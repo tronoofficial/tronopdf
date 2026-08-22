@@ -24,7 +24,7 @@
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "Draw redaction rectangles, Permanent text removal, Multi-page redaction, Rectangle list with undo, Apply to selected or all pages, No file upload required, 100% private"
+  "featureList": "Draw redaction rectangles, Permanent text removal via image replace, Multi-page redaction, Rectangle list with undo, Apply to selected or all pages, No file upload required, 100% private"
 }
 </script>
 <script type="application/ld+json">
@@ -33,8 +33,8 @@
   "@type": "FAQPage",
   "mainEntity": [
     {"@type": "Question", "name": "How to redact a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF, drag rectangles over any text, name, number or image you want to hide, then click Apply Redaction. The tool permanently removes the content."}},
-    {"@type": "Question", "name": "Is the redacted text really removed?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Unlike simple black overlays, this tool replaces redacted pages with images so the original text cannot be copied, searched or recovered."}},
-    {"@type": "Question", "name": "Can I redact multiple pages?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Navigate between pages and add redaction rectangles on any page. Apply redaction to all pages at once."}},
+    {"@type": "Question", "name": "Is the redacted text really removed?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Redacted pages are converted to images, so the original text cannot be copied, searched or recovered."}},
+    {"@type": "Question", "name": "Can I redact multiple pages?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Navigate between pages and add rectangles on any page. Apply redaction to all pages at once."}},
     {"@type": "Question", "name": "Is it safe to redact sensitive documents online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Everything happens in your browser - your document never leaves your device."}}
   ]
 }
@@ -51,6 +51,6 @@
 </main>
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/redact-pdf.js?v=1"></script>
+<script src="/js/redact-pdf.js?v=2"></script>
 </body>
 </html>
