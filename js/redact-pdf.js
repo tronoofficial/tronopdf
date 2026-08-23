@@ -1,4 +1,4 @@
-/* TronoPDF - Redact PDF v2 | robust: redacted pages -> image, others copied */
+/* TronoPDF - Redact PDF v3 | syntax-fixed, robust image-replace redaction */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -49,7 +49,6 @@ html+='.rd-chk{display:flex;gap:8px;align-items:center;margin:10px 0}';
 html+='.rd-chk input{width:16px;height:16px;accent-color:#7c3aed}';
 html+='.rd-chk label{font-size:13px;font-weight:600;cursor:pointer}';
 html+='.rd-go{background:linear-gradient(135deg,#1e293b,#334155);color:#fff;font-size:17px;font-weight:800;padding:16px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 14px 34px rgba(30,41,59,.35);margin-top:12px}';
-html+='.rd-go:disabled{opacity:.5;cursor:not-allowed}';
 html+='.rd-busy{display:none;padding:60px 20px;text-align:center}';
 html+='.rd-busy h2{font-size:28px;font-weight:900;margin-bottom:8px}';
 html+='.rd-busy .fn{color:#7a7a85;font-size:15px;margin-bottom:26px}';
@@ -236,22 +235,27 @@ document.getElementById('rdGo').onclick=function(){
       var doRedact=rectsOnPage.length>0&&(applyAll||num===curPage);
       if(doRedact){
        return renderPageData(num,rectsOnPage).then(function(dataUrl){
-        return newPdf.embedPng(dataUrl).then(function(img){
-         var sp=srcPdf.getPage(num-1);
-         var pw=sp.getWidth(),ph=sp.getHeight();
-         var pg=newPdf.addPage([pw,ph]);
-         pg.drawImage(img,{x:0,y:0,width:pw,height:ph});
-        });
+        return newPdf.embedPng(dataUrl);
+       }).then(function(img){
+        var sp=srcPdf.getPage(num-1);
+        var pw=sp.getWidth(),ph=sp.getHeight();
+        var pg=newPdf.addPage([pw,ph]);
+        pg.drawImage(img,{x:0,y:0,width:pw,height:ph});
+        return null;
        });
       }else{
-       return newPdf.copyPages(srcPdf,[num-1]).then(function(cp){newPdf.addPage(cp[0]);});
+       return newPdf.copyPages(srcPdf,[num-1]).then(function(cp){
+        newPdf.addPage(cp[0]);
+        return null;
+       });
       }
      });
     })(i);
    }
-   return chain.then(function(){return newPdf.save();});
+   return chain.then(function(){
+    return newPdf.save();
+   });
   });
- });
  }).then(function(bytes){
   pct(100);
   setTimeout(function(){
