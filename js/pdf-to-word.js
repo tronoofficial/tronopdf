@@ -1,4 +1,4 @@
-/* TronoPDF - PDF to Word v2 | live preview + garbled OCR fix + content modes */
+/* TronoPDF - PDF to Word v3 | auto language detection (all scripts) + preview + OCR fix */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -12,7 +12,19 @@ function loadTesseract(){
  if(!tessLoading){tessLoading=new Promise(function(res){loadJS(TESS_SRC,function(err){res(!err&&!!window.Tesseract);});});}
  return tessLoading;
 }
-function tessLang(c){if(c==='zho')return 'chi_sim';if(c==='zh2')return 'chi_tra';return c;}
+var BLOCKS={hin:[0x0900,0x097F],ben:[0x0980,0x09FF],pan:[0x0A00,0x0A7F],guj:[0x0A80,0x0AFF],ori:[0x0B00,0x0B7F],tam:[0x0B80,0x0BFF],tel:[0x0C00,0x0C7F],kan:[0x0C80,0x0CFF],mal:[0x0D00,0x0D7F],sin:[0x0D80,0x0DFF],tha:[0x0E00,0x0E7F],lao:[0x0E80,0x0EFF],mya:[0x1000,0x109F],khm:[0x1780,0x17FF],ara:[0x0600,0x06FF],heb:[0x0590,0x05FF],ell:[0x0370,0x03FF],rus:[0x0400,0x04FF],kor:[0xAC00,0xD7AF],jpn:[0x3040,0x30FF],zho:[0x4E00,0x9FFF]};
+function detectLang(s){
+ var counts={};
+ for(var i=0;i<s.length;i++){
+  var c=s.charCodeAt(i);
+  for(var k in BLOCKS){if(c>=BLOCKS[k][0]&&c<=BLOCKS[k][1]){counts[k]=(counts[k]||0)+1;}}
+ }
+ var best=null,bestN=0;
+ for(var k2 in counts){if(counts[k2]>bestN){bestN=counts[k2];best=k2;}}
+ if(!best)return 'eng';
+ if(best==='zho')return 'chi_sim+eng';
+ return best+'+eng';
+}
 function isGarbled(s){
  var clean=s.replace(/[\s0-9.,;:!?'"()\-–—/\\|+=%#*&@<>[\]{}]/g,'');
  if(clean.length<20)return false;
@@ -21,6 +33,7 @@ function isGarbled(s){
   if(c>=0xE000&&c<=0xF8FF)bad++;else if(c===0xFFFD)bad++;else if(c>=0x2500&&c<=0x259F)bad++;else if(c>=0x25A0&&c<=0x25FF)bad++;}
  return (bad/clean.length)>0.04;
 }
+var LANGS=[['eng','English'],['hin','Hindi'],['urd','Urdu'],['ara','Arabic'],['ben','Bengali'],['tam','Tamil'],['tel','Telugu'],['kan','Kannada'],['mal','Malayalam'],['mar','Marathi'],['guj','Gujarati'],['pan','Punjabi'],['nep','Nepali'],['sin','Sinhala'],['tha','Thai'],['vie','Vietnamese'],['ind','Indonesian'],['zho','Chinese'],['jpn','Japanese'],['kor','Korean'],['rus','Russian'],['spa','Spanish'],['fra','French'],['deu','German'],['ita','Italian'],['por','Portuguese'],['tur','Turkish'],['fas','Persian'],['heb','Hebrew'],['ell','Greek'],['pol','Polish'],['ukr','Ukrainian'],['nld','Dutch'],['swe','Swedish']];
 var html='';
 html+='<style>';
 html+='.pw-wrap{max-width:1400px;margin:0 auto}';
@@ -41,6 +54,7 @@ html+='.pw-lbl{font-size:12px;font-weight:800;color:#4b4b5a;margin:12px 0 6px}';
 html+='.pw-inp{width:100%;padding:11px 14px;border:1px solid #ddd;border-radius:10px;font-size:14px;background:#fff}';
 html+='.pw-row{display:flex;gap:8px;align-items:center;margin-top:8px}';
 html+='.pw-row input[type=number]{flex:1;min-width:0;padding:10px;border:1px solid #ddd;border-radius:10px;font-size:14px}';
+html+='.pw-detected{background:#eafbef;border:1px solid #bbe7c6;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:800;color:#166534;margin-top:8px;display:none}';
 html+='.pw-go{width:100%;background:linear-gradient(135deg,#2b7cd3,#4a9be0);color:#fff;font-size:17px;font-weight:800;padding:16px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 14px 34px rgba(43,124,211,.35);margin-top:16px}';
 html+='.pw-go:active{transform:scale(.98)}';
 html+='.pw-dlrow{display:flex;gap:8px;margin-top:10px}';
@@ -64,12 +78,13 @@ html+='.pw-toast.err{background:#dc2626}';
 html+='@media(max-width:900px){.pw-grid{grid-template-columns:1fr}}';
 html+='</style>';
 html+='<div class="pw-wrap">';
-html+='<div id="pwPick"><div class="pw-hero"><h1>PDF to Word</h1><p>Convert PDF to an editable Word document - with live preview, fast, free and private.</p>';
+html+='<div id="pwPick"><div class="pw-hero"><h1>PDF to Word</h1><p>Any language, auto-detected. Convert PDF to editable Word - free & private.</p>';
 html+='<div class="pw-zone" id="pwZone"><button class="pw-big" id="pwBtn" type="button">Select PDF file</button><p class="pw-drop-hint">or drop a PDF here</p></div></div></div>';
 html+='<div class="pw-work" id="pwWork"><div class="pw-grid">';
 html+='<div class="pw-side"><h2>Convert settings</h2><p class="pw-sub">Runs fully in your browser</p>';
+html+='<div class="pw-lbl">Language</div><select class="pw-inp" id="pwLang"><option value="auto" selected> Auto-detect (recommended)</option></select>';
+html+='<div class="pw-detected" id="pwDetected"></div>';
 html+='<div class="pw-lbl">Content mode</div><select class="pw-inp" id="pwMode"><option value="both">Text + Page Image (best)</option><option value="text">Text only (editable)</option><option value="image">Page Image only (perfect look)</option></select>';
-html+='<div class="pw-lbl">Language (fixes broken text)</div><select class="pw-inp" id="pwLang"><option value="eng">English</option><option value="hin">Hindi (हिन्दी)</option><option value="eng+hin">English + Hindi</option></select>';
 html+='<div class="pw-lbl">Page range</div><div class="pw-row"><input type="number" id="pwFrom" min="1" value="1"/><span style="color:#9a9aa5">to</span><input type="number" id="pwTo" min="1" value="1"/></div>';
 html+='<button class="pw-go" id="pwGo" type="button">Convert to Word →</button>';
 html+='<div class="pw-dlrow"><a class="pw-dl" id="pwDl" href="#" style="display:none">⬇ Download .doc</a></div></div>';
@@ -80,10 +95,12 @@ html+='<div class="pw-toast" id="pwToast"></div>';
 html+='<input type="file" id="pwFile" accept="application/pdf,.pdf" style="display:none"/>';
 html+='</div>';
 root.innerHTML=html;
+var langSel=document.getElementById('pwLang');
+LANGS.forEach(function(L){var o=document.createElement('option');o.value=L[0];o.textContent=L[1];langSel.appendChild(o);});
 var file=null,doc=null,totalPages=0,converted=[];
 var pick=document.getElementById('pwPick'),work=document.getElementById('pwWork'),busy=document.getElementById('pwBusy');
 var zone=document.getElementById('pwZone'),btn=document.getElementById('pwBtn'),inp=document.getElementById('pwFile');
-var pagesBox=document.getElementById('pwPages'),dlEl=document.getElementById('pwDl');
+var pagesBox=document.getElementById('pwPages'),dlEl=document.getElementById('pwDl'),detEl=document.getElementById('pwDetected');
 var toastEl=document.getElementById('pwToast');
 function toast(m,e){toastEl.textContent=m;toastEl.classList.toggle('err',!!e);toastEl.classList.add('show');clearTimeout(toastEl.__h);toastEl.__h=setTimeout(function(){toastEl.classList.remove('show');},2200);}
 function pct(p){document.getElementById('pwPct').textContent=Math.round(p)+'%';document.getElementById('pwBarFill').style.width=p+'%';}
@@ -99,7 +116,7 @@ function loadFile(f){
   doc=d;totalPages=d.numPages;
   document.getElementById('pwTo').value=totalPages;
   toast('✓ PDF loaded ('+totalPages+' pages)');
- }).catch(function(e){pick.style.display='block';work.style.display='none';toast('Could not read PDF',true);});
+ }).catch(function(){pick.style.display='block';work.style.display='none';toast('Could not read PDF',true);});
 }
 inp.onchange=function(){if(inp.files[0]){loadFile(inp.files[0]);}inp.value='';};
 zone.ondragover=function(e){e.preventDefault();zone.classList.add('on');};
@@ -111,14 +128,15 @@ function ocrCanvas(cv,lang){return window.Tesseract.recognize(cv,lang).then(func
 document.getElementById('pwGo').onclick=function(){
  if(!file||!doc){toast('Select a PDF first',true);return;}
  var mode=document.getElementById('pwMode').value;
- var lang=tessLang(document.getElementById('pwLang').value);
+ var langChoice=langSel.value;
  var from=Math.max(1,parseInt(document.getElementById('pwFrom').value)||1);
  var to=Math.min(totalPages,parseInt(document.getElementById('pwTo').value)||totalPages);
  if(from>to){toast('Invalid range',true);return;}
  work.style.display='none';busy.style.display='block';
- converted=[];pagesBox.innerHTML='';dlEl.style.display='none';
+ converted=[];pagesBox.innerHTML='';dlEl.style.display='none';detEl.style.display='none';
  pct(5);setStatus('Reading pages...');
  var total=to-from+1;var chain=Promise.resolve();
+ var detectedShown=false;
  for(var i=from;i<=to;i++){
   (function(num,idx){
    chain=chain.then(function(){
@@ -127,9 +145,14 @@ document.getElementById('pwGo').onclick=function(){
      var img=cv.toDataURL('image/jpeg',0.92);
      var textP=(mode==='image')?Promise.resolve(''):pageText(num);
      return textP.then(function(txt){
-      var useOcr=(mode!=='image')&&(txt.replace(/\s/g,'').length<20||isGarbled(txt));
-      var textPromise=useOcr?loadTesseract().then(function(ok){if(!ok)return txt;return ocrCanvas(cv,lang);}):Promise.resolve(txt);
-      return textPromise.then(function(finalText){
+      var needOcr=(mode!=='image')&&(txt.replace(/\s/g,'').length<20||isGarbled(txt));
+      var lang=(langChoice==='auto')?detectLang(txt):langChoice;
+      if(langChoice==='auto'&&!detectedShown&&txt.replace(/\s/g,'').length>0){
+       detEl.textContent='🌍 Detected language: '+lang;
+       detEl.style.display='block';detectedShown=true;
+      }
+      var tp=needOcr?loadTesseract().then(function(ok){if(!ok)return txt;return ocrCanvas(cv,lang);}):Promise.resolve(txt);
+      return tp.then(function(finalText){
        converted.push({num:num,text:(mode==='image')?'':finalText,image:(mode==='text')?'':img});
        pct(5+((idx+1)/total)*90);
       });
@@ -140,8 +163,7 @@ document.getElementById('pwGo').onclick=function(){
  }
  chain.then(function(){
   pct(100);setStatus('Done!');
-  renderPreview();
-  buildDownload();
+  renderPreview();buildDownload();
   setTimeout(function(){busy.style.display='none';work.style.display='block';toast('✓ Word document ready!');},300);
  }).catch(function(e){busy.style.display='none';work.style.display='block';toast('Conversion failed: '+((e&&e.message)||e),true);});
 };
