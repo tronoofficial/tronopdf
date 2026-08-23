@@ -1,4 +1,4 @@
-/* TronoPDF - Redact PDF v3 | syntax-fixed, robust image-replace redaction */
+/* TronoPDF - Redact PDF v4 | movable rects + shapes + colors + opacity */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -10,6 +10,7 @@ loadJS(PDFLIB_SRC,function(){});
 loadJS(PDFJS_SRC,function(e){if(!e&&window.pdfjsLib){window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;}});
 function waitLib(name){return new Promise(function(res){var t=0;(function w(){if(window[name]){res(true);return;}if(t>40){res(false);return;}t++;setTimeout(w,500);})();});}
 function fmtB(n){return n<1024?n+' B':(n<1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
+function hexToRgba(h,a){var x=h.replace('#','');var r=parseInt(x.substr(0,2),16),g=parseInt(x.substr(2,2),16),b=parseInt(x.substr(4,2),16);return 'rgba('+r+','+g+','+b+','+a+')';}
 var html='';
 html+='<style>';
 html+='.rd-wrap{max-width:1400px;margin:0 auto}';
@@ -26,20 +27,30 @@ html+='.rd-main{display:flex;min-height:680px}';
 html+='.rd-prev{flex:1;padding:26px;display:flex;flex-direction:column;align-items:center;gap:12px;overflow:auto}';
 html+='.rd-canvaswrap{position:relative;border-radius:6px;overflow:hidden;box-shadow:0 10px 40px rgba(30,20,60,.18);background:#fff;cursor:crosshair;touch-action:none}';
 html+='.rd-canvaswrap canvas{display:block}';
-html+='.rd-rect{position:absolute;background:rgba(30,41,59,.75);border:2px solid #1e293b;cursor:move;touch-action:none}';
+html+='.rd-rect{position:absolute;border:2px solid rgba(0,0,0,.4);cursor:move;touch-action:none}';
 html+='.rd-rect .del{position:absolute;top:-10px;right:-10px;width:22px;height:22px;border-radius:50%;background:#dc2626;color:#fff;border:2px solid #fff;font-size:11px;cursor:pointer;display:none;z-index:5}';
 html+='.rd-rect.sel .del{display:block}';
+html+='.rd-rect.sel{outline:2px dashed #7c3aed}';
 html+='.rd-pagenav{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center}';
 html+='.rd-pagenav button{border:1px solid #eceaf6;background:#fff;border-radius:8px;padding:8px 14px;font-weight:800;cursor:pointer}';
 html+='.rd-pagenav button:hover{border-color:#7c3aed;color:#7c3aed}';
 html+='.rd-side{width:400px;background:#fff;border-left:1px solid #eceaf6;padding:26px;display:flex;flex-direction:column;overflow-y:auto}';
 html+='.rd-side h2{font-size:22px;font-weight:900;text-align:center;margin-bottom:6px}';
-html+='.rd-sub{text-align:center;font-size:13px;color:#9a9aa5;margin-bottom:16px}';
+html+='.rd-sub{text-align:center;font-size:13px;color:#9a9aa5;margin-bottom:14px}';
 html+='.rd-help{background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:10px 14px;font-size:12px;color:#92400e;font-weight:600;margin-bottom:12px;line-height:1.5}';
-html+='.rd-btnrow{display:flex;gap:8px;margin-bottom:10px}';
+html+='.rd-lbl{font-size:12px;font-weight:800;color:#4b4b5a;margin:10px 0 6px}';
+html+='.rd-shapes{display:flex;gap:6px}';
+html+='.rd-shapes button{flex:1;border:2px solid #eceaf6;border-radius:8px;padding:9px 2px;font-size:12px;font-weight:800;cursor:pointer;background:#fff;color:#4b4b5a}';
+html+='.rd-shapes button.active{border-color:#7c3aed;color:#7c3aed;background:#f3f0ff}';
+html+='.rd-colors{display:flex;gap:8px;align-items:center}';
+html+='.rd-colors .sw{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px #ddd}';
+html+='.rd-colors .sw.active{box-shadow:0 0 0 2px #7c3aed}';
+html+='.rd-colors input[type=color]{width:30px;height:28px;border:1px solid #ddd;border-radius:6px;padding:1px;background:#fff;cursor:pointer}';
+html+='.rd-op{width:100%;accent-color:#7c3aed}';
+html+='.rd-btnrow{display:flex;gap:8px;margin:12px 0 10px}';
 html+='.rd-btnrow button{flex:1;border:1px solid #eceaf6;background:#fff;border-radius:10px;padding:11px;font-size:13px;font-weight:800;cursor:pointer}';
 html+='.rd-btnrow button:hover{border-color:#dc2626;color:#dc2626}';
-html+='.rd-list{flex:1;overflow-y:auto;border-top:1px solid #eceaf6;padding-top:10px;min-height:60px}';
+html+='.rd-list{flex:1;overflow-y:auto;border-top:1px solid #eceaf6;padding-top:10px;min-height:50px}';
 html+='.rd-list h4{font-size:12px;font-weight:800;color:#9a9aa5;margin-bottom:8px}';
 html+='.rd-li{display:flex;align-items:center;gap:8px;border:1px solid #eceaf6;border-radius:8px;padding:8px;margin-bottom:6px;font-size:12px;font-weight:700;color:#4b4b5a;cursor:pointer}';
 html+='.rd-li.sel{border-color:#7c3aed;background:#f3f0ff}';
@@ -62,14 +73,17 @@ html+='.rd-again{display:inline-block;background:#f4f5fa;color:#333;font-weight:
 html+='@media(max-width:900px){.rd-main{flex-direction:column}.rd-side{width:auto;border-left:none;border-top:1px solid #eceaf6}}';
 html+='</style>';
 html+='<div class="rd-wrap">';
-html+='<div id="rdPick"><div class="rd-hero"><h1>Redact PDF</h1><p>Black out sensitive text permanently - fast, free and private.</p>';
+html+='<div id="rdPick"><div class="rd-hero"><h1>Redact PDF</h1><p>Black out sensitive text permanently - shapes, colors & opacity.</p>';
 html+='<div class="rd-zone" id="rdZone"><button class="rd-big" id="rdBtn" type="button">Select PDF file</button><p class="rd-drop-hint">or drop PDF here</p></div></div></div>';
 html+='<div class="rd-work" id="rdWork"><div class="rd-main"><div class="rd-prev"><div class="rd-canvaswrap" id="rdWrap"><canvas id="rdCanvas"></canvas><div id="rdItems"></div></div>';
 html+='<div class="rd-pagenav"><button id="rdPrev" type="button">←</button><span id="rdPageLbl" style="font-weight:800"></span><button id="rdNext" type="button">→</button></div></div>';
-html+='<aside class="rd-side"><h2>Redact settings</h2><p class="rd-sub">Drag on the page to black out content</p>';
-html+='<div class="rd-help">💡 Draw rectangles over any text, number or image you want to hide. The content will be permanently removed.</div>';
+html+='<aside class="rd-side"><h2>Redact settings</h2><p class="rd-sub">Drag on the page to add a shape</p>';
+html+='<div class="rd-help">💡 Pick a shape & color, drag on the page. Drag any shape to move it. Content is permanently removed on apply.</div>';
+html+='<div class="rd-lbl">Shape</div><div class="rd-shapes"><button data-sh="rect" class="active">▭ Rect</button><button data-sh="ellipse">◯ Ellipse</button><button data-sh="line">— Line</button></div>';
+html+='<div class="rd-lbl">Color</div><div class="rd-colors" id="rdColors"><span class="sw active" data-c="#000000" style="background:#000000"></span><span class="sw" data-c="#ffffff" style="background:#ffffff"></span><span class="sw" data-c="#dc2626" style="background:#dc2626"></span><span class="sw" data-c="#2563eb" style="background:#2563eb"></span><span class="sw" data-c="#facc15" style="background:#facc15"></span><input type="color" id="rdColorPick" value="#000000"/></div>';
+html+='<div class="rd-lbl">Opacity: <span id="rdOpVal">100%</span></div><input class="rd-op" type="range" id="rdOp" min="10" max="100" value="100"/>';
 html+='<div class="rd-btnrow"><button id="rdClearPage" type="button">Clear this page</button><button id="rdClearAll" type="button">Clear all pages</button></div>';
-html+='<div class="rd-list"><h4>Redactions on this page (<span id="rdCount">0</span>)</h4><div id="rdList"></div></div>';
+html+='<div class="rd-list"><h4>Shapes on this page (<span id="rdCount">0</span>)</h4><div id="rdList"></div></div>';
 html+='<div class="rd-chk"><input type="checkbox" id="rdAll" checked/><label for="rdAll">Apply redaction to all pages</label></div>';
 html+='<button class="rd-go" id="rdGo" type="button">Apply Redaction →</button></aside></div></div>';
 html+='<div class="rd-busy" id="rdBusy"><h2>Applying redaction...</h2><p class="fn" id="rdBusyName"></p><div class="rd-bar"><div id="rdBarFill"></div></div><div class="rd-pct" id="rdPct">0%</div></div>';
@@ -80,6 +94,7 @@ root.innerHTML=html;
 var file=null,doc=null,totalPages=0,curPage=1;
 var pageW=595,pageH=842,scale=1;
 var perPageRects={};
+var curShape='rect',curColor='#000000',curOp=100;
 var pick=document.getElementById('rdPick'),work=document.getElementById('rdWork'),busy=document.getElementById('rdBusy'),done=document.getElementById('rdDone');
 var zone=document.getElementById('rdZone'),btn=document.getElementById('rdBtn'),inp=document.getElementById('rdFile');
 var wrap=document.getElementById('rdWrap'),canvas=document.getElementById('rdCanvas'),ctx=canvas.getContext('2d');
@@ -87,8 +102,21 @@ var itemsBox=document.getElementById('rdItems'),listBox=document.getElementById(
 var pageLbl=document.getElementById('rdPageLbl');
 var elAll=document.getElementById('rdAll');
 var selIdx=-1;
+var shapeBtns=document.querySelectorAll('.rd-shapes button');
+shapeBtns.forEach(function(b){b.onclick=function(){shapeBtns.forEach(function(x){x.classList.remove('active');});b.classList.add('active');curShape=b.getAttribute('data-sh');};});
+var swatches=document.querySelectorAll('.rd-colors .sw');
+swatches.forEach(function(s){s.onclick=function(){swatches.forEach(function(x){x.classList.remove('active');});s.classList.add('active');curColor=s.getAttribute('data-c');document.getElementById('rdColorPick').value=curColor;};});
+document.getElementById('rdColorPick').oninput=function(){curColor=this.value;swatches.forEach(function(x){x.classList.remove('active');});};
+document.getElementById('rdOp').oninput=function(){curOp=parseInt(this.value);document.getElementById('rdOpVal').textContent=this.value+'%';};
 function rects(){if(!perPageRects[curPage]){perPageRects[curPage]=[];}return perPageRects[curPage];}
 function totalRects(){var t=0;Object.keys(perPageRects).forEach(function(p){t+=perPageRects[p].length;});return t;}
+function shapeName(s){return s==='rect'?'Rect':(s==='ellipse'?'Ellipse':'Line');}
+function markSel(){
+ var kids=itemsBox.children;
+ for(var i=0;i<kids.length;i++){kids[i].classList.toggle('sel',i===selIdx);}
+ var lis=listBox.children;
+ for(var j=0;j<lis.length;j++){lis[j].classList.toggle('sel',j===selIdx);}
+}
 function syncUI(){
  var list=rects();
  countEl.textContent=list.length;
@@ -97,12 +125,15 @@ function syncUI(){
   var d=document.createElement('div');d.className='rd-rect'+(i===selIdx?' sel':'');
   d.style.left=(r.x*scale)+'px';d.style.top=(r.y*scale)+'px';
   d.style.width=(r.w*scale)+'px';d.style.height=(r.h*scale)+'px';
+  d.style.background=hexToRgba(r.color,(r.op/100));
+  if(r.shape==='ellipse'){d.style.borderRadius='50%';}
   var del=document.createElement('button');del.className='del';del.textContent='✕';
   del.onclick=function(e){e.stopPropagation();list.splice(i,1);selIdx=-1;syncUI();};
   d.appendChild(del);
   d.addEventListener('pointerdown',function(e){
    if(e.target===del){return;}
-   e.stopPropagation();selIdx=i;syncUI();
+   e.stopPropagation();
+   selIdx=i;markSel();
    var on=true,lx=e.clientX,ly=e.clientY;
    d.setPointerCapture(e.pointerId);
    function mv(ev){
@@ -111,16 +142,16 @@ function syncUI(){
     lx=ev.clientX;ly=ev.clientY;
     d.style.left=(r.x*scale)+'px';d.style.top=(r.y*scale)+'px';
    }
-   function up(){on=false;d.removeEventListener('pointermove',mv);d.removeEventListener('pointerup',up);}
+   function up(){on=false;d.removeEventListener('pointermove',mv);d.removeEventListener('pointerup',up);syncUI();}
    d.addEventListener('pointermove',mv);d.addEventListener('pointerup',up);
   });
   itemsBox.appendChild(d);
   var li=document.createElement('div');li.className='rd-li'+(i===selIdx?' sel':'');
-  li.innerHTML='<span>⬛</span><span class="nm">Rectangle '+(i+1)+' ('+Math.round(r.w)+'×'+Math.round(r.h)+')</span>';
+  li.innerHTML='<span style="color:'+r.color+'">⬛</span><span class="nm">'+shapeName(r.shape)+' '+(i+1)+' ('+Math.round(r.w)+'×'+Math.round(r.h)+')</span>';
   var del2=document.createElement('button');del2.textContent='✕';
   del2.onclick=function(e){e.stopPropagation();list.splice(i,1);selIdx=-1;syncUI();};
   li.appendChild(del2);
-  li.onclick=function(){selIdx=i;syncUI();};
+  li.onclick=function(){selIdx=i;markSel();};
   listBox.appendChild(li);
  });
 }
@@ -140,7 +171,7 @@ wrap.addEventListener('pointermove',function(e){
  var x=Math.min(sx,cx)/scale,y=Math.min(sy,cy)/scale;
  var w=Math.abs(cx-sx)/scale,h=Math.abs(cy-sy)/scale;
  var list=rects();
- if(!list.__drag__){list.__drag__={x:x,y:y,w:w,h:h};list.push(list.__drag__);selIdx=list.length-1;syncUI();}
+ if(!list.__drag__){list.__drag__={x:x,y:y,w:w,h:h,shape:curShape,color:curColor,op:curOp};list.push(list.__drag__);selIdx=list.length-1;syncUI();}
  else{list.__drag__.x=x;list.__drag__.y=y;list.__drag__.w=w;list.__drag__.h=h;syncUI();}
 });
 wrap.addEventListener('pointerup',function(){
@@ -196,6 +227,21 @@ zone.ondragover=function(e){e.preventDefault();zone.classList.add('on');};
 zone.ondragleave=function(){zone.classList.remove('on');};
 zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){addFile(e.dataTransfer.files[0]);}};
 function pct(p){document.getElementById('rdPct').textContent=Math.round(p)+'%';document.getElementById('rdBarFill').style.width=p+'%';}
+function drawShape(cx,r,s){
+ cx.fillStyle=r.color;
+ cx.globalAlpha=r.op/100;
+ var x=r.x*s,y=r.y*s,w=r.w*s,h=r.h*s;
+ if(r.shape==='ellipse'){
+  cx.beginPath();
+  cx.ellipse(x+w/2,y+h/2,w/2,h/2,0,0,Math.PI*2);
+  cx.fill();
+ }else if(r.shape==='line'){
+  cx.fillRect(x,y+h/2-Math.max(1,h/2),w,Math.max(2,h));
+ }else{
+  cx.fillRect(x,y,w,h);
+ }
+ cx.globalAlpha=1;
+}
 function renderPageData(num,rectsOnPage){
  return doc.getPage(num).then(function(page){
   var s=2;
@@ -203,10 +249,7 @@ function renderPageData(num,rectsOnPage){
   var cv=document.createElement('canvas');cv.width=Math.floor(vp.width);cv.height=Math.floor(vp.height);
   var cx=cv.getContext('2d');
   return page.render({canvasContext:cx,viewport:vp}).promise.then(function(){
-   cx.fillStyle='#000';
-   rectsOnPage.forEach(function(r){
-    cx.fillRect(Math.floor(r.x*s),Math.floor(r.y*s),Math.ceil(r.w*s),Math.ceil(r.h*s));
-   });
+   rectsOnPage.forEach(function(r){drawShape(cx,r,s);});
    return cv.toDataURL('image/png');
   });
  });
@@ -214,7 +257,7 @@ function renderPageData(num,rectsOnPage){
 document.getElementById('rdGo').onclick=function(){
  if(!file||!doc){return;}
  var total=totalRects();
- if(total===0){alert('Please draw at least one redaction rectangle first.');return;}
+ if(total===0){alert('Please draw at least one shape first.');return;}
  work.style.display='none';busy.style.display='block';
  document.getElementById('rdBusyName').textContent=file.name;
  pct(5);
