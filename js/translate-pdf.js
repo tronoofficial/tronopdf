@@ -1,4 +1,4 @@
-/* TronoPDF - Translate PDF v2 | LibreTranslate + MyMemory fallback + sentence chunking */
+/* TronoPDF - Translate PDF v3 | fixed blank-screen (busy now sibling) */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -45,6 +45,7 @@ html+='.tr-info{background:#fef3c7;border:1px solid #fde68a;border-radius:10px;p
 html+='@media(max-width:900px){.tr-grid{grid-template-columns:1fr}.tr-row{grid-template-columns:1fr}.tr-swap{justify-self:center}}';
 html+='</style>';
 html+='<div class="tr-wrap">';
+html+='<div id="trInput">';
 html+='<div class="tr-hero"><h1>Translate PDF</h1><p>Translate entire PDFs into 50+ languages - free, fast & private.</p></div>';
 html+='<div class="tr-info">💡 Your document is translated securely. Output is a new PDF with both original and translated text.</div>';
 html+='<div class="tr-row"><select class="tr-sel" id="trFrom"></select><button class="tr-swap" id="trSwap" type="button" title="Swap languages">⇄</button><select class="tr-sel" id="trTo"></select></div>';
@@ -54,10 +55,12 @@ html+='<div class="tr-card"><h3>⚙️ Options</h3><div class="tr-row" style="gr
 html+='</div>';
 html+='<button class="tr-go" id="trGo" type="button">🌍 Translate PDF →</button>';
 html+='<div class="tr-out" style="margin-top:20px"><h3>Translated text preview</h3><textarea class="tr-text" id="trText" placeholder="Translated text will appear here after you click Translate..."></textarea><div class="tr-actions"><button class="tr-copy" id="trCopy" type="button">📋 Copy Text</button><a class="tr-dl" id="trDl" href="#" style="display:none">⬇ Download PDF</a></div></div>';
+html+='</div>'; // close trInput
 html+='<div class="tr-busy" id="trBusy"><h2>Translating...</h2><p class="st" id="trStatus">Working...</p><div class="tr-bar"><div id="trBarFill"></div></div><div class="tr-pct" id="trPct">0%</div></div>';
 html+='<div class="tr-toast" id="trToast"></div>';
-html+='</div>';
+html+='</div>'; // close tr-wrap
 root.innerHTML=html;
+var inputBox=document.getElementById('trInput'),busyBox=document.getElementById('trBusy');
 var fromSel=document.getElementById('trFrom'),toSel=document.getElementById('trTo');
 LANGS.forEach(function(L){var o1=document.createElement('option');o1.value=L[0];o1.textContent=L[1];fromSel.appendChild(o1);var o2=document.createElement('option');o2.value=L[0];o2.textContent=L[1];if(L[0]==='auto'){o2.disabled=true;}toSel.appendChild(o2);});
 fromSel.value='auto';toSel.value='en';
@@ -69,15 +72,12 @@ var toastEl=document.getElementById('trToast');
 function toast(m,e){toastEl.textContent=m;toastEl.classList.toggle('err',!!e);toastEl.classList.add('show');clearTimeout(toastEl.__h);toastEl.__h=setTimeout(function(){toastEl.classList.remove('show');},2200);}
 function pct(p){document.getElementById('trPct').textContent=Math.round(p)+'%';document.getElementById('trBarFill').style.width=p+'%';}
 function setStatus(s){document.getElementById('trStatus').textContent=s;}
-// Split text into sentences (natural breaks)
 function splitSentences(text){
  var sentences=text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[];
  return sentences.map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
 }
-// Try LibreTranslate first, then MyMemory
 async function translateText(text,from,to){
  if(!text.trim())return '';
- // Try LibreTranslate (free, no key, unlimited)
  var libreEndpoints=[
   'https://libretranslate.de/translate',
   'https://translate.argosopentech.com/translate',
@@ -85,27 +85,15 @@ async function translateText(text,from,to){
  ];
  for(var i=0;i<libreEndpoints.length;i++){
   try{
-   var r=await fetch(libreEndpoints[i],{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({q:text,source:from==='auto'?'auto':from,target:to,format:'text'})
-   });
-   if(r.ok){
-    var j=await r.json();
-    if(j.translatedText){return j.translatedText;}
-   }
+   var r=await fetch(libreEndpoints[i],{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q:text,source:from==='auto'?'auto':from,target:to,format:'text'})});
+   if(r.ok){var j=await r.json();if(j.translatedText){return j.translatedText;}}
   }catch(e){continue;}
  }
- // Fallback to MyMemory
  try{
   var url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair='+from+'|'+to;
-  var r2=await fetch(url);
-  var j2=await r2.json();
-  if(j2.responseStatus===200&&j2.responseData&&j2.responseData.translatedText){
-   return j2.responseData.translatedText;
-  }
+  var r2=await fetch(url);var j2=await r2.json();
+  if(j2.responseStatus===200&&j2.responseData&&j2.responseData.translatedText){return j2.responseData.translatedText;}
  }catch(e){}
- // If all fail, return original
  return text;
 }
 async function translateChunk(text,from,to){
@@ -123,44 +111,31 @@ document.getElementById('trGo').onclick=async function(){
  if(!fileIn.files||!fileIn.files[0]){toast('Please select a PDF file',true);return;}
  var f=fileIn.files[0];
  if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){toast('Please select a PDF file',true);return;}
- var from=fromSel.value;
- var to=toSel.value;
+ var from=fromSel.value;var to=toSel.value;
  if(to==='auto'){toast('Target language cannot be auto',true);return;}
  var mode=document.getElementById('trMode').value;
- document.querySelector('.tr-wrap').style.display='none';
- document.getElementById('trBusy').style.display='block';
+ inputBox.style.display='none';
+ busyBox.style.display='block';
  document.getElementById('trText').value='';
  document.getElementById('trDl').style.display='none';
  pct(3);setStatus('Loading engines...');
  try{
   await Promise.all([loadJS(PDFLIB_SRC),loadJS(PDFJS_SRC)]);
   window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
-  setStatus('Reading PDF...');
-  pct(8);
+  setStatus('Reading PDF...');pct(8);
   var buf=await f.arrayBuffer();
   var pdfDoc=await window.pdfjsLib.getDocument({data:buf}).promise;
   var totalPages=pdfDoc.numPages;
-  var allText=[];
-  var translated=[];
+  var allText=[];var translated=[];
   for(var i=1;i<=totalPages;i++){
    setStatus('Extracting page '+i+' of '+totalPages+'...');
    var pg=await pdfDoc.getPage(i);
    var tc=await pg.getTextContent();
-   var s='';
-   tc.items.forEach(function(it){s+=it.str+(it.hasEOL?'\n':' ');});
+   var s='';tc.items.forEach(function(it){s+=it.str+(it.hasEOL?'\n':' ');});
    allText.push(s.trim());
    pct(8+(i/totalPages)*15);
   }
-  // Detect source language if auto
   var detectedLang=from;
-  if(from==='auto'){
-   setStatus('Detecting language...');
-   try{
-    var sample=allText[0].substr(0,200);
-    var detResult=await translateText(sample,'auto','en');
-    detectedLang='auto';
-   }catch(e){detectedLang='en';}
-  }
   setStatus('Translating ('+detectedLang+' → '+to+')...');
   var fullTranslated='';
   for(var k=0;k<allText.length;k++){
@@ -176,13 +151,11 @@ document.getElementById('trGo').onclick=async function(){
   var font=await newPdf.embedFont(window.PDFLib.StandardFonts.Helvetica);
   var bold=await newPdf.embedFont(window.PDFLib.StandardFonts.HelveticaBold);
   function wrapText(text,maxW,size){
-   var words=text.split(/\s+/);
-   var lines=[];var cur='';
+   var words=text.split(/\s+/);var lines=[];var cur='';
    words.forEach(function(w){
     var test=(cur?cur+' ':'')+w;
     var tw=font.widthOfTextAtSize(test,size);
-    if(tw>maxW&&cur){lines.push(cur);cur=w;}
-    else{cur=test;}
+    if(tw>maxW&&cur){lines.push(cur);cur=w;}else{cur=test;}
    });
    if(cur)lines.push(cur);
    return lines;
@@ -190,7 +163,6 @@ document.getElementById('trGo').onclick=async function(){
   function addTextPage(pdfDoc,text,title){
    var page=pdfDoc.addPage([595,842]);
    var margin=50;var y=800;
-   var titleW=bold.widthOfTextAtSize(title,16);
    page.drawText(title,{x:margin,y:y,size:16,font:bold});
    y-=30;
    var lines=wrapText(text,595-margin*2,11);
@@ -212,8 +184,8 @@ document.getElementById('trGo').onclick=async function(){
   var bytes=await newPdf.save();
   pct(100);setStatus('Done!');
   setTimeout(function(){
-   document.getElementById('trBusy').style.display='none';
-   document.querySelector('.tr-wrap').style.display='block';
+   busyBox.style.display='none';
+   inputBox.style.display='block';
    var blob=new Blob([bytes],{type:'application/pdf'});
    var dl=document.getElementById('trDl');
    dl.href=URL.createObjectURL(blob);
@@ -222,8 +194,8 @@ document.getElementById('trGo').onclick=async function(){
    toast('✓ Translation complete! ('+totalPages+' pages)');
   },300);
  }catch(err){
-  document.getElementById('trBusy').style.display='none';
-  document.querySelector('.tr-wrap').style.display='block';
+  busyBox.style.display='none';
+  inputBox.style.display='block';
   toast('Translation failed: '+((err&&err.message)||err),true);
  }
 };
