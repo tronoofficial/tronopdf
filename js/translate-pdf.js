@@ -1,4 +1,4 @@
-/* TronoPDF - Translate PDF v1 | MyMemory API (free, no key) + pdf-lib build */
+/* TronoPDF - Translate PDF v2 | LibreTranslate + MyMemory fallback + sentence chunking */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -69,25 +69,54 @@ var toastEl=document.getElementById('trToast');
 function toast(m,e){toastEl.textContent=m;toastEl.classList.toggle('err',!!e);toastEl.classList.add('show');clearTimeout(toastEl.__h);toastEl.__h=setTimeout(function(){toastEl.classList.remove('show');},2200);}
 function pct(p){document.getElementById('trPct').textContent=Math.round(p)+'%';document.getElementById('trBarFill').style.width=p+'%';}
 function setStatus(s){document.getElementById('trStatus').textContent=s;}
+// Split text into sentences (natural breaks)
+function splitSentences(text){
+ var sentences=text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[];
+ return sentences.map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
+}
+// Try LibreTranslate first, then MyMemory
+async function translateText(text,from,to){
+ if(!text.trim())return '';
+ // Try LibreTranslate (free, no key, unlimited)
+ var libreEndpoints=[
+  'https://libretranslate.de/translate',
+  'https://translate.argosopentech.com/translate',
+  'https://translate.terraprint.co/translate'
+ ];
+ for(var i=0;i<libreEndpoints.length;i++){
+  try{
+   var r=await fetch(libreEndpoints[i],{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({q:text,source:from==='auto'?'auto':from,target:to,format:'text'})
+   });
+   if(r.ok){
+    var j=await r.json();
+    if(j.translatedText){return j.translatedText;}
+   }
+  }catch(e){continue;}
+ }
+ // Fallback to MyMemory
+ try{
+  var url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(text)+'&langpair='+from+'|'+to;
+  var r2=await fetch(url);
+  var j2=await r2.json();
+  if(j2.responseStatus===200&&j2.responseData&&j2.responseData.translatedText){
+   return j2.responseData.translatedText;
+  }
+ }catch(e){}
+ // If all fail, return original
+ return text;
+}
 async function translateChunk(text,from,to){
  if(!text.trim())return '';
- // MyMemory API - free, no key, 5000 chars/day anonymous, more with email
- var chunks=[];var max=500;
- for(var i=0;i<text.length;i+=max){chunks.push(text.substr(i,max));}
- var out=[];
- for(var j=0;j<chunks.length;j++){
-  var url='https://api.mymemory.translated.net/get?q='+encodeURIComponent(chunks[j])+'&langpair='+from+'|'+to;
-  try{
-   var r=await fetch(url);
-   var j2=await r.json();
-   if(j2.responseStatus===200&&j2.responseData&&j2.responseData.translatedText){
-    out.push(j2.responseData.translatedText);
-   }else{
-    out.push(chunks[j]);
-   }
-  }catch(e){out.push(chunks[j]);}
+ var sentences=splitSentences(text);
+ var translated=[];
+ for(var i=0;i<sentences.length;i++){
+  var t=await translateText(sentences[i],from,to);
+  translated.push(t);
  }
- return out.join(' ');
+ return translated.join(' ');
 }
 document.getElementById('trGo').onclick=async function(){
  var fileIn=document.getElementById('trFile');
@@ -127,13 +156,9 @@ document.getElementById('trGo').onclick=async function(){
   if(from==='auto'){
    setStatus('Detecting language...');
    try{
-    var detUrl='https://api.mymemory.translated.net/get?q='+encodeURIComponent(allText[0].substr(0,200))+'&langpair=autodetect|en';
-    var detR=await fetch(detUrl);
-    var detJ=await detR.json();
-    if(detJ.responseData&&detJ.responseData.detectedLanguage){
-     detectedLang=detJ.responseData.detectedLanguage;
-     if(detectedLang===to){detectedLang='en';}
-    }else{detectedLang='en';}
+    var sample=allText[0].substr(0,200);
+    var detResult=await translateText(sample,'auto','en');
+    detectedLang='auto';
    }catch(e){detectedLang='en';}
   }
   setStatus('Translating ('+detectedLang+' → '+to+')...');
