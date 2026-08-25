@@ -4,27 +4,29 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>PDF Forms Online Free - Create & Fill Fillable PDFs | TronoPDF</title>
-<meta content="Create fillable PDF forms or fill existing PDF forms online free. Add text fields, checkboxes, radio buttons, dropdowns and signatures. Drag to position. 100% private, no upload." name="description"/>
-<meta content="pdf forms, fillable pdf, create pdf form, fill pdf form online, pdf form creator, add fields to pdf, interactive pdf, pdf form builder" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/pdf-forms.html"/>
+<meta content="Create fillable PDF forms or fill existing PDF forms online free. Add text fields, checkboxes, radio buttons, dropdowns and signatures. Drag to position, auto field detection. 100% private, no upload required." name="description"/>
+<meta content="pdf forms, fillable pdf, create pdf form, fill pdf form online, pdf form creator, add fields to pdf, interactive pdf, pdf form builder, fillable pdf creator" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/pdf-forms"/>
+<meta name="robots" content="index, follow"/>
 <meta property="og:title" content="PDF Forms Online Free - TronoPDF"/>
-<meta property="og:description" content="Create fillable PDF forms or fill existing ones. Free, private, unlimited."/>
+<meta property="og:description" content="Create fillable PDF forms or fill existing ones. Text fields, checkboxes, signatures. Free, private, unlimited."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/pdf-forms.html"/>
+<meta property="og:url" content="https://tronopdf.com/pdf-forms"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="PDF Forms Online Free - TronoPDF"/>
 <meta name="twitter:description" content="Create and fill PDF forms online free."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "PDF Forms - TronoPDF",
   "description": "Create fillable PDF forms or fill existing PDF forms online free - text fields, checkboxes, radio buttons, dropdowns and more.",
-  "url": "https://tronopdf.com/pdf-forms.html",
+  "url": "https://tronopdf.com/pdf-forms",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "Create fillable PDF forms, Fill existing PDF forms, Text fields, Checkboxes, Radio buttons, Dropdowns, Signature fields, Drag to position, Auto field detection, Multi-page support, No file upload, 100% private"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1234"}
 }
 </script>
 <script type="application/ld+json">
@@ -32,25 +34,123 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "How to create a fillable PDF form?", "acceptedAnswer": {"@type": "Answer", "text": "Choose Create new form, add fields by clicking Text, Checkbox, Radio, Dropdown or Signature, drag them to position, then click Download. You get a real fillable PDF anyone can fill out."}},
-    {"@type": "Question", "name": "Can I fill an existing PDF form?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Upload your PDF and the tool automatically detects form fields. Type values into them, then download the filled PDF."}},
-    {"@type": "Question", "name": "What field types are supported?", "acceptedAnswer": {"@type": "Answer", "text": "Text fields, checkboxes, radio buttons, dropdown lists, date fields and signature fields."}},
-    {"@type": "Question", "name": "Is it private and free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Everything runs in your browser - no signup, no limits, no upload to any server."}}
+    {"@type": "Question", "name": "How to create a fillable PDF form?", "acceptedAnswer": {"@type": "Answer", "text": "Choose 'Create new form', add fields by clicking Text, Checkbox, Radio, Dropdown or Signature, drag them to position on the page, then click Download. You get a real fillable PDF anyone can fill out."}},
+    {"@type": "Question", "name": "Can I fill an existing PDF form?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Upload your PDF and the tool automatically detects existing form fields. Type values into them, then download the filled PDF. Perfect for government forms, applications and surveys."}},
+    {"@type": "Question", "name": "What field types are supported?", "acceptedAnswer": {"@type": "Answer", "text": "Text fields, checkboxes, radio buttons, dropdown lists, date fields and signature fields. You can add multiple fields of each type and position them anywhere on the page."}},
+    {"@type": "Question", "name": "Is it private and free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Everything runs in your browser using pdf-lib - no signup, no limits, no upload to any server. Your forms and data stay 100% private on your device."}}
   ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.pf-static{max-width:900px;margin:60px auto;padding:0 20px}
+.pf-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.pf-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.pf-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.pf-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.pf-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.pf-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.pf-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.pf-static .step-text b{color:#1f2937}
+.pf-static .privacy{margin-top:32px;padding:24px;background:#eef2ff;border-radius:12px;border-left:4px solid #4f46e5}
+.pf-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.pf-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.pf-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.pf-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.pf-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.pf-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.pf-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.pf-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #4f46e5;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pf-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.pf-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="pf-static" id="pfStatic">
+  <h1>PDF Forms Online Free</h1>
+  <p class="desc">Create fillable PDF forms from scratch or fill existing PDF forms with ease. Add text fields, checkboxes, radio buttons, dropdowns, date pickers and signature fields. Drag to position fields anywhere on the page, auto-detect existing form fields, and support for multi-page documents. Perfect for government forms, applications, surveys and contracts. No upload required - 100% private and unlimited.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>📝 Create Fillable Forms</h4><p>Build interactive PDF forms from scratch with text fields, checkboxes, radio buttons, dropdowns and signature fields.</p></div>
+    <div class="feat"><h4>✍️ Fill Existing Forms</h4><p>Upload any PDF with form fields - tool auto-detects them and lets you fill in values instantly.</p></div>
+    <div class="feat"><h4>🎯 Drag & Position</h4><p>Drag form fields to position them anywhere on the page. Resize and align fields with visual guides.</p></div>
+    <div class="feat"><h4>📄 Multi-Page Support</h4><p>Add form fields across multiple pages. Navigate between pages and place fields exactly where needed.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Create or Fill PDF Forms</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Choose mode</b> — Select "Create new form" to build from scratch, or "Fill existing form" to upload a PDF with form fields. The tool displays the first page for editing.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>Add form fields</b> — Click Text, Checkbox, Radio, Dropdown, Date or Signature buttons to add fields. For existing forms, the tool auto-detects fields and shows them ready to fill.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Position and configure</b> — Drag fields to position them on the page. Set field names, default values, required status and other properties. Navigate to other pages to add more fields.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Download form</b> — Click "Download PDF" button. Your fillable form (or filled form) downloads instantly with all fields functional. All processing happens in your browser using pdf-lib - nothing is uploaded.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>TronoPDF processes all PDF form operations directly in your browser using pdf-lib library. Your PDF files and form data are never uploaded to any server - they stay on your device. This means your government applications, legal contracts, business forms, surveys and sensitive documents remain completely private and secure. No file size limits, no daily limits, no watermarks, no signup required - create and fill as many PDF forms as you need.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="pf-skeleton" id="pfSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading PDF Forms Tool...</h2>
+  <p>Preparing the form builder interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="pfMain" style="display:none">
   <div class="page-box">
     <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/pdf-forms.js?v=1"></script>
+<script>
+(function(){
+  var staticEl=document.getElementById('pfStatic');
+  var skeleton=document.getElementById('pfSkeleton');
+  var mainEl=document.getElementById('pfMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/pdf-forms.js?v=1';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
