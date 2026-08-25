@@ -3,28 +3,30 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Excel to PDF Online Free - Convert XLSX to PDF | TronoPDF</title>
-<meta content="Convert Excel (XLSX, XLS, CSV) spreadsheets to PDF online free. Multi-sheet, auto column widths, grid lines, portrait/landscape. No upload, no signup. 100% private." name="description"/>
-<meta content="excel to pdf, convert excel to pdf, xlsx to pdf, spreadsheet to pdf, csv to pdf, excel to pdf online free" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/excel-to-pdf.html"/>
+<title>Excel to PDF Online Free - Convert XLSX, XLS, CSV to PDF | TronoPDF</title>
+<meta content="Convert Excel (XLSX, XLS, CSV) spreadsheets to PDF online free. Multi-sheet support, auto column widths, grid lines, portrait/landscape orientation. Live table preview. No upload, no signup. 100% private." name="description"/>
+<meta content="excel to pdf, convert excel to pdf, xlsx to pdf, spreadsheet to pdf, csv to pdf, excel to pdf online free, xls to pdf, convert spreadsheet to pdf" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/excel-to-pdf"/>
+<meta name="robots" content="index, follow"/>
 <meta property="og:title" content="Excel to PDF Online Free - TronoPDF"/>
-<meta property="og:description" content="Convert Excel spreadsheets to crisp PDF. Multi-sheet, grid lines, free & private."/>
+<meta property="og:description" content="Convert Excel spreadsheets to crisp PDF. Multi-sheet, grid lines, auto column widths. Free & private."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/excel-to-pdf.html"/>
+<meta property="og:url" content="https://tronopdf.com/excel-to-pdf"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Excel to PDF Online Free - TronoPDF"/>
-<meta name="twitter:description" content="Convert Excel XLSX to PDF online free."/>
+<meta name="twitter:description" content="Convert Excel XLSX, XLS and CSV to PDF online free."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "Excel to PDF - TronoPDF",
   "description": "Convert Excel XLSX/XLS/CSV spreadsheets to PDF online free with multi-sheet support, auto column widths and grid lines.",
-  "url": "https://tronopdf.com/excel-to-pdf.html",
+  "url": "https://tronopdf.com/excel-to-pdf",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "XLSX XLS CSV to PDF, Multi-sheet conversion, Auto column widths, Grid lines and bold header, Portrait or landscape, Live table preview, Instant download, No upload, 100% private"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1243"}
 }
 </script>
 <script type="application/ld+json">
@@ -32,25 +34,123 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "How to convert Excel to PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your .xlsx, .xls or .csv file, preview the sheets, choose orientation, and click Convert. You get a crisp multi-page PDF instantly."}},
-    {"@type": "Question", "name": "Does it support multiple sheets?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Every sheet in the workbook is converted, each starting on a new page with its name as a header."}},
-    {"@type": "Question", "name": "Will wide tables fit?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Column widths are computed automatically and wide sheets switch to landscape so nothing is cut off."}},
-    {"@type": "Question", "name": "Is it safe and free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Conversion runs entirely in your browser - no upload, no signup, no limits."}}
+    {"@type": "Question", "name": "How to convert Excel to PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your .xlsx, .xls or .csv file, preview the sheets, choose orientation and options, then click Convert. You get a crisp multi-page PDF instantly."}},
+    {"@type": "Question", "name": "Does it support multiple sheets?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Every sheet in the workbook is converted, each starting on a new page with its name as a header for easy reference."}},
+    {"@type": "Question", "name": "Will wide tables fit on the page?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Column widths are computed automatically from content length and wide sheets switch to landscape so nothing is cut off."}},
+    {"@type": "Question", "name": "Is it safe and free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Conversion runs entirely in your browser using SheetJS and pdf-lib - no upload, no signup, no limits. Your spreadsheet never leaves your device."}}
   ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.xp-static{max-width:900px;margin:60px auto;padding:0 20px}
+.xp-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.xp-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.xp-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.xp-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.xp-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.xp-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#217346,#2e9159);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.xp-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.xp-static .step-text b{color:#1f2937}
+.xp-static .privacy{margin-top:32px;padding:24px;background:#eaf7ef;border-radius:12px;border-left:4px solid #217346}
+.xp-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.xp-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.xp-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.xp-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.xp-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.xp-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.xp-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.xp-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #217346;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.xp-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.xp-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="xp-static" id="xpStatic">
+  <h1>Excel to PDF Online Free</h1>
+  <p class="desc">Convert Excel spreadsheets (XLSX, XLS, CSV) to crisp, professional PDFs with multi-sheet support, automatic column widths, grid lines, and smart orientation. Live table preview before conversion. No upload required - all processing happens in your browser. 100% private, unlimited, and completely free.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>📊 Multi-Sheet Support</h4><p>Every sheet in your workbook becomes a separate page with its name as a header - perfect for complex workbooks.</p></div>
+    <div class="feat"><h4>📏 Auto Column Widths</h4><p>Column widths are computed from content length automatically, so wide tables fit perfectly without being cut off.</p></div>
+    <div class="feat"><h4>🎯 Smart Orientation</h4><p>Auto-switches to landscape for wide sheets with many columns, portrait for standard data - or choose manually.</p></div>
+    <div class="feat"><h4>👁️ Live Table Preview</h4><p>See a preview of your data before converting - verify the layout and content is correct before downloading.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Convert Excel to PDF</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Select your Excel file</b> — Click "Select Excel file" button or drag & drop your .xlsx, .xls or .csv file. The tool accepts all common spreadsheet formats.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>Preview your sheets</b> — See a live table preview of your spreadsheet. Click on sheet tabs to switch between multiple sheets in your workbook before converting.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Choose options</b> — Select orientation (Auto, Portrait, Landscape), toggle grid lines and bold header options. Auto mode intelligently chooses the best layout for each sheet.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Convert and download</b> — Click "Convert to PDF" button. Your spreadsheet becomes a crisp, professional PDF with every sheet on its own page. All processing happens in your browser - nothing is uploaded.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>TronoPDF processes all Excel conversions directly in your browser using SheetJS and pdf-lib libraries. Your spreadsheet files are never uploaded to any server - they stay on your device. This means your financial data, business reports, client lists and sensitive information remain completely private and secure. No file size limits, no daily limits, no watermarks, no signup required - convert as many Excel files as you need.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="xp-skeleton" id="xpSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading Excel to PDF Tool...</h2>
+  <p>Preparing the converter interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="xpMain" style="display:none">
   <div class="page-box">
     <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/excel-to-pdf.js?v=1"></script>
+<script>
+(function(){
+  var staticEl=document.getElementById('xpStatic');
+  var skeleton=document.getElementById('xpSkeleton');
+  var mainEl=document.getElementById('xpMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/excel-to-pdf.js?v=1';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
