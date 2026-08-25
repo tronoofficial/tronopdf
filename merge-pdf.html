@@ -4,87 +4,113 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Merge PDF Online Free - Combine PDF Files | TronoPDF</title>
-<meta content="Merge PDF online free. Combine multiple PDF files into one. Drag and drop, reorder pages, no upload required. 100% private, unlimited, best free PDF merger tool." name="description"/>
-<meta content="merge pdf, pdf merger, combine pdf, merge pdf online, free pdf merger, join pdf files, pdf combiner, merge pdf files, pdf merge tool" name="keywords"/>
+<meta content="Merge multiple PDF files into one document online free. Drag & drop to reorder, no upload required. 100% private and secure." name="description"/>
 <link rel="canonical" href="https://tronopdf.com/merge-pdf.html"/>
-<meta property="og:title" content="Merge PDF Online Free - Combine PDFs | TronoPDF"/>
-<meta property="og:description" content="Merge PDF files online for free. Combine multiple PDFs, drag and drop reorder, no upload required. 100% private and secure."/>
+<meta property="og:title" content="Merge PDF Online Free - TronoPDF"/>
+<meta property="og:description" content="Combine multiple PDF files into one. Free, fast, private."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://tronopdf.com/merge-pdf.html"/>
-<meta property="og:image" content="https://tronopdf.com/og-merge-pdf.png"/>
-<meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="Merge PDF Online Free - TronoPDF"/>
-<meta name="twitter:description" content="Merge PDF files online for free. Combine multiple PDFs, drag and drop reorder, no upload required."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "Merge PDF - TronoPDF",
-  "description": "Merge PDF online free. Combine multiple PDF files into one document with drag and drop reordering.",
+  "description": "Merge multiple PDF files into one document online free. No upload required, 100% private.",
   "url": "https://tronopdf.com/merge-pdf.html",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "USD"
-  },
-  "featureList": "Merge multiple PDFs, Drag and drop reorder, Page thumbnails preview, Add more files anytime, No file upload required, 100% private and secure"
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    {
-      "@type": "Question",
-      "name": "How to merge PDF files online?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Simply select your PDF files, drag and drop to reorder them as needed, and click Merge PDF. Your combined PDF will be ready to download instantly."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Is it safe to merge PDF files online?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes, completely safe. All processing happens in your browser - your files are never uploaded to any server. Your data stays 100% private and secure."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "How many PDF files can I merge at once?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "There's no limit! You can merge as many PDF files as you need. The tool works entirely in your browser, so there are no restrictions on file count or size."
-      }
-    },
-    {
-      "@type": "Question",
-      "name": "Can I reorder pages before merging?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Yes! You can drag and drop PDF files to reorder them before merging. You'll see page thumbnails for each file, making it easy to arrange them in the exact order you want."
-      }
-    }
-  ]
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.loading-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.loading-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #7c3aed;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.loading-skeleton p{color:#6b7280;font-size:15px}
+.static-content{display:none;max-width:900px;margin:80px auto;padding:0 20px}
+.static-content h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937}
+.static-content .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.static-content .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.static-content .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.static-content .step{display:flex;gap:16px;margin-bottom:16px;align-items:start}
+.static-content .step-num{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#f59e0b);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.static-content .step-text{font-size:15px;color:#374151;line-height:1.6}
+.static-content .privacy{margin-top:32px;padding:24px;background:#eef2ff;border-radius:12px;border-left:4px solid #7c3aed}
+.static-content .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin-bottom:8px}
+.static-content .privacy p{font-size:14px;color:#4b5563;margin:0}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
+
+<!-- STATIC CONTENT (Visible to crawlers without JS) -->
+<div class="static-content" id="staticContent">
+  <h1>Merge PDF Online Free</h1>
+  <p class="desc">Combine multiple PDF files into one document instantly. Drag and drop to reorder pages, no file upload required. 100% private and secure - your files never leave your browser.</p>
+  
+  <div class="steps">
+    <h3>How to Merge PDF Files</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><strong>Select PDF files</strong> - Click "Select PDF files" button or drag & drop multiple PDFs. You can add as many PDFs as you want to merge.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><strong>Reorder pages</strong> - Drag and drop PDFs to change the merge order. The final PDF will combine files in the order you arrange them.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><strong>Click Merge</strong> - Press "Merge PDF" button. Your merged PDF will be ready to download in seconds.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><strong>Download</strong> - Save your merged PDF file. All processing happens in your browser - nothing is uploaded to any server.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>Unlike other PDF tools, TronoPDF processes everything in your browser. Your PDF files are never uploaded to any server - they stay on your device. This means your documents are completely private and secure.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (Shows while JS loads) -->
+<div class="loading-skeleton" id="loadingSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading Merge PDF Tool...</h2>
+  <p>Preparing the tool interface. This takes just a moment.</p>
+</div>
+
 <main class="page-wrap">
   <div class="page-box">
-    <div id="toolRoot"><div style="text-align:center;padding:40px"><div style="width:36px;height:36px;margin:0 auto 12px;border:4px solid #e0e7ff;border-top-color:#7c3aed;border-radius:50%;animation:spin .8s linear infinite"></div><p style="font-weight:700;color:#7c3aed">Loading tool...</p></div></div>
+    <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/merge-pdf.js"></script>
-<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+<script>
+// Show loading skeleton immediately, hide static content
+(function(){
+  var skeleton=document.getElementById('loadingSkeleton');
+  var staticContent=document.getElementById('staticContent');
+  if(skeleton){skeleton.style.display='block';}
+  if(staticContent){staticContent.style.display='none';}
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/merge-pdf.js?v=1';
+  script.onload=function(){
+    // Hide skeleton after tool loads
+    setTimeout(function(){
+      if(skeleton){skeleton.style.display='none';}
+    },100);
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
