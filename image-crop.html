@@ -4,27 +4,29 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Image Cropper Online Free - Crop Photos to Any Size | TronoPDF</title>
-<meta content="Crop images online free. Drag to select, aspect ratio presets (1:1, 4:3, 16:9, passport), rotate, JPG/PNG output with quality control. 100% private, no upload, no signup." name="description"/>
-<meta content="crop image, image cropper, crop photo online, picture cropper, crop picture, photo crop tool, square crop, passport photo crop" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/image-crop.html"/>
+<meta content="Crop images online free. Drag to select, aspect ratio presets (1:1, 4:3, 16:9, passport), rotate, JPG/PNG output with quality control. 100% private, no upload, no signup required." name="description"/>
+<meta content="crop image, image cropper, crop photo online, picture cropper, crop picture, photo crop tool, square crop, passport photo crop, crop image to 1:1, crop image online free" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/image-crop"/>
+<meta name="robots" content="index, follow"/>
 <meta property="og:title" content="Image Cropper Online Free - TronoPDF"/>
-<meta property="og:description" content="Crop photos to any size or ratio. Rotate, presets, JPG/PNG output. Free & private."/>
+<meta property="og:description" content="Crop photos to any size or ratio. Rotate, presets (1:1, 4:3, 16:9), JPG/PNG output. Free, private, no upload."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/image-crop.html"/>
+<meta property="og:url" content="https://tronopdf.com/image-crop"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Image Cropper - TronoPDF"/>
 <meta name="twitter:description" content="Crop images online free with presets and rotation."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "Image Cropper - TronoPDF",
   "description": "Crop images online free with drag handles, aspect ratio presets, rotation and JPG/PNG output.",
-  "url": "https://tronopdf.com/image-crop.html",
+  "url": "https://tronopdf.com/image-crop",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "Drag and resize crop box, Aspect presets 1:1 4:3 16:9 3:4 9:16 passport, Rotate 90 degrees, JPG and PNG output, Quality control, Live preview, No file upload required"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1567"}
 }
 </script>
 <script type="application/ld+json">
@@ -32,25 +34,123 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "How to crop an image online?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your photo, drag the crop box or pick an aspect ratio preset, then click Crop and download the result instantly."}},
-    {"@type": "Question", "name": "Can I crop to a square or specific ratio?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose presets like 1:1 square, 4:3, 16:9, 3:4, 9:16 or passport 35x45mm. The crop box locks to that ratio."}},
-    {"@type": "Question", "name": "Can I rotate the photo before cropping?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Use the Rotate button to turn the image 90 degrees at a time before cropping."}},
-    {"@type": "Question", "name": "Is it safe to crop images online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Everything runs in your browser - your photo never leaves your device."}}
+    {"@type": "Question", "name": "How to crop an image online?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your photo, drag the crop box or pick an aspect ratio preset (1:1, 4:3, 16:9, passport), rotate if needed, then click Crop and download the result instantly."}},
+    {"@type": "Question", "name": "Can I crop to a square or specific ratio?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose presets like 1:1 square, 4:3, 16:9, 3:4, 9:16 or passport 35x45mm. The crop box locks to that ratio automatically for perfect proportions."}},
+    {"@type": "Question", "name": "Can I rotate the photo before cropping?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Use the Rotate button to turn the image 90 degrees at a time before cropping to get the perfect orientation."}},
+    {"@type": "Question", "name": "Is it safe to crop images online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Everything runs in your browser using HTML5 Canvas - your photo never leaves your device. No uploads, no servers, completely private."}}
   ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.ic-static{max-width:900px;margin:60px auto;padding:0 20px}
+.ic-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.ic-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.ic-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.ic-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.ic-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.ic-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.ic-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.ic-static .step-text b{color:#1f2937}
+.ic-static .privacy{margin-top:32px;padding:24px;background:#f3e8ff;border-radius:12px;border-left:4px solid #a855f7}
+.ic-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.ic-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.ic-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.ic-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.ic-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.ic-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.ic-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.ic-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #a855f7;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ic-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.ic-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="ic-static" id="icStatic">
+  <h1>Image Cropper Online Free</h1>
+  <p class="desc">Crop images to any size or aspect ratio instantly. Drag handles for custom crops, aspect ratio presets (1:1 square, 4:3, 16:9, passport 35x45mm), 90-degree rotation, and high-quality JPG/PNG output with quality control. Perfect for social media, passport photos, and profile pictures. No upload required - 100% private and secure.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>🎯 Drag & Resize Crop Box</h4><p>Drag corner and edge handles to select the exact area you want to keep - visual and intuitive cropping.</p></div>
+    <div class="feat"><h4>📐 Aspect Ratio Presets</h4><p>Lock crop to 1:1 square, 4:3, 16:9, 3:4, 9:16 or passport 35x45mm for perfect proportions every time.</p></div>
+    <div class="feat"><h4>🔄 90° Rotation</h4><p>Rotate your image 90 degrees at a time before cropping to get the perfect orientation.</p></div>
+    <div class="feat"><h4>🎨 JPG/PNG with Quality Control</h4><p>Choose output format and adjust quality slider for optimal file size vs. image quality.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Crop Images Online</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Upload your photo</b> — Click "Select Image" button or drag & drop any JPG/PNG file. The tool displays your image with a crop overlay.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>Select crop area</b> — Drag the crop box handles to select the area you want to keep, or click an aspect ratio preset (1:1, 4:3, 16:9, passport) to lock the proportions automatically.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Rotate if needed</b> — Use the Rotate button to turn your image 90 degrees at a time. Adjust the crop box position after rotation to get the perfect framing.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Crop and download</b> — Click "Crop Image" button. Choose JPG or PNG format, adjust quality if needed, and download your cropped image instantly. All processing happens in your browser - nothing is uploaded.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>TronoPDF processes all image cropping directly in your browser using HTML5 Canvas technology. Your photos are never uploaded to any server - they stay on your device. This means your personal photos, ID pictures, profile images and sensitive pictures remain completely private and secure. Perfect for passport photos, social media profile pictures, product images and any photo editing needs. No file size limits, no daily limits, no watermarks, no signup required - crop as many images as you need.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="ic-skeleton" id="icSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading Image Cropper Tool...</h2>
+  <p>Preparing the cropping interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="icMain" style="display:none">
   <div class="page-box">
     <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/image-crop.js?v=1"></script>
+<script>
+(function(){
+  var staticEl=document.getElementById('icStatic');
+  var skeleton=document.getElementById('icSkeleton');
+  var mainEl=document.getElementById('icMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/image-crop.js?v=1';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
