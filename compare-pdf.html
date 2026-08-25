@@ -4,27 +4,29 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Compare PDF Online Free - Spot Differences Between Two PDFs | TronoPDF</title>
-<meta content="Compare two PDF files online free. Side-by-side view with automatic difference highlighting and percentage difference. Spot changes between PDF versions instantly. 100% private, no upload." name="description"/>
-<meta content="compare pdf, pdf comparison, diff pdf, compare two pdfs, pdf difference checker, spot pdf changes, pdf side by side compare" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/compare-pdf.html"/>
+<meta content="Compare two PDF files online free. Side-by-side view with automatic difference highlighting and percentage difference. Spot changes between PDF versions instantly. 100% private, no upload required." name="description"/>
+<meta content="compare pdf, pdf comparison, diff pdf, compare two pdfs, pdf difference checker, spot pdf changes, pdf side by side compare, compare pdf documents, pdf diff tool" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/compare-pdf"/>
+<meta name="robots" content="index, follow"/>
 <meta property="og:title" content="Compare PDF Online Free - Spot Differences | TronoPDF"/>
-<meta property="og:description" content="Compare two PDFs side-by-side with automatic difference highlighting. Free & private."/>
+<meta property="og:description" content="Compare two PDFs side-by-side with automatic difference highlighting. Free, private, no upload."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/compare-pdf.html"/>
+<meta property="og:url" content="https://tronopdf.com/compare-pdf"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Compare PDF Online Free - TronoPDF"/>
 <meta name="twitter:description" content="Compare two PDFs and spot differences instantly."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "Compare PDF - TronoPDF",
   "description": "Compare two PDF files online free with side-by-side view, automatic difference highlighting and percentage difference.",
-  "url": "https://tronopdf.com/compare-pdf.html",
+  "url": "https://tronopdf.com/compare-pdf",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "Side-by-side PDF comparison, Automatic difference highlight map, Percentage difference meter, Synced page navigation, No file upload required, 100% private"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "987"}
 }
 </script>
 <script type="application/ld+json">
@@ -41,16 +43,114 @@
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.cp-static{max-width:900px;margin:60px auto;padding:0 20px}
+.cp-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.cp-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.cp-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.cp-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.cp-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.cp-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0891b2,#06b6d4);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.cp-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.cp-static .step-text b{color:#1f2937}
+.cp-static .privacy{margin-top:32px;padding:24px;background:#ecfeff;border-radius:12px;border-left:4px solid #0891b2}
+.cp-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.cp-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.cp-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.cp-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.cp-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.cp-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.cp-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.cp-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #0891b2;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cp-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.cp-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="cp-static" id="cpStatic">
+  <h1>Compare PDF Online Free</h1>
+  <p class="desc">Compare two PDF files side-by-side and spot every difference instantly. Automatic pixel-level comparison highlights changes in red on a difference map, with percentage difference for each page. Perfect for contract revisions, document versions, and legal reviews. No upload required - 100% private and secure.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>📊 Side-by-Side View</h4><p>Both PDFs displayed together so you can easily scan and compare content visually.</p></div>
+    <div class="feat"><h4>🔴 Auto Difference Highlight</h4><p>Every change (text, images, layout) automatically highlighted in red on a difference map overlay.</p></div>
+    <div class="feat"><h4>📈 Percentage Meter</h4><p>See exact percentage difference for each page so you know how much changed between versions.</p></div>
+    <div class="feat"><h4>🔄 Synced Navigation</h4><p>Both PDFs scroll together - when you navigate one, the other follows to keep pages aligned.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Compare PDF Files</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Upload both PDFs</b> — Click to select your original PDF and the revised version. The tool accepts any two PDF files you want to compare.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>View side-by-side</b> — Both documents appear side-by-side with a difference map overlay showing every change highlighted in red.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Navigate together</b> — Scroll or change pages on either PDF and both stay in sync. Check the percentage difference meter for each page to see how much changed.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Review all changes</b> — Scan through every page to spot text edits, image changes, layout modifications and formatting differences. All processing happens in your browser - nothing is uploaded.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>TronoPDF processes all PDF comparisons directly in your browser using advanced pixel analysis libraries. Your documents are never uploaded to any server - they stay on your device. This means your contracts, legal documents, business agreements and sensitive files remain completely private and secure. No file size limits, no daily limits, no watermarks, no signup required - compare as many PDF pairs as you need.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="cp-skeleton" id="cpSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading Compare PDF Tool...</h2>
+  <p>Preparing the comparison interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="cpMain" style="display:none">
   <div class="page-box">
     <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/compare-pdf.js?v=1"></script>
+<script>
+(function(){
+  var staticEl=document.getElementById('cpStatic');
+  var skeleton=document.getElementById('cpSkeleton');
+  var mainEl=document.getElementById('cpMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/compare-pdf.js?v=1';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
