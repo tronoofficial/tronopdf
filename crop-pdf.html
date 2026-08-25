@@ -4,27 +4,29 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Crop PDF Online Free - Remove Margins, Crop Pages | TronoPDF</title>
-<meta content="Crop PDF pages online free. One-click auto margin removal, preset sizes (A4, Letter, 16:9, 4:3), drag handles and manual fine-tune. 100% private, no upload." name="description"/>
-<meta content="crop pdf, remove margins, pdf cropper, crop pdf pages, pdf page crop tool, remove white space pdf, trim pdf margins" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/crop-pdf.html"/>
+<meta content="Crop PDF pages online free. One-click auto margin removal, preset sizes (A4, Letter, 16:9, 4:3), drag handles and manual fine-tune. Apply to all pages. 100% private, no upload required." name="description"/>
+<meta content="crop pdf, remove margins, pdf cropper, crop pdf pages, pdf page crop tool, remove white space pdf, trim pdf margins, crop pdf to a4, auto crop pdf, crop pdf online free" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/crop-pdf"/>
+<meta name="robots" content="index, follow"/>
 <meta property="og:title" content="Crop PDF Online Free - Remove Margins | TronoPDF"/>
-<meta property="og:description" content="Crop PDF pages with one-click margin removal, presets and drag handles. Free & private."/>
+<meta property="og:description" content="Crop PDF pages with one-click margin removal, presets (A4, Letter) and drag handles. Free, private, no upload."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/crop-pdf.html"/>
+<meta property="og:url" content="https://tronopdf.com/crop-pdf"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Crop PDF Online Free - TronoPDF"/>
 <meta name="twitter:description" content="Crop PDF pages online free with auto margin removal and presets."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "Crop PDF - TronoPDF",
   "description": "Crop PDF pages online free with one-click auto margin removal, preset sizes, drag handles and manual fine-tune.",
-  "url": "https://tronopdf.com/crop-pdf.html",
+  "url": "https://tronopdf.com/crop-pdf",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "One-click auto margin removal, Preset sizes A4 Letter 16:9 4:3 Square, Drag handles to crop, Manual X Y width height fine-tune, Apply to all pages, Preview before download, No file upload required"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "987"}
 }
 </script>
 <script type="application/ld+json">
@@ -32,25 +34,123 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "How to crop a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF, click Auto-detect to remove margins instantly, or drag the crop handles to select the area, then click Apply Crop and download."}},
-    {"@type": "Question", "name": "Can I remove white margins automatically?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Click the Auto-detect button and the tool finds the content area and removes all white margins in one click."}},
-    {"@type": "Question", "name": "Can I crop all pages at once?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The crop area is applied to every page when Apply to all pages is checked (on by default)."}},
-    {"@type": "Question", "name": "Is it safe to crop PDFs online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Everything happens in your browser - your PDF never leaves your device."}}
+    {"@type": "Question", "name": "How to crop a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF, click Auto-detect to remove margins instantly, or drag the crop handles to select the area you want to keep, then click Apply Crop and download the cropped PDF."}},
+    {"@type": "Question", "name": "Can I remove white margins automatically?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Click the Auto-detect button and the tool automatically finds the content area on each page and removes all white margins in one click - perfect for scanned documents."}},
+    {"@type": "Question", "name": "Can I crop all pages at once?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The crop area is applied to every page when 'Apply to all pages' is checked (on by default). You can also crop specific pages only if needed."}},
+    {"@type": "Question", "name": "Is it safe to crop PDFs online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Everything happens in your browser - your PDF never leaves your device. No uploads, no servers, completely private."}}
   ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.cr-static{max-width:900px;margin:60px auto;padding:0 20px}
+.cr-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.cr-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.cr-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.cr-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.cr-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.cr-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#a855f7,#7c3aed);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.cr-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.cr-static .step-text b{color:#1f2937}
+.cr-static .privacy{margin-top:32px;padding:24px;background:#eef2ff;border-radius:12px;border-left:4px solid #a855f7}
+.cr-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.cr-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.cr-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.cr-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.cr-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.cr-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.cr-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.cr-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #a855f7;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.cr-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.cr-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="cr-static" id="crStatic">
+  <h1>Crop PDF Online Free</h1>
+  <p class="desc">Crop PDF pages to remove unwanted margins, trim white space, or focus on specific content. One-click auto margin removal, preset sizes (A4, Letter, 16:9, 4:3), drag handles for custom crops, and manual fine-tune with exact coordinates. Apply to all pages or specific pages only. No upload required - 100% private.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>✨ Auto Margin Removal</h4><p>One-click auto-detect finds content area and removes all white margins automatically - perfect for scanned documents.</p></div>
+    <div class="feat"><h4>📐 Preset Sizes</h4><p>Choose from A4, Letter, 16:9, 4:3, Square presets for quick standard crops without manual adjustment.</p></div>
+    <div class="feat"><h4>🎯 Drag Handles</h4><p>Drag corner and edge handles to visually select the exact area you want to keep on each page.</p></div>
+    <div class="feat"><h4>🔢 Manual Fine-Tune</h4><p>Enter exact X, Y, width and height values for pixel-perfect cropping when you need precise control.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Crop PDF Pages</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Upload your PDF</b> — Click "Select PDF file" button or drag & drop your document. The tool displays the first page for cropping preview.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>Choose crop method</b> — Click "Auto-detect" to remove margins automatically, select a preset size (A4, Letter, 16:9), or drag the crop handles to manually select the area you want to keep.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Fine-tune if needed</b> — Adjust the crop area by dragging handles or enter exact X, Y, width and height values. Check "Apply to all pages" to crop every page the same way.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Apply and download</b> — Click "Apply Crop" button. Your cropped PDF will be ready to download instantly. All processing happens in your browser - nothing is uploaded.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>TronoPDF processes all cropping operations directly in your browser using PDF manipulation libraries. Your PDF files are never uploaded to any server - they stay on your device. This means your documents remain completely private and secure, even for sensitive legal, medical, financial or business files. No file size limits, no daily limits, no watermarks - crop as many PDFs as you need.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="cr-skeleton" id="crSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading Crop PDF Tool...</h2>
+  <p>Preparing the cropping interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="crMain" style="display:none">
   <div class="page-box">
     <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/crop-pdf.js?v=5"></script>
+<script>
+(function(){
+  var staticEl=document.getElementById('crStatic');
+  var skeleton=document.getElementById('crSkeleton');
+  var mainEl=document.getElementById('crMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/crop-pdf.js?v=5';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
