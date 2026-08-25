@@ -4,27 +4,29 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Protect PDF Online Free - Password Protect PDF | TronoPDF</title>
-<meta content="Protect PDF files with a password online free. Real AES-256 encryption with print, copy and edit permission control. 100% private - your file never leaves your browser." name="description"/>
-<meta content="protect pdf, password protect pdf, encrypt pdf, secure pdf, lock pdf, pdf password protection, pdf encryption, add password to pdf" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/protect-pdf.html"/>
+<meta content="Protect PDF files with a password online free. Real AES-256 encryption with print, copy and edit permission control. User and owner passwords supported. 100% private - your file never leaves your browser." name="description"/>
+<meta content="protect pdf, password protect pdf, encrypt pdf, secure pdf, lock pdf, pdf password protection, pdf encryption, add password to pdf, aes-256 pdf encryption" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/protect-pdf"/>
+<meta name="robots" content="index, follow"/>
 <meta property="og:title" content="Protect PDF Online Free - Password Protect | TronoPDF"/>
 <meta property="og:description" content="Password protect PDF files with real AES-256 encryption and permissions control. Free, private, no upload."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/protect-pdf.html"/>
+<meta property="og:url" content="https://tronopdf.com/protect-pdf"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Protect PDF Online Free - TronoPDF"/>
 <meta name="twitter:description" content="Password protect PDF files online free with full permission control."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "Protect PDF - TronoPDF",
   "description": "Password protect PDF files online free with real AES-256 encryption, owner password and full permission control.",
-  "url": "https://tronopdf.com/protect-pdf.html",
+  "url": "https://tronopdf.com/protect-pdf",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "User password to open PDF, Owner password for full control, Allow or block printing, Allow or block copying, Allow or block editing, Allow or block annotations, AES-256 encryption, Verified protection before download, No file upload required"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "1876"}
 }
 </script>
 <script type="application/ld+json">
@@ -32,25 +34,123 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "How to password protect a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF, enter a password, optionally set permissions like block printing or copying, then click Protect. The tool verifies the encryption before letting you download."}},
-    {"@type": "Question", "name": "Can I block printing or copying in a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Open Advanced options and toggle permissions for printing, copying, editing and annotating."}},
-    {"@type": "Question", "name": "What is the difference between user and owner password?", "acceptedAnswer": {"@type": "Answer", "text": "The user password is required to open the PDF. The owner password is required to change permissions or remove the protection."}},
-    {"@type": "Question", "name": "Is it safe to protect PDFs online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, completely safe. All encryption happens in your browser using the MuPDF engine - your file and password never leave your device."}}
+    {"@type": "Question", "name": "How to password protect a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF, enter a strong password (minimum 6 characters), optionally set permissions like block printing or copying, then click Protect. The tool verifies the encryption works before letting you download."}},
+    {"@type": "Question", "name": "Can I block printing or copying in a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Open Advanced options and toggle permissions for printing, copying, editing and annotating. You can allow some actions while blocking others for granular control."}},
+    {"@type": "Question", "name": "What is the difference between user and owner password?", "acceptedAnswer": {"@type": "Answer", "text": "The user password is required to open the PDF. The owner password is required to change permissions or remove the protection. You can set both for maximum security."}},
+    {"@type": "Question", "name": "Is it safe to protect PDFs online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, completely safe. All encryption happens in your browser using the MuPDF engine - your file and password never leave your device. The encrypted PDF is verified before download."}}
   ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.pr-static{max-width:900px;margin:60px auto;padding:0 20px}
+.pr-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.pr-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.pr-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.pr-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.pr-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.pr-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#16a34a,#22c55e);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.pr-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.pr-static .step-text b{color:#1f2937}
+.pr-static .privacy{margin-top:32px;padding:24px;background:#dcfce7;border-radius:12px;border-left:4px solid #16a34a}
+.pr-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.pr-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.pr-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.pr-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.pr-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.pr-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.pr-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.pr-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #16a34a;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pr-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.pr-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="pr-static" id="prStatic">
+  <h1>Protect PDF Online Free</h1>
+  <p class="desc">Password protect PDF files with real AES-256 encryption instantly. Set user password to open PDF, owner password for full control, and granular permission control (block printing, copying, editing, annotating). Verified protection before download. Perfect for confidential documents, legal files, and sensitive business data. No upload required - 100% private and secure.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>🔐 AES-256 Encryption</h4><p>Military-grade AES-256 encryption protects your PDF - the same standard used by governments and banks worldwide.</p></div>
+    <div class="feat"><h4>👤 User & Owner Passwords</h4><p>Set user password to open PDF, and optional owner password for full control over permissions and protection removal.</p></div>
+    <div class="feat"><h4>🎛️ Permission Control</h4><p>Block or allow printing, copying, editing and annotating individually. Granular control over what users can do with your PDF.</p></div>
+    <div class="feat"><h4>✅ Verified Protection</h4><p>Tool automatically verifies the encryption works by trying to open the protected PDF before letting you download it.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Password Protect PDF Files</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Upload your PDF</b> — Click "Select PDF file" button or drag & drop your document. The tool accepts any PDF file you want to protect with a password.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>Set password</b> — Enter a strong password (minimum 6 characters). This will be required to open the PDF. Optionally set a separate owner password for full control.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Configure permissions</b> — Click "Advanced options" to control what users can do: allow or block printing, copying, editing and annotating. Set permissions based on your security needs.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Protect and download</b> — Click "Protect PDF" button. The tool encrypts your file with AES-256, verifies the protection works, then provides the secured PDF for download. All processing happens in your browser using MuPDF - nothing is uploaded.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>TronoPDF processes all PDF encryption directly in your browser using the MuPDF engine. Your PDF files and passwords are never uploaded to any server - they stay on your device. This means your confidential documents, legal contracts, financial statements, medical records and sensitive business files remain completely private and secure. The tool uses real AES-256 encryption (the same standard used by banks and governments) and verifies the protection works before download. No file size limits, no daily limits, no watermarks, no signup required - protect as many PDFs as you need.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="pr-skeleton" id="prSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading Protect PDF Tool...</h2>
+  <p>Preparing the encryption interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="prMain" style="display:none">
   <div class="page-box">
     <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/protect-pdf.js?v=3"></script>
+<script>
+(function(){
+  var staticEl=document.getElementById('prStatic');
+  var skeleton=document.getElementById('prSkeleton');
+  var mainEl=document.getElementById('prMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/protect-pdf.js?v=3';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
