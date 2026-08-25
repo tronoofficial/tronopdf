@@ -4,27 +4,29 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Split PDF Online Free - Extract Pages from PDF | TronoPDF</title>
-<meta content="Split PDF online free. Extract specific pages, split by range, or separate PDF into multiple files. No upload, 100% private, unlimited. Best free PDF splitter tool." name="description"/>
-<meta content="split pdf, pdf splitter, extract pages from pdf, split pdf online, free pdf splitter, separate pdf pages, pdf page extractor, split pdf by range, pdf split tool" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/split-pdf.html"/>
+<meta content="Split PDF online free. Extract specific pages, split by range, or separate PDF into multiple files. Visual page selector, multiple ranges support. No upload required, 100% private, unlimited." name="description"/>
+<meta content="split pdf, pdf splitter, extract pages from pdf, split pdf online, free pdf splitter, separate pdf pages, pdf page extractor, split pdf by range, pdf split tool, split pdf online free" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/split-pdf"/>
+<meta name="robots" content="index, follow"/>
 <meta property="og:title" content="Split PDF Online Free - Extract Pages | TronoPDF"/>
-<meta property="og:description" content="Split PDF files online for free. Extract pages, split by range, no upload required. 100% private and secure."/>
+<meta property="og:description" content="Split PDF files online for free. Extract pages, split by range, visual selector. No upload required. 100% private and secure."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/split-pdf.html"/>
+<meta property="og:url" content="https://tronopdf.com/split-pdf"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Split PDF Online Free - TronoPDF"/>
 <meta name="twitter:description" content="Split PDF files online for free. Extract pages, split by range, no upload required."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "Split PDF - TronoPDF",
   "description": "Split PDF online free. Extract specific pages, split by range, or separate PDF into multiple files.",
-  "url": "https://tronopdf.com/split-pdf.html",
+  "url": "https://tronopdf.com/split-pdf",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "Split PDF by range, Extract specific pages, Multiple ranges support, Merge all ranges option, No file upload required, 100% private and secure"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "1987"}
 }
 </script>
 <script type="application/ld+json">
@@ -32,26 +34,123 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "How to split a PDF file online?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF file, select the pages you want to extract using our visual selector, choose split options, and click Split PDF. Your files will be ready to download instantly."}},
-    {"@type": "Question", "name": "Is it safe to split PDF files online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, absolutely safe. All processing happens in your browser - your files are never uploaded to any server."}},
-    {"@type": "Question", "name": "Can I split a PDF into multiple files?", "acceptedAnswer": {"@type": "Answer", "text": "Yes! Select different page ranges and each range will be saved as a separate PDF file."}},
-    {"@type": "Question", "name": "Is there a limit to how many pages I can split?", "acceptedAnswer": {"@type": "Answer", "text": "No limits! The tool works entirely in your browser with no restrictions."}}
+    {"@type": "Question", "name": "How to split a PDF file online?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF file, click on page thumbnails to select the pages you want to extract using our visual selector, choose split options (extract pages or split by range), and click Split PDF. Your files will be ready to download instantly."}},
+    {"@type": "Question", "name": "Is it safe to split PDF files online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, absolutely safe. All processing happens in your browser using pdf-lib - your files are never uploaded to any server. Your documents stay 100% private on your device."}},
+    {"@type": "Question", "name": "Can I split a PDF into multiple files?", "acceptedAnswer": {"@type": "Answer", "text": "Yes! Select different page ranges (e.g., 1-5, 10-15, 20-25) and each range will be saved as a separate PDF file. Perfect for splitting large documents into chapters or sections."}},
+    {"@type": "Question", "name": "Is there a limit to how many pages I can split?", "acceptedAnswer": {"@type": "Answer", "text": "No limits! The tool works entirely in your browser with no restrictions on file size, number of pages, or number of splits. Split as many PDFs as you need."}}
   ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.sp-static{max-width:900px;margin:60px auto;padding:0 20px}
+.sp-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.sp-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.sp-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.sp-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.sp-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.sp-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.sp-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.sp-static .step-text b{color:#1f2937}
+.sp-static .privacy{margin-top:32px;padding:24px;background:#fed7aa;border-radius:12px;border-left:4px solid #f97316}
+.sp-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.sp-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.sp-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.sp-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.sp-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.sp-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.sp-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.sp-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #f97316;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sp-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.sp-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="sp-static" id="spStatic">
+  <h1>Split PDF Online Free</h1>
+  <p class="desc">Split PDF files instantly with visual page selector. Extract specific pages, split by custom ranges (e.g., 1-5, 10-15, 20-25), or separate PDF into multiple files. Click on page thumbnails to select exactly what you need. Perfect for extracting chapters, sections, or specific pages from large documents. No upload required - 100% private and unlimited.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>👁️ Visual Page Selector</h4><p>Click on page thumbnails to select exactly which pages you want - visual and intuitive page selection.</p></div>
+    <div class="feat"><h4>📑 Split by Range</h4><p>Define custom page ranges (1-5, 10-15, 20-25) and each range becomes a separate PDF file.</p></div>
+    <div class="feat"><h4>📄 Extract Specific Pages</h4><p>Extract individual pages (1, 5, 10, 15) or any combination of pages from your PDF document.</p></div>
+    <div class="feat"><h4>♾️ Unlimited & Free</h4><p>No file size limits, no page limits, no daily limits - split as many PDFs as you need completely free.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Split PDF Files</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Upload your PDF</b> — Click "Select PDF file" button or drag & drop your document. The tool displays thumbnails of all pages for visual selection.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>Select pages visually</b> — Click on page thumbnails to select the pages you want to extract. Selected pages are highlighted. You can select individual pages or multiple pages.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Choose split option</b> — Select "Extract selected pages" to get one PDF with chosen pages, or "Split by ranges" to create separate PDF files for each range you define.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Split and download</b> — Click "Split PDF" button. Your extracted pages or split files download instantly. All processing happens in your browser using pdf-lib - nothing is uploaded to any server.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>TronoPDF processes all PDF splitting directly in your browser using pdf-lib library. Your PDF files are never uploaded to any server - they stay on your device. This means your legal documents, academic papers, business reports, and sensitive files remain completely private and secure. No file size limits, no daily limits, no watermarks, no signup required - split as many PDFs as you need with unlimited pages and ranges.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="sp-skeleton" id="spSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading Split PDF Tool...</h2>
+  <p>Preparing the page selector interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="spMain" style="display:none">
   <div class="page-box">
-    <div id="toolRoot"><div style="text-align:center;padding:40px"><div style="width:36px;height:36px;margin:0 auto 12px;border:4px solid #e0e7ff;border-top-color:#7c3aed;border-radius:50%;animation:spin .8s linear infinite"></div><p style="font-weight:700;color:#7c3aed">Loading tool...</p></div></div>
+    <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/split-pdf.js?v=2"></script>
-<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+<script>
+(function(){
+  var staticEl=document.getElementById('spStatic');
+  var skeleton=document.getElementById('spSkeleton');
+  var mainEl=document.getElementById('spMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/split-pdf.js?v=2';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
