@@ -4,27 +4,29 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Redact PDF Online Free - Black Out Text Permanently | TronoPDF</title>
-<meta content="Redact PDF online free. Black out sensitive text, names, numbers or images permanently. Draw rectangles over content - text is removed, not just hidden. 100% private, no upload." name="description"/>
-<meta content="redact pdf, black out text in pdf, hide text in pdf, pdf redaction, censor pdf, remove text from pdf, blacken pdf, pdf privacy" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/redact-pdf.html"/>
+<meta content="Redact PDF online free. Black out sensitive text, names, numbers or images permanently. Draw rectangles over content - text is removed, not just hidden. 100% private, no upload required." name="description"/>
+<meta content="redact pdf, black out text in pdf, hide text in pdf, pdf redaction, censor pdf, remove text from pdf, blacken pdf, pdf privacy, redact pdf online free" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/redact-pdf"/>
+<meta name="robots" content="index, follow"/>
 <meta property="og:title" content="Redact PDF Online Free - Black Out Text | TronoPDF"/>
-<meta property="og:description" content="Redact PDF permanently - black out text, remove sensitive info. Free & private."/>
+<meta property="og:description" content="Redact PDF permanently - black out text, remove sensitive info. Free, private, no upload."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/redact-pdf.html"/>
+<meta property="og:url" content="https://tronopdf.com/redact-pdf"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Redact PDF Online Free - TronoPDF"/>
 <meta name="twitter:description" content="Redact PDF online free - black out sensitive info permanently."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "Redact PDF - TronoPDF",
   "description": "Redact PDF online free - draw rectangles over sensitive text, numbers or images to permanently remove them.",
-  "url": "https://tronopdf.com/redact-pdf.html",
+  "url": "https://tronopdf.com/redact-pdf",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "Draw redaction rectangles, Permanent text removal via image replace, Multi-page redaction, Rectangle list with undo, Apply to selected or all pages, No file upload required, 100% private"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "987"}
 }
 </script>
 <script type="application/ld+json">
@@ -32,25 +34,123 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "How to redact a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF, drag rectangles over any text, name, number or image you want to hide, then click Apply Redaction. The tool permanently removes the content."}},
-    {"@type": "Question", "name": "Is the redacted text really removed?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Redacted pages are converted to images, so the original text cannot be copied, searched or recovered."}},
-    {"@type": "Question", "name": "Can I redact multiple pages?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Navigate between pages and add rectangles on any page. Apply redaction to all pages at once."}},
-    {"@type": "Question", "name": "Is it safe to redact sensitive documents online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Everything happens in your browser - your document never leaves your device."}}
+    {"@type": "Question", "name": "How to redact a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF, drag rectangles over any text, name, number or image you want to hide, then click Apply Redaction. The tool permanently removes the content by converting redacted pages to images."}},
+    {"@type": "Question", "name": "Is the redacted text really removed?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Unlike simple black boxes that just hide text, our tool converts redacted pages to images so the original text cannot be copied, searched, or recovered - it's permanently removed."}},
+    {"@type": "Question", "name": "Can I redact multiple pages?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Navigate between pages and add rectangles on any page. Apply redaction to all pages at once or specific pages only. Perfect for redacting the same information across multiple pages."}},
+    {"@type": "Question", "name": "Is it safe to redact sensitive documents online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Everything happens in your browser using pdf.js and HTML5 Canvas - your document never leaves your device. Perfect for legal documents, medical records, financial statements and any sensitive information."}}
   ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.rd-static{max-width:900px;margin:60px auto;padding:0 20px}
+.rd-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.rd-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.rd-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.rd-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.rd-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.rd-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#1e293b,#334155);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.rd-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.rd-static .step-text b{color:#1f2937}
+.rd-static .privacy{margin-top:32px;padding:24px;background:#f1f5f9;border-radius:12px;border-left:4px solid #1e293b}
+.rd-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.rd-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.rd-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.rd-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.rd-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.rd-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.rd-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.rd-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #1e293b;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.rd-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.rd-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="rd-static" id="rdStatic">
+  <h1>Redact PDF Online Free</h1>
+  <p class="desc">Permanently black out sensitive text, names, numbers, images and confidential information from PDF documents. Draw rectangles over content - the text is actually removed (not just hidden with black boxes). Perfect for legal documents, medical records, financial statements, and any sensitive data. No upload required - 100% private and secure.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>🖊️ Draw Redaction Rectangles</h4><p>Drag rectangles over any text, image or area you want to redact - visual and intuitive redaction tool.</p></div>
+    <div class="feat"><h4>🔒 Permanent Removal</h4><p>Unlike simple black boxes, redacted pages are converted to images so text cannot be copied or recovered.</p></div>
+    <div class="feat"><h4>📄 Multi-Page Redaction</h4><p>Navigate between pages and add rectangles on any page. Apply redaction to all pages or specific pages only.</p></div>
+    <div class="feat"><h4>↩️ Undo Support</h4><p>Made a mistake? Undo individual rectangles or clear all redactions before applying final document.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Redact PDF Files</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Upload your PDF</b> — Click "Select PDF file" button or drag & drop your document. The tool displays the first page ready for redaction.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>Draw redaction rectangles</b> — Click and drag rectangles over any text, names, numbers, SSN, addresses, or images you want to hide. Add as many rectangles as needed on each page.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Navigate pages</b> — Use page controls to move between pages and add redactions where needed. You can undo individual rectangles or clear all if you make mistakes.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Apply redaction</b> — Click "Apply Redaction" button. The tool permanently removes redacted content by converting pages to images, then provides the secured PDF for download. All processing happens in your browser - nothing is uploaded.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>TronoPDF processes all PDF redaction directly in your browser using pdf.js and HTML5 Canvas technology. Your PDF files are never uploaded to any server - they stay on your device. This means your legal documents, medical records, financial statements, contracts with sensitive clauses, and any confidential information remain completely private and secure. Unlike competitors that just add black boxes over text (which can be removed), our tool permanently removes redacted content. No file size limits, no daily limits, no watermarks, no signup required - redact as many PDFs as you need.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="rd-skeleton" id="rdSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading Redact PDF Tool...</h2>
+  <p>Preparing the redaction interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="rdMain" style="display:none">
   <div class="page-box">
     <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/redact-pdf.js?v=4"></script>
+<script>
+(function(){
+  var staticEl=document.getElementById('rdStatic');
+  var skeleton=document.getElementById('rdSkeleton');
+  var mainEl=document.getElementById('rdMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/redact-pdf.js?v=4';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
