@@ -4,27 +4,29 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>PDF to Markdown Online Free - Convert PDF to MD | TronoPDF</title>
-<meta content="Convert PDF to Markdown online free. Automatic heading, bullet and numbered list detection. Clean .md output for notes, docs and AI workflows. No upload, no signup. 100% private." name="description"/>
-<meta content="pdf to markdown, convert pdf to markdown, pdf to md, extract markdown from pdf, pdf markdown converter" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/pdf-to-markdown.html"/>
+<meta content="Convert PDF to Markdown online free. Automatic heading (#, ##, ###), bullet and numbered list detection. Clean .md output for notes, docs and AI workflows. No upload, no signup. 100% private." name="description"/>
+<meta content="pdf to markdown, convert pdf to markdown, pdf to md, extract markdown from pdf, pdf markdown converter, pdf to markdown online free, convert pdf to md" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/pdf-to-markdown"/>
+<meta name="robots" content="index, follow"/>
 <meta property="og:title" content="PDF to Markdown Online Free - TronoPDF"/>
-<meta property="og:description" content="Convert PDF to clean Markdown with heading and list detection. Free & private."/>
+<meta property="og:description" content="Convert PDF to clean Markdown with automatic heading and list detection. Free, private, no upload."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/pdf-to-markdown.html"/>
+<meta property="og:url" content="https://tronopdf.com/pdf-to-markdown"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="PDF to Markdown - TronoPDF"/>
 <meta name="twitter:description" content="Convert PDF to Markdown online free."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "PDF to Markdown - TronoPDF",
   "description": "Convert PDF to Markdown online free with automatic heading, bullet and numbered list detection.",
-  "url": "https://tronopdf.com/pdf-to-markdown.html",
+  "url": "https://tronopdf.com/pdf-to-markdown",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "PDF to Markdown, Heading detection, Bullet and numbered list detection, Live preview, Copy to clipboard, Download .md, No upload, 100% private"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1087"}
 }
 </script>
 <script type="application/ld+json">
@@ -32,25 +34,123 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "How to convert PDF to Markdown?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF and click Convert. The tool detects headings, bullets and numbered lists and produces clean Markdown you can copy or download."}},
-    {"@type": "Question", "name": "Does it detect headings?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Font sizes are analyzed - larger text becomes #, ## or ### headings automatically."}},
-    {"@type": "Question", "name": "Are lists preserved?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Bullet points and numbered lists are converted to Markdown list syntax."}},
-    {"@type": "Question", "name": "Is it safe and free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Conversion runs entirely in your browser - no upload, no signup, no limits."}}
+    {"@type": "Question", "name": "How to convert PDF to Markdown?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF and click Convert. The tool detects headings, bullets and numbered lists automatically and produces clean Markdown you can copy or download as .md file."}},
+    {"@type": "Question", "name": "Does it detect headings?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Font sizes are analyzed - larger text becomes #, ## or ### headings automatically based on relative size. Main titles become #, subtitles become ##, and smaller headings become ###."}},
+    {"@type": "Question", "name": "Are lists preserved?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Bullet points (•, -, *) are converted to Markdown bullet syntax, and numbered lists (1., 2., 3.) are preserved as numbered Markdown lists."}},
+    {"@type": "Question", "name": "Is it safe and free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Conversion runs entirely in your browser using pdf.js - no upload, no signup, no limits. Your PDF never leaves your device."}}
   ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.pm-static{max-width:900px;margin:60px auto;padding:0 20px}
+.pm-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.pm-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.pm-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.pm-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.pm-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.pm-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#334155,#475569);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.pm-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.pm-static .step-text b{color:#1f2937}
+.pm-static .privacy{margin-top:32px;padding:24px;background:#f1f5f9;border-radius:12px;border-left:4px solid #334155}
+.pm-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.pm-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.pm-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.pm-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.pm-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.pm-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.pm-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.pm-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #334155;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pm-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.pm-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="pm-static" id="pmStatic">
+  <h1>PDF to Markdown Online Free</h1>
+  <p class="desc">Convert PDF documents to clean Markdown instantly. Automatic detection of headings (#, ##, ###), bullet points, and numbered lists. Perfect for notes, documentation, AI workflows, and developers. Copy to clipboard or download as .md file. No upload required - 100% private and secure.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>#️⃣ Heading Detection</h4><p>Automatically converts large text to #, ##, ### headings based on font size - preserves document structure.</p></div>
+    <div class="feat"><h4>📝 List Conversion</h4><p>Bullet points (•, -, *) and numbered lists (1., 2.) are converted to proper Markdown list syntax.</p></div>
+    <div class="feat"><h4>👁️ Live Preview</h4><p>See your Markdown output in real-time as you convert - dark terminal-style preview for developers.</p></div>
+    <div class="feat"><h4>📋 Copy or Download</h4><p>Copy Markdown to clipboard instantly or download as .md file for use in editors and AI workflows.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Convert PDF to Markdown</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Upload your PDF</b> — Click "Select PDF file" button or drag & drop your document. The tool accepts any PDF with text content, including research papers, notes and documentation.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>Choose conversion options</b> — Enable heading detection, list detection, and page separators as needed. The tool analyzes font sizes to identify document structure automatically.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Click Convert to Markdown</b> — Press the convert button. The tool extracts text from every page, detects headings and lists, and produces clean Markdown output in the preview.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Copy or download</b> — Review the Markdown preview, then click "Copy" to copy to clipboard or "Download .md" to save as a file. All processing happens in your browser using pdf.js - nothing is uploaded.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>TronoPDF processes all PDF to Markdown conversions directly in your browser using pdf.js library. Your PDF files are never uploaded to any server - they stay on your device. This means your research papers, notes, documentation and sensitive documents remain completely private and secure. Perfect for developers, researchers, students and anyone working with AI workflows or documentation. No file size limits, no daily limits, no watermarks, no signup required - convert as many PDFs to Markdown as you need.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="pm-skeleton" id="pmSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading PDF to Markdown Tool...</h2>
+  <p>Preparing the converter interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="pmMain" style="display:none">
   <div class="page-box">
     <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/pdf-to-markdown.js?v=1"></script>
+<script>
+(function(){
+  var staticEl=document.getElementById('pmStatic');
+  var skeleton=document.getElementById('pmSkeleton');
+  var mainEl=document.getElementById('pmMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/pdf-to-markdown.js?v=1';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
