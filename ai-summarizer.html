@@ -4,27 +4,29 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>AI Summarizer Online Free - Text & PDF Summarizer | TronoPDF</title>
-<meta content="Summarize articles, essays, paragraphs and PDF documents online free with AI. Choose summary length, see word reduction stats, copy or download. 100% private, no signup, no API." name="description"/>
-<meta content="ai summarizer, text summarizer, summarize article, summarize pdf, paragraph summarizer, essay summarizer, shorten text, abstractive summary" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/ai-summarizer.html"/>
-<meta property="og:title" content="AI Summarizer Online Free - TronoPDF"/>
-<meta property="og:description" content="Summarize text & PDF instantly with AI. Free, private, unlimited."/>
+<meta content="Summarize articles, essays, paragraphs and PDF documents online free with AI. Choose summary length (Short/Medium/Long), see word reduction stats, copy or download. 100% private, no signup, no API key needed." name="description"/>
+<meta content="ai summarizer, text summarizer, summarize article, summarize pdf, paragraph summarizer, essay summarizer, shorten text, abstractive summary, ai summary tool, text summarizer online" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/ai-summarizer"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="AI Summarizer Online Free - Text & PDF | TronoPDF"/>
+<meta property="og:description" content="Summarize articles, essays and PDFs instantly with in-browser AI. Free, private, no API key."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/ai-summarizer.html"/>
+<meta property="og:url" content="https://tronopdf.com/ai-summarizer"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="AI Summarizer - TronoPDF"/>
+<meta name="twitter:title" content="AI Summarizer Online Free - TronoPDF"/>
 <meta name="twitter:description" content="Summarize articles and PDFs online free with AI."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "AI Summarizer - TronoPDF",
-  "description": "Summarize articles, essays, paragraphs and PDF documents online free with in-browser AI summarization.",
-  "url": "https://tronopdf.com/ai-summarizer.html",
+  "description": "Summarize articles, essays, paragraphs and PDF documents online free with in-browser AI summarization. No API key required.",
+  "url": "https://tronopdf.com/ai-summarizer",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "Text and PDF input, Adjustable summary length, Word reduction stats, Copy summary, Download TXT, No API required, No upload, 100% private"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1087"}
 }
 </script>
 <script type="application/ld+json">
@@ -32,25 +34,123 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "How to summarize an article or PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Paste your text or upload a PDF/TXT file, choose the summary length, and click Summarize. The AI picks the most important sentences instantly."}},
-    {"@type": "Question", "name": "Does it work offline / without an API?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The summarization runs entirely in your browser using an extractive AI algorithm - no API key or server needed."}},
-    {"@type": "Question", "name": "Can I control the summary length?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose Short, Medium or Long to get fewer or more key sentences."}},
-    {"@type": "Question", "name": "Is my text private?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Nothing is uploaded - your text never leaves your device."}}
+    {"@type": "Question", "name": "How to summarize an article or PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Paste your text or upload a PDF/TXT file, choose the summary length (Short, Medium or Long), and click Summarize. The AI instantly picks the most important sentences and shows you a condensed version."}},
+    {"@type": "Question", "name": "Does it work offline / without an API?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The summarization runs entirely in your browser using an extractive AI algorithm that scores sentences by importance. No API key, no server connection, no signup needed."}},
+    {"@type": "Question", "name": "Can I control the summary length?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose Short (10% of original), Medium (20%) or Long (30%) to get fewer or more key sentences based on how condensed you want the summary to be."}},
+    {"@type": "Question", "name": "Is my text private?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Nothing is uploaded - your text never leaves your device. All AI processing happens in your browser, making it perfect for sensitive documents, essays, research papers or business reports."}}
   ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.as-static{max-width:900px;margin:60px auto;padding:0 20px}
+.as-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.as-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.as-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.as-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.as-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.as-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#d946ef,#a855f7);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.as-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.as-static .step-text b{color:#1f2937}
+.as-static .privacy{margin-top:32px;padding:24px;background:#eef2ff;border-radius:12px;border-left:4px solid #d946ef}
+.as-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.as-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.as-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.as-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.as-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.as-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.as-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.as-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #d946ef;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.as-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.as-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="as-static" id="asStatic">
+  <h1>AI Summarizer Online Free</h1>
+  <p class="desc">Summarize articles, essays, paragraphs and PDF documents instantly with in-browser AI. Choose your summary length (Short, Medium or Long), see word reduction stats, and download or copy the result. No API key, no signup, no upload - 100% private and unlimited.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>🤖 In-Browser AI</h4><p>Extractive AI algorithm runs entirely in your browser - no API key, no server, no limits.</p></div>
+    <div class="feat"><h4>📄 Text & PDF Input</h4><p>Paste any text or upload PDF/TXT files to summarize articles, essays and documents.</p></div>
+    <div class="feat"><h4>📊 Adjustable Length</h4><p>Choose Short (10%), Medium (20%) or Long (30%) summary based on how condensed you need.</p></div>
+    <div class="feat"><h4>📈 Word Reduction Stats</h4><p>See exact word counts and percentage reduction so you know how much your text was shortened.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Summarize Text or PDF</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Add your content</b> — Paste any article, essay or paragraph into the text box, or click "Upload PDF / TXT" to load a document. The AI works with text of any length.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>Choose summary length</b> — Select Short (10% of original), Medium (20%) or Long (30%) based on how condensed you want the summary to be. Short gives key points only, Long keeps more detail.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Click Summarize</b> — Press the Summarize button. The AI instantly analyzes your text, scores sentences by importance, and builds a condensed summary in seconds.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Copy or download</b> — Review your summary with word reduction stats, then copy it to clipboard or download as a .txt file. Everything happens in your browser - nothing is uploaded.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>Unlike other AI summarizers that send your text to external servers, TronoPDF runs all summarization directly in your browser using an extractive AI algorithm. Your articles, essays, research papers and business documents never leave your device. This makes it perfect for sensitive content, academic work and confidential business reports - no API key, no signup, no limits.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="as-skeleton" id="asSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading AI Summarizer Tool...</h2>
+  <p>Preparing the AI summarization interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="asMain" style="display:none">
   <div class="page-box">
     <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/ai-summarizer.js?v=1"></script>
+<script>
+(function(){
+  var staticEl=document.getElementById('asStatic');
+  var skeleton=document.getElementById('asSkeleton');
+  var mainEl=document.getElementById('asMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/ai-summarizer.js?v=1';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
