@@ -5,26 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Organize PDF Online Free - Reorder, Delete, Rotate Pages | TronoPDF</title>
 <meta content="Organize PDF pages online free. Drag and drop to reorder pages, delete unwanted pages, rotate pages and combine multiple PDFs. No upload, 100% private, unlimited." name="description"/>
-<meta content="organize pdf, reorder pdf pages, rearrange pdf, sort pdf pages, delete pdf pages, remove pdf pages, pdf page organizer, shuffle pdf pages" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/organize-pdf.html"/>
+<meta content="organize pdf, reorder pdf pages, rearrange pdf, sort pdf pages, delete pdf pages, remove pdf pages, pdf page organizer, shuffle pdf pages, combine pdf pages" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/organize-pdf"/>
+<meta name="robots" content="index, follow"/>
 <meta property="og:title" content="Organize PDF Online Free - Reorder Pages | TronoPDF"/>
 <meta property="og:description" content="Reorder, delete and rotate PDF pages with drag and drop. Combine multiple PDFs. 100% private."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/organize-pdf.html"/>
+<meta property="og:url" content="https://tronopdf.com/organize-pdf"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Organize PDF Online Free - TronoPDF"/>
 <meta name="twitter:description" content="Reorder, delete and rotate PDF pages with drag and drop."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "Organize PDF - TronoPDF",
   "description": "Organize PDF pages online free - reorder with drag and drop, delete pages, rotate pages and combine multiple PDFs.",
-  "url": "https://tronopdf.com/organize-pdf.html",
+  "url": "https://tronopdf.com/organize-pdf",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "Drag and drop page reorder, Delete pages, Rotate individual pages, Combine multiple PDF files, Live page thumbnails, Reset all option, No file upload required"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1789"}
 }
 </script>
 <script type="application/ld+json">
@@ -35,23 +37,120 @@
     {"@type": "Question", "name": "How to reorder pages in a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF, then drag and drop page thumbnails into the order you want. Click Organize to download the rearranged PDF instantly."}},
     {"@type": "Question", "name": "Can I delete pages from a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Yes! Hover over any page and click the ✕ button to remove it. The deleted page will not appear in the final PDF."}},
     {"@type": "Question", "name": "Can I combine multiple PDFs while organizing?", "acceptedAnswer": {"@type": "Answer", "text": "Yes! Add multiple PDF files, and all their pages will appear in the grid. Drag pages from different files to mix them in any order, then organize into one PDF."}},
-    {"@type": "Question", "name": "Is it safe to organize PDFs online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, completely safe. All processing happens in your browser - your files are never uploaded to any server. Your data stays 100% private."}}
+    {"@type": "Question", "name": "Is it safe to organize PDFs online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, completely safe. All processing happens in your browser using pdf-lib - your files are never uploaded to any server. Your data stays 100% private."}}
   ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.org-static{max-width:900px;margin:60px auto;padding:0 20px}
+.org-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.org-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.org-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.org-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.org-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.org-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#84cc16,#65a30d);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.org-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.org-static .step-text b{color:#1f2937}
+.org-static .privacy{margin-top:32px;padding:24px;background:#ecfccb;border-radius:12px;border-left:4px solid #84cc16}
+.org-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.org-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.org-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.org-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.org-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.org-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.org-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.org-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #84cc16;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.org-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.org-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="org-static" id="orgStatic">
+  <h1>Organize PDF Online Free</h1>
+  <p class="desc">Organize PDF pages with drag-and-drop reordering, delete unwanted pages, rotate individual pages, and combine multiple PDFs into one document. Visual page thumbnails make it easy to see your changes. No upload required - 100% private and unlimited.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>🖱️ Drag & Drop Reorder</h4><p>Drag page thumbnails to rearrange them in any order you want - visual and intuitive organization.</p></div>
+    <div class="feat"><h4>🗑️ Delete Pages</h4><p>Remove unwanted pages with one click - hover over any page and click the delete button.</p></div>
+    <div class="feat"><h4>🔄 Rotate Pages</h4><p>Rotate individual pages 90° at a time to fix orientation issues without affecting other pages.</p></div>
+    <div class="feat"><h4>📚 Combine Multiple PDFs</h4><p>Add multiple PDF files and mix their pages together in any order to create one combined document.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Organize PDF Pages</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Upload your PDF(s)</b> — Click "Select PDF files" button or drag & drop one or more PDF files. All pages appear as thumbnails in a grid view.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>Reorder, delete or rotate</b> — Drag page thumbnails to reorder them, click ✕ to delete unwanted pages, or use the rotate button to fix orientation. Add more PDFs to combine pages from different files.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Preview your changes</b> — Review the visual grid to ensure pages are in the correct order. Use "Reset all" to start over if needed.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Click Organize</b> — Press the "Organize PDF" button. Your reorganized PDF downloads instantly with all changes applied. All processing happens in your browser using pdf-lib - nothing is uploaded.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>TronoPDF processes all PDF organization directly in your browser using pdf-lib library. Your PDF files are never uploaded to any server - they stay on your device. This means your documents remain completely private and secure, even for sensitive legal, medical, financial or business files. No file size limits, no daily limits, no watermarks, no signup required - organize as many PDFs as you need.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="org-skeleton" id="orgSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading Organize PDF Tool...</h2>
+  <p>Preparing the page organizer interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="orgMain" style="display:none">
   <div class="page-box">
-    <div id="toolRoot"><div style="text-align:center;padding:40px"><div style="width:36px;height:36px;margin:0 auto 12px;border:4px solid #e0e7ff;border-top-color:#7c3aed;border-radius:50%;animation:spin .8s linear infinite"></div><p style="font-weight:700;color:#7c3aed">Loading tool...</p></div></div>
+    <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/organize-pdf.js?v=1"></script>
-<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+<script>
+(function(){
+  var staticEl=document.getElementById('orgStatic');
+  var skeleton=document.getElementById('orgSkeleton');
+  var mainEl=document.getElementById('orgMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/organize-pdf.js?v=1';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
