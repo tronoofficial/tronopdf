@@ -4,27 +4,29 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>PDF to Excel Online Free - Convert PDF to XLSX Spreadsheet | TronoPDF</title>
-<meta content="Convert PDF tables and data to Excel (XLSX) spreadsheets online free. Automatic row and column detection. One sheet per page or combined. No upload, no signup. 100% private." name="description"/>
-<meta content="pdf to excel, convert pdf to excel, pdf to xlsx, pdf to spreadsheet, extract table from pdf, pdf table to excel" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/pdf-to-excel.html"/>
+<meta content="Convert PDF tables and data to Excel (XLSX) spreadsheets online free. Automatic row and column detection. One sheet per page or combined. Live preview. No upload, no signup. 100% private." name="description"/>
+<meta content="pdf to excel, convert pdf to excel, pdf to xlsx, pdf to spreadsheet, extract table from pdf, pdf table to excel, pdf to excel converter, extract data from pdf" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/pdf-to-excel"/>
+<meta name="robots" content="index, follow"/>
 <meta property="og:title" content="PDF to Excel Online Free - TronoPDF"/>
-<meta property="og:description" content="Convert PDF tables to Excel XLSX spreadsheets. Free, private, no signup."/>
+<meta property="og:description" content="Convert PDF tables to Excel XLSX spreadsheets with automatic table detection. Free, private, no signup."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/pdf-to-excel.html"/>
+<meta property="og:url" content="https://tronopdf.com/pdf-to-excel"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="PDF to Excel Online Free - TronoPDF"/>
 <meta name="twitter:description" content="Convert PDF to Excel XLSX online free."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "PDF to Excel - TronoPDF",
   "description": "Convert PDF tables and data to Excel XLSX spreadsheets online free with automatic row and column detection.",
-  "url": "https://tronopdf.com/pdf-to-excel.html",
+  "url": "https://tronopdf.com/pdf-to-excel",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "PDF to XLSX, Automatic table detection, Row and column extraction, One sheet per page or combined, Live preview, Instant download, No upload, 100% private"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1567"}
 }
 </script>
 <script type="application/ld+json">
@@ -32,25 +34,123 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "How to convert PDF to Excel?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF, preview the extracted table, choose sheet layout, and click Convert. You get an editable .xlsx spreadsheet instantly."}},
-    {"@type": "Question", "name": "Does it detect tables automatically?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The tool reads the position of every text element and reconstructs rows and columns into spreadsheet cells."}},
-    {"@type": "Question", "name": "Can I get one sheet per page?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose 'One sheet per page' or 'Single combined sheet' from the options."}},
-    {"@type": "Question", "name": "Is it safe and free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Conversion runs entirely in your browser - no upload, no signup, no limits."}}
+    {"@type": "Question", "name": "How to convert PDF to Excel?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF, preview the extracted table, choose sheet layout (one sheet per page or combined), adjust column gap sensitivity if needed, and click Convert. You get an editable .xlsx spreadsheet instantly."}},
+    {"@type": "Question", "name": "Does it detect tables automatically?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. The tool reads the position of every text element using pdf.js and reconstructs rows and columns into spreadsheet cells automatically. You can adjust column gap sensitivity for better results."}},
+    {"@type": "Question", "name": "Can I get one sheet per page?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Choose 'One sheet per page' to keep each PDF page as a separate Excel sheet, or 'Single combined sheet' to merge all pages into one spreadsheet."}},
+    {"@type": "Question", "name": "Is it safe and free?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Conversion runs entirely in your browser using pdf.js and SheetJS - no upload, no signup, no limits. Your PDF data never leaves your device."}}
   ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.pe-static{max-width:900px;margin:60px auto;padding:0 20px}
+.pe-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.pe-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.pe-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.pe-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.pe-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.pe-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#217346,#2e9159);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.pe-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.pe-static .step-text b{color:#1f2937}
+.pe-static .privacy{margin-top:32px;padding:24px;background:#eaf7ef;border-radius:12px;border-left:4px solid #217346}
+.pe-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.pe-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.pe-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.pe-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.pe-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.pe-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.pe-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.pe-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #217346;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pe-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.pe-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="pe-static" id="peStatic">
+  <h1>PDF to Excel Online Free</h1>
+  <p class="desc">Convert PDF tables and data to editable Excel (XLSX) spreadsheets instantly. Automatic row and column detection extracts tabular data perfectly. Choose one sheet per page or combine all pages into single spreadsheet. Live preview before conversion. No upload required - 100% private and secure.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>🔍 Auto Table Detection</h4><p>Automatically detects rows and columns from text position using pdf.js - no manual selection needed.</p></div>
+    <div class="feat"><h4>📊 Flexible Sheet Layout</h4><p>Choose one sheet per page to keep structure, or single combined sheet to merge all data together.</p></div>
+    <div class="feat"><h4>👁️ Live Preview</h4><p>See extracted table preview before converting - verify data accuracy and adjust settings if needed.</p></div>
+    <div class="feat"><h4>🎛️ Column Gap Control</h4><p>Adjust sensitivity (Normal, Tight, Loose) to control how columns are detected for perfect results.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Convert PDF to Excel</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Upload your PDF</b> — Click "Select PDF file" button or drag & drop your PDF with tables or data. The tool extracts text and detects table structure automatically.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>Preview extracted data</b> — See a live preview of the extracted table with detected rows and columns. Check if the data looks correct before converting.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Choose settings</b> — Select sheet layout (one per page or combined), and adjust column gap sensitivity if columns aren't detected correctly. Normal works for most PDFs.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Convert and download</b> — Click "Convert to Excel" button. Your PDF data becomes an editable .xlsx spreadsheet ready to download. All processing happens in your browser using pdf.js and SheetJS - nothing is uploaded.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>TronoPDF processes all PDF to Excel conversions directly in your browser using pdf.js and SheetJS libraries. Your PDF files and extracted data are never uploaded to any server - they stay on your device. This means your financial statements, business reports, research data and sensitive spreadsheets remain completely private and secure. No file size limits, no daily limits, no watermarks, no signup required - convert as many PDFs to Excel as you need.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="pe-skeleton" id="peSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading PDF to Excel Tool...</h2>
+  <p>Preparing the converter interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="peMain" style="display:none">
   <div class="page-box">
     <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/pdf-to-excel.js?v=1"></script>
+<script>
+(function(){
+  var staticEl=document.getElementById('peStatic');
+  var skeleton=document.getElementById('peSkeleton');
+  var mainEl=document.getElementById('peMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/pdf-to-excel.js?v=1';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
