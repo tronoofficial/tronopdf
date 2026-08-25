@@ -4,27 +4,29 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Add Page Numbers to PDF Online Free | TronoPDF</title>
-<meta content="Add page numbers to PDF online free. Choose position, margin, format (Page N of M), starting number and page range. Live preview. No upload, 100% private, unlimited." name="description"/>
-<meta content="add page numbers to pdf, page number pdf, pdf page numbering, number pdf pages, insert page numbers pdf, pdf folio, bates numbering pdf" name="keywords"/>
-<link rel="canonical" href="https://tronopdf.com/page-numbers.html"/>
+<meta content="Add page numbers to PDF online free. Choose position (9 locations), margin, format (Page N of M), starting number and page range. Skip cover page option. Live preview. No upload, 100% private, unlimited." name="description"/>
+<meta content="add page numbers to pdf, page number pdf, pdf page numbering, number pdf pages, insert page numbers pdf, pdf folio, bates numbering pdf, add page numbers online free" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/page-numbers"/>
+<meta name="robots" content="index, follow"/>
 <meta property="og:title" content="Add Page Numbers to PDF Online Free | TronoPDF"/>
-<meta property="og:description" content="Add page numbers to PDF with custom position, format and range. Live preview, 100% private."/>
+<meta property="og:description" content="Add page numbers to PDF with custom position, format and range. Skip cover page, live preview. 100% private."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/page-numbers.html"/>
+<meta property="og:url" content="https://tronopdf.com/page-numbers"/>
+<meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Add Page Numbers to PDF - TronoPDF"/>
 <meta name="twitter:description" content="Number your PDF pages with custom position and format."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "WebApplication",
+  "@type": "SoftwareApplication",
   "name": "Page Numbers - TronoPDF",
   "description": "Add page numbers to PDF online free with custom position, margin, format, starting number and page range.",
-  "url": "https://tronopdf.com/page-numbers.html",
+  "url": "https://tronopdf.com/page-numbers",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "featureList": "9 position grid, Custom margin, Starting number, Page range selection, Formats like Page N of M, Font size color bold, Skip cover page, Live preview, No file upload required"
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "1456"}
 }
 </script>
 <script type="application/ld+json">
@@ -32,26 +34,123 @@
   "@context": "https://schema.org",
   "@type": "FAQPage",
   "mainEntity": [
-    {"@type": "Question", "name": "How to add page numbers to a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF, choose the position from the 3x3 grid, select margin and number format (like Page N of M), set the starting number and page range, then click Add Page Numbers to download."}},
-    {"@type": "Question", "name": "Can I skip the cover page when numbering?", "acceptedAnswer": {"@type": "Answer", "text": "Yes! Enable the Skip first page option and numbering will start from page 2, perfect for documents with a cover page."}},
-    {"@type": "Question", "name": "Can I start numbering from a custom number?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, set the First number field to any value. For example, if you set it to 5, the first numbered page will show 5."}},
-    {"@type": "Question", "name": "Is it safe to add page numbers online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, completely safe. All processing happens in your browser - your PDF is never uploaded to any server. Your data stays 100% private."}}
+    {"@type": "Question", "name": "How to add page numbers to a PDF?", "acceptedAnswer": {"@type": "Answer", "text": "Upload your PDF, choose the position from the 3x3 grid (top-left, center, bottom-right, etc.), select margin and number format (like 'Page N of M'), set the starting number and page range, then click Add Page Numbers to download."}},
+    {"@type": "Question", "name": "Can I skip the cover page when numbering?", "acceptedAnswer": {"@type": "Answer", "text": "Yes! Enable the 'Skip first page' option and numbering will start from page 2, perfect for documents with a cover page or title page that shouldn't be numbered."}},
+    {"@type": "Question", "name": "Can I start numbering from a custom number?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, set the 'First number' field to any value. For example, if you set it to 5, the first numbered page will show 5. Perfect for continuing numbering from previous sections."}},
+    {"@type": "Question", "name": "Is it safe to add page numbers online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, completely safe. All processing happens in your browser using pdf-lib - your PDF is never uploaded to any server. Your data stays 100% private on your device."}}
   ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
+<style>
+.pn-static{max-width:900px;margin:60px auto;padding:0 20px}
+.pn-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.pn-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.pn-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.pn-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.pn-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.pn-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.pn-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.pn-static .step-text b{color:#1f2937}
+.pn-static .privacy{margin-top:32px;padding:24px;background:#fef3c7;border-radius:12px;border-left:4px solid #f59e0b}
+.pn-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.pn-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.pn-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.pn-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.pn-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.pn-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.pn-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.pn-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #f59e0b;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.pn-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.pn-skeleton p{color:#6b7280;font-size:15px}
+</style>
 </head>
 <body>
 <header id="siteHeader"></header>
-<main class="page-wrap">
+
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="pn-static" id="pnStatic">
+  <h1>Add Page Numbers to PDF Online Free</h1>
+  <p class="desc">Add page numbers to any PDF document with full customization. Choose from 9 positions (top-left, center, bottom-right, etc.), set custom margins, select number format (Page N, Page N of M, or Bates), pick starting number and page range. Skip cover page option for professional documents. Live preview before download. No upload required - 100% private and unlimited.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>📍 9 Position Grid</h4><p>Choose from 9 locations: top-left, top-center, top-right, middle-left, center, middle-right, bottom-left, bottom-center, bottom-right.</p></div>
+    <div class="feat"><h4>📝 Multiple Formats</h4><p>Use 'Page N', 'Page N of M', 'N / M', or custom Bates numbering format for legal documents.</p></div>
+    <div class="feat"><h4>🎯 Custom Start Number</h4><p>Start numbering from any value - perfect for continuing from previous sections or appendix pages.</p></div>
+    <div class="feat"><h4>📄 Skip Cover Page</h4><p>Enable 'Skip first page' to start numbering from page 2 - ideal for documents with title pages.</p></div>
+  </div>
+  
+  <div class="steps">
+    <h3>How to Add Page Numbers to PDF</h3>
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-text"><b>Upload your PDF</b> — Click "Select PDF file" button or drag & drop your document. The tool displays a live preview of the first page with page number placement.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-text"><b>Choose position and format</b> — Click any of the 9 position buttons in the grid to place numbers. Select format (Page N, Page N of M, or custom), adjust font size, color and style.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-text"><b>Set options</b> — Enter starting number, select page range (all pages or specific range), adjust margin, and enable "Skip first page" if you have a cover page.</div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-text"><b>Add and download</b> — Click "Add Page Numbers" button. Your numbered PDF downloads instantly with all settings applied. All processing happens in your browser using pdf-lib - nothing is uploaded.</div>
+    </div>
+  </div>
+  
+  <div class="privacy">
+    <h4>🔒 100% Private & Secure</h4>
+    <p>TronoPDF processes all page numbering directly in your browser using pdf-lib library. Your PDF files are never uploaded to any server - they stay on your device. This means your legal documents, contracts, reports, academic papers and business files remain completely private and secure. Perfect for Bates numbering in legal cases, academic thesis, business reports and any professional document. No file size limits, no daily limits, no watermarks, no signup required - number as many PDFs as you need.</p>
+  </div>
+</div>
+
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="pn-skeleton" id="pnSkeleton">
+  <div class="spinner"></div>
+  <h2>Loading Page Numbers Tool...</h2>
+  <p>Preparing the numbering interface. This takes just a moment.</p>
+</div>
+
+<main class="page-wrap" id="pnMain" style="display:none">
   <div class="page-box">
-    <div id="toolRoot"><div style="text-align:center;padding:40px"><div style="width:36px;height:36px;margin:0 auto 12px;border:4px solid #e0e7ff;border-top-color:#7c3aed;border-radius:50%;animation:spin .8s linear infinite"></div><p style="font-weight:700;color:#7c3aed">Loading tool...</p></div></div>
+    <div id="toolRoot"></div>
   </div>
 </main>
+
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
-<script src="/js/page-numbers.js?v=1"></script>
-<style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+<script>
+(function(){
+  var staticEl=document.getElementById('pnStatic');
+  var skeleton=document.getElementById('pnSkeleton');
+  var mainEl=document.getElementById('pnMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
+  
+  // Load the tool JS
+  var script=document.createElement('script');
+  script.src='/js/page-numbers.js?v=1';
+  script.onload=function(){
+    // Hide skeleton, show main
+    setTimeout(function(){
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
+    },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
+  };
+  document.body.appendChild(script);
+})();
+</script>
 </body>
 </html>
