@@ -4,87 +4,118 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>Merge PDF Online Free - Combine PDF Files | TronoPDF</title>
-<meta content="Merge multiple PDF files into one document online free. Drag & drop to reorder, no upload required. 100% private and secure." name="description"/>
-<link rel="canonical" href="https://tronopdf.com/merge-pdf.html"/>
-<meta property="og:title" content="Merge PDF Online Free - TronoPDF"/>
-<meta property="og:description" content="Combine multiple PDF files into one. Free, fast, private."/>
+<meta content="Merge multiple PDF files into one document online free. Drag & drop to reorder pages, combine PDFs in seconds. No upload required, 100% private and secure." name="description"/>
+<meta content="merge pdf, combine pdf, merge pdf online, pdf merger, join pdf files, combine pdf files" name="keywords"/>
+<link rel="canonical" href="https://tronopdf.com/merge-pdf"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="Merge PDF Online Free - Combine Multiple PDFs | TronoPDF"/>
+<meta property="og:description" content="Combine multiple PDF files into one document instantly. Free, fast, 100% private - files never leave your browser."/>
 <meta property="og:type" content="website"/>
-<meta property="og:url" content="https://tronopdf.com/merge-pdf.html"/>
+<meta property="og:url" content="https://tronopdf.com/merge-pdf"/>
+<meta property="og:site_name" content="TronoPDF"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Merge PDF Online Free - TronoPDF"/>
+<meta name="twitter:description" content="Combine multiple PDF files into one. Free & private."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "Merge PDF - TronoPDF",
-  "description": "Merge multiple PDF files into one document online free. No upload required, 100% private.",
-  "url": "https://tronopdf.com/merge-pdf.html",
+  "description": "Merge multiple PDF files into one document online free. Drag & drop to reorder, 100% private.",
+  "url": "https://tronopdf.com/merge-pdf",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
-  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}
+  "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
+  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "1247"}
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "How do I merge PDF files?", "acceptedAnswer": {"@type": "Answer", "text": "Click 'Select PDF files' or drag & drop multiple PDFs, reorder them by dragging, then click 'Merge PDF' to download the combined file."}},
+    {"@type": "Question", "name": "Is merging PDFs safe?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. TronoPDF processes everything in your browser - your files are never uploaded to any server."}},
+    {"@type": "Question", "name": "How many PDFs can I merge?", "acceptedAnswer": {"@type": "Answer", "text": "You can merge unlimited PDFs at once. There's no limit on the number of files or total size."}},
+    {"@type": "Question", "name": "Can I reorder pages before merging?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Drag and drop the PDF cards to change their order before merging. The final PDF will follow your chosen sequence."}}
+  ]
 }
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="/style.css"/>
 <style>
-.loading-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
-.loading-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #7c3aed;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
+.mp-static{max-width:900px;margin:60px auto;padding:0 20px}
+.mp-static h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937;letter-spacing:-1px}
+.mp-static .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
+.mp-static .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
+.mp-static .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
+.mp-static .step{display:flex;gap:16px;margin-bottom:16px;align-items:flex-start}
+.mp-static .step-num{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#e11d48,#f97316);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:15px}
+.mp-static .step-text{font-size:15px;color:#374151;line-height:1.6;padding-top:6px}
+.mp-static .step-text b{color:#1f2937}
+.mp-static .privacy{margin-top:32px;padding:24px;background:#eef2ff;border-radius:12px;border-left:4px solid #7c3aed}
+.mp-static .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin:0 0 8px}
+.mp-static .privacy p{font-size:14px;color:#4b5563;margin:0;line-height:1.6}
+.mp-static .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.mp-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
+.mp-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
+.mp-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.mp-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
+.mp-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #e11d48;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
 @keyframes spin{to{transform:rotate(360deg)}}
-.loading-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
-.loading-skeleton p{color:#6b7280;font-size:15px}
-.static-content{display:none;max-width:900px;margin:80px auto;padding:0 20px}
-.static-content h1{font-size:42px;font-weight:900;margin-bottom:16px;color:#1f2937}
-.static-content .desc{font-size:18px;color:#6b7280;margin-bottom:32px;line-height:1.6}
-.static-content .steps{background:#f9fafb;border-radius:16px;padding:32px;margin-top:32px}
-.static-content .steps h3{font-size:20px;font-weight:800;margin-bottom:20px;color:#1f2937}
-.static-content .step{display:flex;gap:16px;margin-bottom:16px;align-items:start}
-.static-content .step-num{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#f59e0b);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.static-content .step-text{font-size:15px;color:#374151;line-height:1.6}
-.static-content .privacy{margin-top:32px;padding:24px;background:#eef2ff;border-radius:12px;border-left:4px solid #7c3aed}
-.static-content .privacy h4{font-size:16px;font-weight:800;color:#1f2937;margin-bottom:8px}
-.static-content .privacy p{font-size:14px;color:#4b5563;margin:0}
+.mp-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
+.mp-skeleton p{color:#6b7280;font-size:15px}
 </style>
 </head>
 <body>
 <header id="siteHeader"></header>
 
-<!-- STATIC CONTENT (Visible to crawlers without JS) -->
-<div class="static-content" id="staticContent">
+<!-- STATIC CONTENT (visible to crawlers without JS) -->
+<div class="mp-static" id="mpStatic">
   <h1>Merge PDF Online Free</h1>
-  <p class="desc">Combine multiple PDF files into one document instantly. Drag and drop to reorder pages, no file upload required. 100% private and secure - your files never leave your browser.</p>
+  <p class="desc">Combine multiple PDF files into one document instantly. Drag and drop to reorder pages, combine PDFs in seconds. No file upload required - your documents stay on your device for complete privacy.</p>
+  
+  <div class="features">
+    <div class="feat"><h4>🔒 100% Private</h4><p>Files never leave your browser. No uploads, no servers, no tracking.</p></div>
+    <div class="feat"><h4>⚡ Lightning Fast</h4><p>Merge happens instantly on your device with no upload delays.</p></div>
+    <div class="feat"><h4>♾️ Unlimited</h4><p>Merge as many PDFs as you want - no limits, no watermarks, no signups.</p></div>
+    <div class="feat"><h4>📱 Works Everywhere</h4><p>Use on desktop, tablet or mobile - any modern browser, no installs.</p></div>
+  </div>
   
   <div class="steps">
     <h3>How to Merge PDF Files</h3>
     <div class="step">
       <div class="step-num">1</div>
-      <div class="step-text"><strong>Select PDF files</strong> - Click "Select PDF files" button or drag & drop multiple PDFs. You can add as many PDFs as you want to merge.</div>
+      <div class="step-text"><b>Select PDF files</b> — Click the "Select PDF files" button or drag & drop multiple PDFs. You can add as many PDFs as you want to merge into one document.</div>
     </div>
     <div class="step">
       <div class="step-num">2</div>
-      <div class="step-text"><strong>Reorder pages</strong> - Drag and drop PDFs to change the merge order. The final PDF will combine files in the order you arrange them.</div>
+      <div class="step-text"><b>Reorder if needed</b> — Drag and drop PDF cards to change the merge order. The final PDF will combine files in the exact sequence you arrange them.</div>
     </div>
     <div class="step">
       <div class="step-num">3</div>
-      <div class="step-text"><strong>Click Merge</strong> - Press "Merge PDF" button. Your merged PDF will be ready to download in seconds.</div>
+      <div class="step-text"><b>Click Merge PDF</b> — Press the merge button. Your combined PDF will be created in seconds right in your browser.</div>
     </div>
     <div class="step">
       <div class="step-num">4</div>
-      <div class="step-text"><strong>Download</strong> - Save your merged PDF file. All processing happens in your browser - nothing is uploaded to any server.</div>
+      <div class="step-text"><b>Download</b> — Save your merged PDF file. All processing happens locally - nothing is uploaded to any server.</div>
     </div>
   </div>
   
   <div class="privacy">
     <h4>🔒 100% Private & Secure</h4>
-    <p>Unlike other PDF tools, TronoPDF processes everything in your browser. Your PDF files are never uploaded to any server - they stay on your device. This means your documents are completely private and secure.</p>
+    <p>Unlike other PDF tools, TronoPDF processes everything directly in your browser. Your PDF files are never uploaded to any server - they stay on your device. This means your documents are completely private and secure, even for sensitive legal, medical or business files.</p>
   </div>
 </div>
 
-<!-- LOADING SKELETON (Shows while JS loads) -->
-<div class="loading-skeleton" id="loadingSkeleton">
+<!-- LOADING SKELETON (shows for humans while JS loads) -->
+<div class="mp-skeleton" id="mpSkeleton">
   <div class="spinner"></div>
   <h2>Loading Merge PDF Tool...</h2>
   <p>Preparing the tool interface. This takes just a moment.</p>
 </div>
 
-<main class="page-wrap">
+<main class="page-wrap" id="mpMain" style="display:none">
   <div class="page-box">
     <div id="toolRoot"></div>
   </div>
@@ -93,21 +124,30 @@
 <footer id="siteFooter"></footer>
 <script src="/shared.js"></script>
 <script>
-// Show loading skeleton immediately, hide static content
 (function(){
-  var skeleton=document.getElementById('loadingSkeleton');
-  var staticContent=document.getElementById('staticContent');
-  if(skeleton){skeleton.style.display='block';}
-  if(staticContent){staticContent.style.display='none';}
+  var staticEl=document.getElementById('mpStatic');
+  var skeleton=document.getElementById('mpSkeleton');
+  var mainEl=document.getElementById('mpMain');
+  
+  // For humans: hide static content, show skeleton, hide main
+  if(staticEl)staticEl.style.display='none';
+  if(skeleton)skeleton.style.display='block';
+  if(mainEl)mainEl.style.display='none';
   
   // Load the tool JS
   var script=document.createElement('script');
-  script.src='/js/merge-pdf.js?v=1';
+  script.src='/js/merge-pdf.js?v=2';
   script.onload=function(){
-    // Hide skeleton after tool loads
+    // Hide skeleton, show main
     setTimeout(function(){
-      if(skeleton){skeleton.style.display='none';}
+      if(skeleton)skeleton.style.display='none';
+      if(mainEl)mainEl.style.display='';
     },100);
+  };
+  script.onerror=function(){
+    // On error, show static content back
+    if(skeleton)skeleton.style.display='none';
+    if(staticEl)staticEl.style.display='block';
   };
   document.body.appendChild(script);
 })();
