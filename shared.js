@@ -1,4 +1,4 @@
-/* TronoPDF - shared header/footer/icons with mobile drawer + related tools */
+/* TronoPDF - shared header/footer/icons + mobile drawer + related tools + how-to guides */
 (function(){
 document.body.insertAdjacentHTML('afterbegin','<svg style="display:none" xmlns="http://www.w3.org/2000/svg"><symbol id="i-merge" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#e11d48"/><rect x="11" y="9" width="17" height="21" rx="2.5" fill="#fff" opacity=".75"/><rect x="20" y="17" width="17" height="21" rx="2.5" fill="#fff"/><path d="M28.5 24.5v6M25.5 27.5h6" stroke="#e11d48" stroke-width="2.6" stroke-linecap="round"/></symbol><symbol id="i-split" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#f97316"/><rect x="17" y="8" width="14" height="18" rx="2.5" fill="#fff"/><path d="M20 34h-8M28 34h8" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M16 31l-4 3 4 3M32 31l4 3-4 3" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-compress" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#22c55e"/><path d="M14 14l8 8M34 14l-8 8M14 34l8-8M34 34l-8-8" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/><circle cx="24" cy="24" r="2.5" fill="#fff"/></symbol><symbol id="i-pdf2word" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#2b7cd3"/><path d="M14 8h13l8 8v24H14z" fill="#fff" opacity=".92"/><text x="24" y="31" font-family="Inter,Arial" font-size="15" font-weight="800" fill="#2b7cd3" text-anchor="middle">W</text></symbol><symbol id="i-pdf2ppt" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#d35230"/><path d="M14 8h13l8 8v24H14z" fill="#fff" opacity=".92"/><text x="24" y="31" font-family="Inter,Arial" font-size="15" font-weight="800" fill="#d35230" text-anchor="middle">P</text></symbol><symbol id="i-pdf2excel" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#217346"/><path d="M14 8h13l8 8v24H14z" fill="#fff" opacity=".92"/><text x="24" y="31" font-family="Inter,Arial" font-size="15" font-weight="800" fill="#217346" text-anchor="middle">X</text></symbol><symbol id="i-word2pdf" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#2b7cd3"/><rect x="10" y="10" width="16" height="16" rx="3" fill="#fff"/><text x="18" y="22" font-family="Inter,Arial" font-size="11" font-weight="800" fill="#2b7cd3" text-anchor="middle">W</text><path d="M21 22h13l6 6v12H21z" fill="#fff" opacity=".92"/></symbol><symbol id="i-ppt2pdf" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#d35230"/><rect x="10" y="10" width="16" height="16" rx="3" fill="#fff"/><text x="18" y="22" font-family="Inter,Arial" font-size="11" font-weight="800" fill="#d35230" text-anchor="middle">P</text><path d="M21 22h13l6 6v12H21z" fill="#fff" opacity=".92"/></symbol><symbol id="i-excel2pdf" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#217346"/><rect x="10" y="10" width="16" height="16" rx="3" fill="#fff"/><text x="18" y="22" font-family="Inter,Arial" font-size="11" font-weight="800" fill="#217346" text-anchor="middle">X</text><path d="M21 22h13l6 6v12H21z" fill="#fff" opacity=".92"/></symbol><symbol id="i-edit" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#a855f7"/><path d="M14 8h13l8 8v24H14z" fill="#fff" opacity=".9"/><path d="M31 15l6 6-13 13-7 1 1-7z" fill="#a855f7" stroke="#fff" stroke-width="1.5"/></symbol><symbol id="i-pdf2jpg" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#eab308"/><path d="M13 8h13l8 8v18H13z" fill="#fff" opacity=".9"/><rect x="20" y="24" width="17" height="14" rx="2.5" fill="#fff"/><circle cx="25" cy="29" r="2" fill="#eab308"/><path d="M22 36l5-5 3 3 3-4 4 6z" fill="#eab308"/></symbol><symbol id="i-jpg2pdf" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#7c3aed"/><rect x="11" y="10" width="16" height="13" rx="2.5" fill="#fff" opacity=".85"/><circle cx="15.5" cy="14" r="1.8" fill="#7c3aed"/><path d="M13 21l4-4 3 3 3-3 4 4z" fill="#7c3aed"/><path d="M21 20h13l6 6v12H21z" fill="#fff"/></symbol><symbol id="i-sign" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#ec4899"/><path d="M14 8h13l8 8v24H14z" fill="#fff" opacity=".9"/><path d="M18 30c2-4 4 2 6-2s4 2 6-2" fill="none" stroke="#ec4899" stroke-width="2.6" stroke-linecap="round"/></symbol><symbol id="i-watermark" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#3b82f6"/><path d="M15 8h12l8 8v24H15z" fill="#fff" opacity=".9"/><path d="M24 17c4 5.5 7 8.6 7 12a7 7 0 1 1-14 0c0-3.4 3-6.5 7-12z" fill="#3b82f6"/></symbol><symbol id="i-rotate" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#14b8a6"/><path d="M33 20a11 11 0 1 0 3 8" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/><path d="M33 12v8h-8" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-html" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#0ea5e9"/><circle cx="24" cy="24" r="12" fill="none" stroke="#fff" stroke-width="3"/><path d="M12 24h24M24 12c-7 8-7 16 0 24M24 12c7 8 7 16 0 24" fill="none" stroke="#fff" stroke-width="2.4"/></symbol><symbol id="i-unlock" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#f59e0b"/><rect x="14" y="22" width="20" height="15" rx="3" fill="#fff"/><path d="M19 22v-6a5 5 0 0 1 9.5-2" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/></symbol><symbol id="i-protect" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#16a34a"/><rect x="14" y="22" width="20" height="15" rx="3" fill="#fff"/><path d="M19 22v-5a5 5 0 0 1 10 0v5" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/></symbol><symbol id="i-organize" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#84cc16"/><rect x="21" y="12" width="15" height="19" rx="2" fill="#fff"/><path d="M12 20l4-5 4 5zM12 28l4 5 4-5z" fill="#fff"/></symbol><symbol id="i-pdfa" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#64748b"/><path d="M14 8h13l8 8v24H14z" fill="#fff" opacity=".92"/><text x="24" y="31" font-family="Inter,Arial" font-size="15" font-weight="800" fill="#64748b" text-anchor="middle">A</text></symbol><symbol id="i-repair" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#ef4444"/><path d="M30 12a7 7 0 0 0-9 9L13 29l6 6 8-8a7 7 0 0 0 9-9l-4.5 4.5-4-1-1-4z" fill="#fff"/></symbol><symbol id="i-pagenum" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#f59e0b"/><path d="M15 8h12l8 8v24H15z" fill="#fff"/><text x="24" y="31" font-family="Inter,Arial" font-size="17" font-weight="800" fill="#f59e0b" text-anchor="middle">#</text></symbol><symbol id="i-scan" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#0ea5e9"/><path d="M12 16v-4h4M36 16v-4h-4M12 32v4h4M36 32v4h-4" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M12 24h24" stroke="#fff" stroke-width="3" stroke-linecap="round"/></symbol><symbol id="i-ocr" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#7c3aed"/><path d="M13 8h13l8 8v24H13z" fill="#fff" opacity=".92"/><circle cx="22" cy="24" r="5" fill="none" stroke="#7c3aed" stroke-width="2.6"/><path d="M26 28l5 5" stroke="#7c3aed" stroke-width="2.6" stroke-linecap="round"/></symbol><symbol id="i-compare" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#0891b2"/><rect x="10" y="12" width="12" height="24" rx="2" fill="#fff"/><rect x="26" y="12" width="12" height="24" rx="2" fill="#fff" opacity=".6"/><path d="M24 8v32" stroke="#fff" stroke-width="2.4" stroke-dasharray="4 3"/></symbol><symbol id="i-redact" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#1e293b"/><path d="M15 8h12l8 8v24H15z" fill="#fff" opacity=".92"/><path d="M19 20h10M19 26h10M19 32h6" stroke="#1e293b" stroke-width="3.4" stroke-linecap="round"/></symbol><symbol id="i-crop" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#a855f7"/><path d="M16 10v22h22M10 16h22v22" fill="none" stroke="#fff" stroke-width="3.4" stroke-linecap="round"/></symbol><symbol id="i-forms" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#4f46e5"/><path d="M14 8h13l8 8v24H14z" fill="#fff" opacity=".92"/><rect x="18" y="18" width="5" height="5" rx="1" fill="#4f46e5"/><path d="M26 20.5h7M18 28h5M26 28h7" stroke="#4f46e5" stroke-width="2.2" stroke-linecap="round"/></symbol><symbol id="i-summarize" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#d946ef"/><path d="M24 10l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#fff"/><circle cx="34" cy="34" r="3" fill="#fff" opacity=".7"/></symbol><symbol id="i-translate" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#0d9488"/><text x="16" y="26" font-family="Inter,Arial" font-size="14" font-weight="800" fill="#fff" text-anchor="middle">A</text><text x="32" y="34" font-family="Inter,Arial" font-size="14" font-weight="800" fill="#fff" opacity=".8" text-anchor="middle">अ</text></symbol><symbol id="i-markdown" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#334155"/><text x="24" y="30" font-family="Inter,Arial" font-size="14" font-weight="800" fill="#fff" text-anchor="middle">MD</text></symbol><symbol id="i-imgcomp" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#3b82f6"/><rect x="12" y="9" width="24" height="19" rx="3" fill="#fff"/><circle cx="18" cy="15" r="2.4" fill="#3b82f6"/><path d="M15 25l6-6 4 4 4-5 5 7z" fill="#3b82f6"/><path d="M24 31v8m0 0l-3.5-3.5M24 39l3.5-3.5" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-imgres" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#f59e0b"/><rect x="15" y="15" width="18" height="18" rx="3" fill="#fff"/><circle cx="20" cy="20" r="2.2" fill="#f59e0b"/><path d="M10 16v-6h6M38 16v-6h-6M10 32v6h6M38 32v6h-6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/></symbol><symbol id="i-passport" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#ec4899"/><rect x="10" y="13" width="28" height="22" rx="3" fill="#fff"/><circle cx="18" cy="21" r="3.5" fill="#ec4899"/><path d="M13 30c1-3.5 9-3.5 10 0z" fill="#ec4899"/><path d="M26 19h8M26 24h8M26 29h5" stroke="#ec4899" stroke-width="2.2" stroke-linecap="round"/></symbol><symbol id="i-signres" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#6366f1"/><path d="M30 10l8 8-14 14-9 1 1-9z" fill="#fff"/><path d="M12 38h24" stroke="#fff" stroke-width="3" stroke-linecap="round"/></symbol><symbol id="i-convert" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#0ea5e9"/><rect x="15" y="15" width="18" height="18" rx="3" fill="#fff"/><circle cx="20" cy="20" r="2" fill="#0ea5e9"/><path d="M34 16a12 12 0 0 0-20-2M14 32a12 12 0 0 0 20 2" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M34 10v6h-6M14 38v-6h6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol><symbol id="i-blur" viewBox="0 0 48 48"><rect width="48" height="48" rx="10" fill="#84cc16"/><rect x="12" y="12" width="24" height="24" rx="4" fill="#fff"/><circle cx="20" cy="20" r="4" fill="#84cc16"/><circle cx="28" cy="26" r="5" fill="#84cc16" opacity=".55"/><circle cx="19" cy="28" r="3" fill="#84cc16" opacity=".35"/></symbol></svg>');
 
@@ -127,7 +127,6 @@ document.body.insertAdjacentHTML('beforeend', `
       <a class="drawer-link" href="/merge-pdf"><svg viewBox="0 0 48 48"><use href="#i-merge"/></svg>Merge PDF</a>
       <a class="drawer-link" href="/split-pdf"><svg viewBox="0 0 48 48"><use href="#i-split"/></svg>Split PDF</a>
       <a class="drawer-link" href="/compress-pdf"><svg viewBox="0 0 48 48"><use href="#i-compress"/></svg>Compress PDF</a>
-      
       <div class="drawer-acc">
         <div class="drawer-acc-head">Convert to PDF <span class="arr">▾</span></div>
         <div class="drawer-acc-body">
@@ -138,7 +137,6 @@ document.body.insertAdjacentHTML('beforeend', `
           <a class="drawer-link" href="/html-to-pdf"><svg viewBox="0 0 48 48"><use href="#i-html"/></svg>HTML to PDF</a>
         </div>
       </div>
-      
       <div class="drawer-acc">
         <div class="drawer-acc-head">Convert from PDF <span class="arr">▾</span></div>
         <div class="drawer-acc-body">
@@ -150,7 +148,6 @@ document.body.insertAdjacentHTML('beforeend', `
           <a class="drawer-link" href="/pdf-to-pdfa"><svg viewBox="0 0 48 48"><use href="#i-pdfa"/></svg>PDF to PDF/A</a>
         </div>
       </div>
-      
       <div class="drawer-acc">
         <div class="drawer-acc-head">Organize PDF <span class="arr">▾</span></div>
         <div class="drawer-acc-body">
@@ -161,7 +158,6 @@ document.body.insertAdjacentHTML('beforeend', `
           <a class="drawer-link" href="/repair-pdf"><svg viewBox="0 0 48 48"><use href="#i-repair"/></svg>Repair PDF</a>
         </div>
       </div>
-      
       <div class="drawer-acc">
         <div class="drawer-acc-head">Edit PDF <span class="arr">▾</span></div>
         <div class="drawer-acc-body">
@@ -174,7 +170,6 @@ document.body.insertAdjacentHTML('beforeend', `
           <a class="drawer-link" href="/scan-to-pdf"><svg viewBox="0 0 48 48"><use href="#i-scan"/></svg>Scan to PDF</a>
         </div>
       </div>
-      
       <div class="drawer-acc">
         <div class="drawer-acc-head">Security <span class="arr">▾</span></div>
         <div class="drawer-acc-body">
@@ -182,7 +177,6 @@ document.body.insertAdjacentHTML('beforeend', `
           <a class="drawer-link" href="/protect-pdf"><svg viewBox="0 0 48 48"><use href="#i-protect"/></svg>Protect PDF</a>
         </div>
       </div>
-      
       <div class="drawer-acc">
         <div class="drawer-acc-head">AI Tools <span class="arr">▾</span></div>
         <div class="drawer-acc-body">
@@ -191,7 +185,6 @@ document.body.insertAdjacentHTML('beforeend', `
           <a class="drawer-link" href="/translate-pdf"><svg viewBox="0 0 48 48"><use href="#i-translate"/></svg>Translate PDF</a>
         </div>
       </div>
-      
       <div class="drawer-acc">
         <div class="drawer-acc-head">Image Tools <span class="arr">▾</span></div>
         <div class="drawer-acc-body">
@@ -204,7 +197,6 @@ document.body.insertAdjacentHTML('beforeend', `
           <a class="drawer-link" href="/blur-photo"><svg viewBox="0 0 48 48"><use href="#i-blur"/></svg>Blur Photo</a>
         </div>
       </div>
-      
       <div style="padding:16px 0;border-top:1px solid #eceaf6;margin-top:16px;display:flex;gap:10px;flex-direction:column">
         <a class="drawer-link" href="/about"><svg viewBox="0 0 48 48" style="background:#7c3aed"><circle cx="24" cy="24" r="12" fill="#fff" opacity=".3"/><text x="24" y="29" font-family="Arial" font-size="14" font-weight="800" fill="#fff" text-anchor="middle">i</text></svg>About</a>
         <a class="drawer-link" href="/contact"><svg viewBox="0 0 48 48" style="background:#f59e0b"><path d="M14 16h20v16H14z" fill="#fff" opacity=".3"/><path d="M14 16l10 8 10-8" stroke="#fff" stroke-width="2" fill="none"/></svg>Contact</a>
@@ -355,11 +347,155 @@ function renderRelatedTools(){
   else{document.body.insertAdjacentHTML('beforeend',html);}
 }
 
+/* ===== HOW-TO GUIDES DATABASE ===== */
+var GUIDES={
+'compress-pdf':{title:'How to Compress PDF',steps:[{icon:'upload',text:'Click "Select PDF" button or drag & drop your file',tip:'Supports files up to 100MB'},{icon:'slider',text:'Adjust compression level (Quality vs Size)',tip:'Higher quality = larger file size'},{icon:'download',text:'Click "Download" to save compressed PDF',tip:'File size reduction shown in percentage'}]},
+'merge-pdf':{title:'How to Merge PDF',steps:[{icon:'upload',text:'Click "Select PDFs" to upload multiple files',tip:'You can select 2 or more PDFs'},{icon:'reorder',text:'Drag & drop to reorder pages as needed',tip:'First file = first pages in output'},{icon:'download',text:'Click "Merge PDF" and download',tip:'All PDFs combined into one file'}]},
+'split-pdf':{title:'How to Split PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Single PDF file only'},{icon:'select',text:'Select page ranges to extract',tip:'Use format: 1-3, 5, 7-10'},{icon:'download',text:'Download split PDF files',tip:'Each range becomes separate file'}]},
+'pdf-to-word':{title:'How to Convert PDF to Word',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Scanned PDFs will use OCR'},{icon:'process',text:'Wait for conversion (10-30 seconds)',tip:'Complex layouts may take longer'},{icon:'download',text:'Download your DOCX file',tip:'Edit in Microsoft Word or Google Docs'}]},
+'jpg-to-pdf':{title:'How to Convert JPG to PDF',steps:[{icon:'upload',text:'Upload one or more images',tip:'Supports JPG, PNG, WEBP'},{icon:'settings',text:'Choose page size and orientation',tip:'A4 is standard for documents'},{icon:'download',text:'Click "Convert" and download PDF',tip:'All images combined into one PDF'}]},
+'pdf-to-jpg':{title:'How to Convert PDF to JPG',steps:[{icon:'upload',text:'Upload your PDF file',tip:'All pages will be converted'},{icon:'quality',text:'Select image quality (Low/Medium/High)',tip:'High quality = larger file size'},{icon:'download',text:'Download all images as ZIP',tip:'Each page becomes separate JPG'}]},
+'sign-pdf':{title:'How to Sign PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document you want to sign'},{icon:'draw',text:'Draw your signature or upload image',tip:'Use mouse or touch screen'},{icon:'place',text:'Click on PDF to place signature',tip:'You can move and resize it'},{icon:'download',text:'Download signed PDF',tip:'Signature is permanently embedded'}]},
+'protect-pdf':{title:'How to Protect PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'File you want to password protect'},{icon:'password',text:'Enter strong password (8+ characters)',tip:'Use letters, numbers, symbols'},{icon:'download',text:'Download protected PDF',tip:'Password required to open file'}]},
+'unlock-pdf':{title:'How to Unlock PDF',steps:[{icon:'upload',text:'Upload password-protected PDF',tip:'You must know the password'},{icon:'password',text:'Enter the PDF password',tip:'Case-sensitive password'},{icon:'download',text:'Download unlocked PDF',tip:'No password needed to open'}]},
+'watermark-pdf':{title:'How to Add Watermark',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document to watermark'},{icon:'text',text:'Type watermark text or upload image',tip:'Example: "CONFIDENTIAL", "DRAFT"'},{icon:'settings',text:'Adjust position, size, and opacity',tip:'Lower opacity = less intrusive'},{icon:'download',text:'Download watermarked PDF',tip:'Watermark on all pages'}]},
+'edit-pdf':{title:'How to Edit PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document you want to edit'},{icon:'select',text:'Click on text or images to edit',tip:'Not all PDFs are editable'},{icon:'edit',text:'Make your changes',tip:'Add text, delete, or modify'},{icon:'download',text:'Download edited PDF',tip:'Changes are permanent'}]},
+'rotate-pdf':{title:'How to Rotate PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document with rotated pages'},{icon:'rotate',text:'Click pages to rotate (90° each click)',tip:'Or use "Rotate All" button'},{icon:'download',text:'Download rotated PDF',tip:'Pages now in correct orientation'}]},
+'organize-pdf':{title:'How to Organize PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document to reorganize'},{icon:'reorder',text:'Drag pages to reorder',tip:'Click X to delete pages'},{icon:'download',text:'Download organized PDF',tip:'Pages in new order'}]},
+'crop-pdf':{title:'How to Crop PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document to crop'},{icon:'crop',text:'Drag corners to select crop area',tip:'Remove unwanted margins'},{icon:'download',text:'Download cropped PDF',tip:'All pages cropped same way'}]},
+'repair-pdf':{title:'How to Repair PDF',steps:[{icon:'upload',text:'Upload corrupted PDF file',tip:'File that won\'t open properly'},{icon:'process',text:'Click "Repair" and wait',tip:'Attempts to fix structure'},{icon:'download',text:'Download repaired PDF',tip:'Some data may be lost'}]},
+'page-numbers':{title:'How to Add Page Numbers',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document to number'},{icon:'settings',text:'Choose position and format',tip:'Bottom-right is most common'},{icon:'download',text:'Download numbered PDF',tip:'Numbers on all pages'}]},
+'ocr-pdf':{title:'How to OCR PDF',steps:[{icon:'upload',text:'Upload scanned PDF',tip:'Image-based PDF without text'},{icon:'process',text:'Wait for OCR processing',tip:'May take 1-5 minutes'},{icon:'download',text:'Download searchable PDF',tip:'Now you can select and copy text'}]},
+'compare-pdf':{title:'How to Compare PDFs',steps:[{icon:'upload',text:'Upload two PDF files to compare',tip:'Original and modified version'},{icon:'view',text:'View differences highlighted',tip:'Red areas show changes'},{icon:'navigate',text:'Use arrows to navigate pages',tip:'See side-by-side comparison'}]},
+'redact-pdf':{title:'How to Redact PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document with sensitive info'},{icon:'draw',text:'Draw rectangles over sensitive text',tip:'Black boxes hide content'},{icon:'download',text:'Download redacted PDF',tip:'Content permanently removed'}]},
+'pdf-forms':{title:'How to Fill PDF Forms',steps:[{icon:'upload',text:'Upload PDF form',tip:'Document with fillable fields'},{icon:'fill',text:'Click fields and type your info',tip:'Tab to move between fields'},{icon:'download',text:'Download filled form',tip:'Your data is saved in PDF'}]},
+'scan-to-pdf':{title:'How to Scan to PDF',steps:[{icon:'camera',text:'Click "Open Camera" or upload photos',tip:'Allow camera access when prompted'},{icon:'capture',text:'Take photos of each page',tip:'Good lighting = better quality'},{icon:'filter',text:'Apply filters (Color/Gray/B&W)',tip:'B&W for text documents'},{icon:'download',text:'Download combined PDF',tip:'All pages in one file'}]},
+'translate-pdf':{title:'How to Translate PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document to translate'},{icon:'language',text:'Select source and target languages',tip:'Auto-detect works for source'},{icon:'process',text:'Wait for translation',tip:'May take 1-3 minutes'},{icon:'download',text:'Download translated PDF',tip:'Both original and translated text'}]},
+'ai-summarizer':{title:'How to Use AI Summarizer',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Long document to summarize'},{icon:'process',text:'AI analyzes and summarizes',tip:'Takes 10-30 seconds'},{icon:'view',text:'Read summary in text box',tip:'Key points extracted'},{icon:'copy',text:'Copy or download summary',tip:'Use for quick understanding'}]},
+'image-compressor':{title:'How to Compress Images',steps:[{icon:'upload',text:'Upload one or more images',tip:'JPG, PNG, WEBP supported'},{icon:'target',text:'Set target file size (e.g., 50 KB)',tip:'For forms with size limits'},{icon:'download',text:'Download compressed images',tip:'Exact size achieved'}]},
+'image-resizer':{title:'How to Resize Images',steps:[{icon:'upload',text:'Upload images to resize',tip:'Multiple files supported'},{icon:'dimensions',text:'Enter width and height',tip:'Lock aspect ratio to prevent stretching'},{icon:'download',text:'Download resized images',tip:'Exact dimensions achieved'}]},
+'passport-photo':{title:'How to Make Passport Photo',steps:[{icon:'upload',text:'Upload your photo',tip:'Clear face, good lighting'},{icon:'crop',text:'Drag to position face in frame',tip:'Face should fill 70-80% of frame'},{icon:'settings',text:'Select country/document type',tip:'Auto-sets correct dimensions'},{icon:'download',text:'Download photo + print sheet',tip:'Print on 4x6 photo paper'}]},
+'signature-resize':{title:'How to Resize Signature',steps:[{icon:'upload',text:'Upload signature photo',tip:'Clear signature on white paper'},{icon:'dimensions',text:'Set exact pixel dimensions',tip:'Check form requirements'},{icon:'target',text:'Set max file size (KB)',tip:'Many forms require <20 KB'},{icon:'download',text:'Download resized signature',tip:'Ready for form upload'}]},
+'blur-photo':{title:'How to Blur Photo',steps:[{icon:'upload',text:'Upload your photo',tip:'Image to blur'},{icon:'slider',text:'Adjust blur strength',tip:'Higher = more blur'},{icon:'download',text:'Download blurred photo',tip:'Privacy protected'}]},
+'image-crop':{title:'How to Crop Image',steps:[{icon:'upload',text:'Upload your image',tip:'Photo to crop'},{icon:'crop',text:'Drag corners to select area',tip:'Or choose preset ratio'},{icon:'download',text:'Download cropped image',tip:'Unwanted areas removed'}]},
+'image-converter':{title:'How to Convert Images',steps:[{icon:'upload',text:'Upload images to convert',tip:'JPG, PNG, WEBP, BMP'},{icon:'format',text:'Select output format',tip:'JPG for photos, PNG for graphics'},{icon:'download',text:'Download converted images',tip:'Or download all as ZIP'}]},
+'word-to-pdf':{title:'How to Convert Word to PDF',steps:[{icon:'upload',text:'Upload your DOCX file',tip:'Microsoft Word document'},{icon:'process',text:'Wait for conversion',tip:'Preserves formatting'},{icon:'download',text:'Download PDF file',tip:'Ready to share or print'}]},
+'excel-to-pdf':{title:'How to Convert Excel to PDF',steps:[{icon:'upload',text:'Upload your XLSX file',tip:'Excel spreadsheet'},{icon:'preview',text:'Preview how it will look',tip:'Check formatting'},{icon:'download',text:'Download PDF file',tip:'Tables converted to PDF format'}]},
+'powerpoint-to-pdf':{title:'How to Convert PowerPoint to PDF',steps:[{icon:'upload',text:'Upload your PPTX file',tip:'PowerPoint presentation'},{icon:'process',text:'Wait for conversion',tip:'Each slide becomes PDF page'},{icon:'download',text:'Download PDF file',tip:'Ready to share without PowerPoint'}]},
+'html-to-pdf':{title:'How to Convert HTML to PDF',steps:[{icon:'code',text:'Paste HTML code or URL',tip:'Complete HTML with styling'},{icon:'preview',text:'See live preview',tip:'Adjust page size and margins'},{icon:'download',text:'Download PDF file',tip:'HTML rendered as PDF'}]},
+'pdf-to-markdown':{title:'How to Convert PDF to Markdown',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document to convert'},{icon:'process',text:'Wait for conversion',tip:'Extracts text and structure'},{icon:'download',text:'Download Markdown file',tip:'Use in GitHub, Notion, etc.'}]},
+'pdf-to-pdfa':{title:'How to Convert to PDF/A',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document to archive'},{icon:'process',text:'Convert to PDF/A standard',tip:'Ensures long-term preservation'},{icon:'download',text:'Download PDF/A file',tip:'Archive-ready format'}]}
+};
+
+/* ===== HOW-TO SVG ICONS ===== */
+var ICONS={
+upload:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>',
+download:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>',
+slider:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>',
+settings:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
+reorder:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>',
+select:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>',
+process:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>',
+draw:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>',
+place:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+password:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+text:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>',
+edit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+rotate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>',
+crop:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6.13 1L6 16a2 2 0 0 0 2 2h15"/><path d="M1 6.13L16 6a2 2 0 0 1 2 2v15"/></svg>',
+quality:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
+camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
+capture:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>',
+filter:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>',
+language:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
+view:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>',
+navigate:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>',
+fill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>',
+copy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
+target:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+dimensions:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 3H3v18h18V3z"/><path d="M9 9h6v6H9z"/></svg>',
+format:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>',
+code:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
+preview:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>'
+};
+
+/* ===== RENDER HOW-TO BUTTON ===== */
+function renderHowToButton(){
+  var current=getCurrentTool();
+  if(!current||!GUIDES[current])return;
+
+  var html='<button class="ht-btn" id="htBtn" aria-label="How to use this tool">';
+  html+='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+  html+='<span>How to use</span>';
+  html+='</button>';
+
+  var style=document.createElement('style');
+  style.textContent='.ht-btn{position:fixed;bottom:24px;right:24px;z-index:998;display:flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:999px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(124,58,237,.4);transition:all .3s}.ht-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(124,58,237,.5)}.ht-btn svg{width:20px;height:20px}@media(max-width:600px){.ht-btn{bottom:16px;right:16px;padding:10px 16px;font-size:13px}.ht-btn svg{width:18px;height:18px}}';
+  document.head.appendChild(style);
+
+  document.body.insertAdjacentHTML('beforeend', html);
+  document.getElementById('htBtn').addEventListener('click', function(){ openGuide(current); });
+}
+
+/* ===== OPEN GUIDE MODAL ===== */
+function openGuide(toolKey){
+  var guide=GUIDES[toolKey];
+  if(!guide)return;
+
+  var html='<div class="ht-overlay" id="htOverlay">';
+  html+='<div class="ht-modal">';
+  html+='<div class="ht-header"><h2>'+guide.title+'</h2><button class="ht-close" id="htClose" aria-label="Close">✕</button></div>';
+  html+='<div class="ht-body">';
+
+  guide.steps.forEach(function(step,idx){
+    html+='<div class="ht-step">';
+    html+='<div class="ht-step-num">'+(idx+1)+'</div>';
+    html+='<div class="ht-step-icon">'+(ICONS[step.icon]||ICONS.settings)+'</div>';
+    html+='<div class="ht-step-content">';
+    html+='<p class="ht-step-text">'+step.text+'</p>';
+    if(step.tip){html+='<p class="ht-step-tip">💡 '+step.tip+'</p>';}
+    html+='</div></div>';
+  });
+
+  html+='</div></div></div>';
+
+  var style=document.createElement('style');
+  style.textContent='.ht-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:htFadeIn .3s}@keyframes htFadeIn{from{opacity:0}to{opacity:1}}.ht-modal{background:#fff;border-radius:16px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;animation:htSlideUp .3s}@keyframes htSlideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}.ht-header{display:flex;justify-content:space-between;align-items:center;padding:20px 24px;border-bottom:1px solid #eceaf6;position:sticky;top:0;background:#fff;z-index:1}.ht-header h2{font-size:20px;font-weight:900;color:#1e1e2e;margin:0}.ht-close{background:none;border:none;font-size:24px;color:#8a8a99;cursor:pointer;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .2s}.ht-close:hover{background:#f3f0ff;color:#7c3aed}.ht-body{padding:24px}.ht-step{display:flex;gap:16px;margin-bottom:24px}.ht-step:last-child{margin-bottom:0}.ht-step-num{width:32px;height:32px;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;flex-shrink:0}.ht-step-icon{width:48px;height:48px;background:#f3f0ff;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#7c3aed}.ht-step-icon svg{width:24px;height:24px}.ht-step-content{flex:1;min-width:0}.ht-step-text{font-size:15px;font-weight:600;color:#1e1e2e;margin:0 0 6px;line-height:1.5}.ht-step-tip{font-size:13px;color:#7c3aed;margin:0;background:#f3f0ff;padding:8px 12px;border-radius:8px;line-height:1.4}@media(max-width:600px){.ht-modal{max-height:95vh}.ht-header{padding:16px 20px}.ht-header h2{font-size:18px}.ht-body{padding:20px}.ht-step{gap:12px}.ht-step-num{width:28px;height:28px;font-size:13px}.ht-step-icon{width:40px;height:40px}.ht-step-icon svg{width:20px;height:20px}.ht-step-text{font-size:14px}.ht-step-tip{font-size:12px;padding:6px 10px}}';
+  document.head.appendChild(style);
+
+  document.body.insertAdjacentHTML('beforeend', html);
+  document.body.style.overflow='hidden';
+
+  document.getElementById('htClose').addEventListener('click', closeGuide);
+  document.getElementById('htOverlay').addEventListener('click', function(e){
+    if(e.target===this)closeGuide();
+  });
+  document.addEventListener('keydown', function escHandler(e){
+    if(e.key==='Escape'){closeGuide();document.removeEventListener('keydown',escHandler);}
+  });
+}
+
+/* ===== CLOSE GUIDE MODAL ===== */
+function closeGuide(){
+  var overlay=document.getElementById('htOverlay');
+  if(overlay){
+    overlay.style.animation='htFadeIn .3s reverse';
+    setTimeout(function(){
+      overlay.remove();
+      document.body.style.overflow='';
+    },280);
+  }
+}
+
 /* ===== FOOTER ===== */
 var f=document.getElementById('siteFooter');
 if(f){f.innerHTML='<div class="container"><div class="fgrid"><div class="fcol"><h4>TronoPDF 👑</h4><p>Every PDF tool you need - free, fast and private. Files never leave your device. Powered by open-source libraries (pdf-lib, pdf.js).</p></div><div class="fcol"><h4>Product</h4><a href="/">Home</a><a href="/all-tools.html">All Tools</a><a href="/about.html">About</a><a href="/contact.html">Contact</a></div><div class="fcol"><h4>Popular Tools</h4><a href="/merge-pdf">Merge PDF</a><a href="/split-pdf">Split PDF</a><a href="/compress-pdf">Compress PDF</a><a href="/jpg-to-pdf">JPG to PDF</a><a href="/pdf-to-jpg">PDF to JPG</a><a href="/image-compressor">Image Compressor</a><a href="/signature-resize">Signature Resize</a><a href="/image-converter">Image Converter</a><a href="/blur-photo">Blur Photo</a><a href="/html-to-pdf">HTML to PDF</a></div><div class="fcol"><h4>Legal</h4><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a><a href="/disclaimer.html">Disclaimer</a></div></div><div class="fbottom">© TronoPDF - All Rights Reserved.</div></div>';}
 
-/* ===== INJECT RELATED TOOLS ===== */
-if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',renderRelatedTools);}
-else{renderRelatedTools();}
+/* ===== INIT ===== */
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',function(){renderRelatedTools();renderHowToButton();});
+}else{
+  renderRelatedTools();
+  renderHowToButton();
+}
 })();
