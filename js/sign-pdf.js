@@ -1,24 +1,102 @@
-/* TronoPDF - Sign PDF v2 | fixed fresh buffer + error catch */
+/* TronoPDF - Sign PDF v3 | Web Worker + Lazy Load + Cancel */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
+
 var PDFLIB_SRC='https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
 var PDFJS_SRC='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 var PDFJS_WORKER='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-function loadJS(src,cb){var s=document.createElement('script');s.src=src;s.onload=function(){cb(false);};s.onerror=function(){cb(true);};document.head.appendChild(s);}
-loadJS(PDFLIB_SRC,function(){});
-loadJS(PDFJS_SRC,function(e){if(!e&&window.pdfjsLib){window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;}});
-function waitLib(name){
- return new Promise(function(res){
-  var tries=0;
-  (function w(){
-   if(window[name]){res(true);return;}
-   if(tries>40){res(false);return;}
-   tries++;setTimeout(w,500);
-  })();
- });
+
+/* Lazy load with caching */
+var loadedLibs={};
+function loadJS(src,cb){
+  if(loadedLibs[src]){cb(false);return;}
+  var s=document.createElement('script');
+  s.src=src;
+  s.onload=function(){loadedLibs[src]=true;cb(false);};
+  s.onerror=function(){cb(true);};
+  document.head.appendChild(s);
 }
+
+function waitLib(name){
+  return new Promise(function(res){
+    var tries=0;
+    (function w(){
+      if(window[name]){res(true);return;}
+      if(tries>40){res(false);return;}
+      tries++;setTimeout(w,500);
+    })();
+  });
+}
+
+/* Web Worker for PDF signing */
+var workerCode = `
+importScripts('https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js');
+
+self.onmessage = function(e) {
+  var data = e.data;
+  
+  if (data.type === 'sign') {
+    var buffer = data.buffer;
+    var sigData = data.sigData;
+    var coords = data.coords;
+    var applyAll = data.applyAll;
+    var curPage = data.curPage;
+    var pdfScale = data.pdfScale;
+    
+    self.postMessage({type: 'progress', percent: 10, msg: 'Loading PDF...'});
+    
+    PDFLib.PDFDocument.load(buffer, {ignoreEncryption: true}).then(function(pdf) {
+      self.postMessage({type: 'progress', percent: 25, msg: 'Embedding signature...'});
+      
+      return pdf.embedPng(sigData).then(function(sigImg) {
+        var pages = pdf.getPages();
+        var targets = applyAll ? pages : [pages[curPage - 1]];
+        
+        var wPdf = coords.wCss / pdfScale;
+        var hPdf = coords.hCss / pdfScale;
+        var xPdf = coords.leftCss / pdfScale;
+        var yTop = coords.topCss / pdfScale;
+        
+        self.postMessage({type: 'progress', percent: 40, msg: 'Applying signature...'});
+        
+        for (var i = 0; i < targets.length; i++) {
+          var pg = targets[i];
+          var size = pg.getSize();
+          pg.drawImage(sigImg, {
+            x: xPdf,
+            y: size.height - yTop - hPdf,
+            width: wPdf,
+            height: hPdf
+          });
+          
+          var percent = 40 + ((i + 1) / targets.length) * 50;
+          self.postMessage({
+            type: 'progress',
+            percent: percent,
+            msg: 'Signing page ' + (i + 1) + ' of ' + targets.length
+          });
+        }
+        
+        self.postMessage({type: 'progress', percent: 95, msg: 'Saving PDF...'});
+        return pdf.save();
+      });
+    }).then(function(bytes) {
+      self.postMessage({type: 'complete', bytes: bytes});
+    }).catch(function(err) {
+      self.postMessage({type: 'error', msg: 'Signing failed: ' + err.message});
+    });
+  }
+};
+`;
+
+/* Create Worker */
+var blob = new Blob([workerCode], {type: 'application/javascript'});
+var workerUrl = URL.createObjectURL(blob);
+var worker = new Worker(workerUrl);
+
 function fmtB(n){return n<1024?n+' B':(n<1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
+
 var html='';
 html+='<style>';
 html+='.sg-wrap{max-width:1400px;margin:0 auto}';
@@ -57,12 +135,16 @@ html+='.sg-chk{display:flex;gap:8px;align-items:center;margin:8px 0}';
 html+='.sg-chk input{width:16px;height:16px;accent-color:#7c3aed}';
 html+='.sg-chk label{font-size:13px;font-weight:600;cursor:pointer}';
 html+='.sg-go{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:18px;font-weight:800;padding:17px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 14px 34px rgba(124,58,237,.35);margin-top:14px}';
+html+='.sg-go:disabled{opacity:.5;cursor:not-allowed}';
 html+='.sg-busy{display:none;padding:60px 20px;text-align:center}';
 html+='.sg-busy h2{font-size:28px;font-weight:900;margin-bottom:8px}';
-html+='.sg-busy .fn{color:#7a7a85;font-size:15px;margin-bottom:26px}';
+html+='.sg-busy .fn{color:#7a7a85;font-size:15px;margin-bottom:10px}';
+html+='.sg-busy .st{color:#7c3aed;font-size:13px;font-weight:700;margin-bottom:16px;min-height:18px}';
 html+='.sg-bar{max-width:600px;margin:0 auto 18px;height:14px;background:#fff;border-radius:999px;overflow:hidden}';
 html+='.sg-bar div{height:100%;width:0;background:linear-gradient(90deg,#7c3aed,#a855f7);transition:width .3s}';
 html+='.sg-pct{font-size:36px;font-weight:900}';
+html+='.sg-cancel{margin-top:16px;background:#f4f5fa;color:#333;font-weight:700;font-size:14px;padding:12px 24px;border-radius:10px;border:none;cursor:pointer}';
+html+='.sg-cancel:hover{background:#e6e8f5}';
 html+='.sg-done{display:none;text-align:center;padding:50px 20px}';
 html+='.sg-done-ic{width:80px;height:80px;border-radius:50%;background:#eafbef;color:#16a34a;font-size:38px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}';
 html+='.sg-dl{display:inline-block;background:#16a34a;color:#fff;font-weight:800;font-size:18px;padding:17px 50px;border-radius:12px;box-shadow:0 14px 34px rgba(22,163,74,.35)}';
@@ -82,14 +164,17 @@ html+='<div id="sgUpSec" style="display:none"><button class="sg-big" id="sgUpBtn
 html+='<div class="sg-lbl">Signature size</div><div class="sg-row"><input type="range" id="sgSize" min="60" max="320" value="160"/></div>';
 html+='<div class="sg-chk"><input type="checkbox" id="sgAll"/><label for="sgAll">Apply to all pages</label></div>';
 html+='<button class="sg-go" id="sgGo" type="button">Sign PDF →</button></aside></div></div>';
-html+='<div class="sg-busy" id="sgBusy"><h2>Signing PDF...</h2><p class="fn" id="sgBusyName"></p><div class="sg-bar"><div id="sgBarFill"></div></div><div class="sg-pct" id="sgPct">0%</div></div>';
+html+='<div class="sg-busy" id="sgBusy"><h2>Signing PDF...</h2><p class="fn" id="sgBusyName"></p><p class="st" id="sgStatus">Preparing...</p><div class="sg-bar"><div id="sgBarFill"></div></div><div class="sg-pct" id="sgPct">0%</div><button class="sg-cancel" id="sgCancel" type="button">✕ Cancel</button></div>';
 html+='<div class="sg-done" id="sgDone"><div class="sg-done-ic">✓</div><h1 style="font-size:28px;font-weight:900;margin-bottom:8px">PDF signed successfully!</h1><p style="color:#7a7a85;font-size:15px;margin-bottom:28px" id="sgDoneInfo"></p><a class="sg-dl" id="sgDl" href="#">⬇ Download Signed PDF</a><button class="sg-again" id="sgAgain" type="button">Sign another PDF</button></div>';
 html+='<input type="file" id="sgFile" accept="application/pdf,.pdf" style="display:none"/>';
 html+='<input type="file" id="sgUpFile" accept="image/*" style="display:none"/>';
 html+='</div>';
 root.innerHTML=html;
+
 var file=null;var doc=null;var totalPages=0;var curPage=1;var pdfScale=1;
 var sigData=null;
+var cancelRequested=false;
+
 var pick=document.getElementById('sgPick'),work=document.getElementById('sgWork'),busy=document.getElementById('sgBusy'),done=document.getElementById('sgDone');
 var zone=document.getElementById('sgZone'),btn=document.getElementById('sgBtn'),inp=document.getElementById('sgFile');
 var canvas=document.getElementById('sgCanvas'),ctx=canvas.getContext('2d');
@@ -97,155 +182,249 @@ var sigEl=document.getElementById('sgSig'),sigImg=document.getElementById('sgSig
 var pageLbl=document.getElementById('sgPageLbl');
 var elSize=document.getElementById('sgSize');
 var drawC=document.getElementById('sgDraw'),dctx=drawC.getContext('2d');
+var goBtn=document.getElementById('sgGo');
+var cancelBtn=document.getElementById('sgCancel');
+var statusEl=document.getElementById('sgStatus');
+
 drawC.width=360;drawC.height=140;
+
+/* Worker message handler */
+worker.onmessage = function(e) {
+  var data = e.data;
+  
+  if (data.type === 'progress') {
+    document.getElementById('sgPct').textContent = Math.round(data.percent) + '%';
+    document.getElementById('sgBarFill').style.width = data.percent + '%';
+    statusEl.textContent = data.msg || 'Processing...';
+  } else if (data.type === 'complete') {
+    document.getElementById('sgPct').textContent = '100%';
+    document.getElementById('sgBarFill').style.width = '100%';
+    statusEl.textContent = 'Complete!';
+    
+    setTimeout(function() {
+      busy.style.display = 'none';
+      done.style.display = 'block';
+      document.getElementById('sgDoneInfo').textContent = fmtB(data.bytes.length);
+      
+      var blob = new Blob([data.bytes], {type: 'application/pdf'});
+      var dl = document.getElementById('sgDl');
+      dl.href = URL.createObjectURL(blob);
+      dl.download = 'signed-' + (file ? file.name : 'document.pdf');
+      goBtn.disabled = false;
+    }, 300);
+  } else if (data.type === 'error') {
+    busy.style.display = 'none';
+    work.style.display = 'block';
+    goBtn.disabled = false;
+    alert(data.msg || 'Error signing PDF. Please try again.');
+  }
+};
+
 function setTab(t){
- document.getElementById('sgTabDraw').classList.toggle('active',t==='draw');
- document.getElementById('sgTabType').classList.toggle('active',t==='type');
- document.getElementById('sgTabUp').classList.toggle('active',t==='up');
- document.getElementById('sgDrawSec').style.display=t==='draw'?'block':'none';
- document.getElementById('sgTypeSec').style.display=t==='type'?'block':'none';
- document.getElementById('sgUpSec').style.display=t==='up'?'block':'none';
+  document.getElementById('sgTabDraw').classList.toggle('active',t==='draw');
+  document.getElementById('sgTabType').classList.toggle('active',t==='type');
+  document.getElementById('sgTabUp').classList.toggle('active',t==='up');
+  document.getElementById('sgDrawSec').style.display=t==='draw'?'block':'none';
+  document.getElementById('sgTypeSec').style.display=t==='type'?'block':'none';
+  document.getElementById('sgUpSec').style.display=t==='up'?'block':'none';
 }
+
 document.getElementById('sgTabDraw').onclick=function(){setTab('draw');useDraw();};
 document.getElementById('sgTabType').onclick=function(){setTab('type');useType();};
 document.getElementById('sgTabUp').onclick=function(){setTab('up');};
 document.getElementById('sgUpBtn').onclick=function(){document.getElementById('sgUpFile').click();};
+
 document.getElementById('sgUpFile').onchange=function(){
- var f=this.files[0];if(!f){return;}
- var rd=new FileReader();
- rd.onload=function(){sigData=rd.result;showSig();};
- rd.readAsDataURL(f);
- this.value='';
+  var f=this.files[0];if(!f){return;}
+  var rd=new FileReader();
+  rd.onload=function(){sigData=rd.result;showSig();};
+  rd.readAsDataURL(f);
+  this.value='';
 };
+
 var dOn=false;
 dctx.lineWidth=2.5;dctx.lineCap='round';dctx.lineJoin='round';dctx.strokeStyle='#1e293b';
-drawC.addEventListener('pointerdown',function(e){dOn=true;dctx.beginPath();var r=drawC.getBoundingClientRect();dctx.moveTo(e.clientX-r.left,e.clientY-r.top);drawC.setPointerCapture(e.pointerId);});
-drawC.addEventListener('pointermove',function(e){if(!dOn){return;}var r=drawC.getBoundingClientRect();dctx.lineTo(e.clientX-r.left,e.clientY-r.top);dctx.stroke();});
+
+drawC.addEventListener('pointerdown',function(e){
+  dOn=true;dctx.beginPath();
+  var r=drawC.getBoundingClientRect();
+  dctx.moveTo(e.clientX-r.left,e.clientY-r.top);
+  drawC.setPointerCapture(e.pointerId);
+});
+
+drawC.addEventListener('pointermove',function(e){
+  if(!dOn){return;}
+  var r=drawC.getBoundingClientRect();
+  dctx.lineTo(e.clientX-r.left,e.clientY-r.top);
+  dctx.stroke();
+});
+
 drawC.addEventListener('pointerup',function(){dOn=false;useDraw();});
-document.getElementById('sgClear').onclick=function(){dctx.clearRect(0,0,drawC.width,drawC.height);sigData=null;sigEl.style.display='none';};
+
+document.getElementById('sgClear').onclick=function(){
+  dctx.clearRect(0,0,drawC.width,drawC.height);
+  sigData=null;sigEl.style.display='none';
+};
+
 function isCanvasBlank(c){
- var d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
- for(var i=3;i<d.length;i+=4){if(d[i]!==0){return false;}}
- return true;
+  var d=c.getContext('2d').getImageData(0,0,c.width,c.height).data;
+  for(var i=3;i<d.length;i+=4){if(d[i]!==0){return false;}}
+  return true;
 }
+
 function useDraw(){
- sigData=isCanvasBlank(drawC)?null:drawC.toDataURL('image/png');
- if(sigData){showSig();}else{sigEl.style.display='none';}
+  sigData=isCanvasBlank(drawC)?null:drawC.toDataURL('image/png');
+  if(sigData){showSig();}else{sigEl.style.display='none';}
 }
+
 function useType(){
- var txt=document.getElementById('sgType').value.trim();
- var col=document.getElementById('sgColor').value;
- var font=document.getElementById('sgFont').value;
- if(!txt){sigData=null;sigEl.style.display='none';return;}
- var c=document.createElement('canvas');c.width=600;c.height=160;
- var x=c.getContext('2d');
- x.fillStyle=col;
- x.font=font==='cursive'?'italic 700 70px "Brush Script MT","Segoe Script",cursive':(font==='italic'?'italic 700 70px Georgia,serif':'900 70px Inter,sans-serif');
- x.textBaseline='middle';
- x.fillText(txt,20,80);
- sigData=c.toDataURL('image/png');
- showSig();
+  var txt=document.getElementById('sgType').value.trim();
+  var col=document.getElementById('sgColor').value;
+  var font=document.getElementById('sgFont').value;
+  if(!txt){sigData=null;sigEl.style.display='none';return;}
+  var c=document.createElement('canvas');c.width=600;c.height=160;
+  var x=c.getContext('2d');
+  x.fillStyle=col;
+  x.font=font==='cursive'?'italic 700 70px "Brush Script MT","Segoe Script",cursive':(font==='italic'?'italic 700 70px Georgia,serif':'900 70px Inter,sans-serif');
+  x.textBaseline='middle';
+  x.fillText(txt,20,80);
+  sigData=c.toDataURL('image/png');
+  showSig();
 }
+
 document.getElementById('sgType').oninput=useType;
 document.getElementById('sgFont').onchange=useType;
 document.getElementById('sgColor').oninput=useType;
+
 function showSig(){
- if(!sigData){sigEl.style.display='none';return;}
- sigImg.src=sigData;
- sigEl.style.display='block';
- var w=parseInt(elSize.value);
- sigEl.style.width=w+'px';
- sigEl.style.height=Math.round(w*0.4)+'px';
- if(!sigEl.style.left){sigEl.style.left='40px';sigEl.style.top='40px';}
+  if(!sigData){sigEl.style.display='none';return;}
+  sigImg.src=sigData;
+  sigEl.style.display='block';
+  var w=parseInt(elSize.value);
+  sigEl.style.width=w+'px';
+  sigEl.style.height=Math.round(w*0.4)+'px';
+  if(!sigEl.style.left){sigEl.style.left='40px';sigEl.style.top='40px';}
 }
+
 elSize.oninput=showSig;
+
 var sOn=false,sx=0,sy=0;
-sigEl.addEventListener('pointerdown',function(e){sOn=true;sx=e.clientX;sy=e.clientY;sigEl.setPointerCapture(e.pointerId);e.preventDefault();});
-sigEl.addEventListener('pointermove',function(e){
- if(!sOn){return;}
- sigEl.style.left=(sigEl.offsetLeft+(e.clientX-sx))+'px';
- sigEl.style.top=(sigEl.offsetTop+(e.clientY-sy))+'px';
- sx=e.clientX;sy=e.clientY;
+sigEl.addEventListener('pointerdown',function(e){
+  sOn=true;sx=e.clientX;sy=e.clientY;
+  sigEl.setPointerCapture(e.pointerId);e.preventDefault();
 });
+
+sigEl.addEventListener('pointermove',function(e){
+  if(!sOn){return;}
+  sigEl.style.left=(sigEl.offsetLeft+(e.clientX-sx))+'px';
+  sigEl.style.top=(sigEl.offsetTop+(e.clientY-sy))+'px';
+  sx=e.clientX;sy=e.clientY;
+});
+
 sigEl.addEventListener('pointerup',function(){sOn=false;});
+
 function addFile(f){
- if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){alert('Please select a PDF file.');return;}
- file=f;pick.style.display='none';work.style.display='block';done.style.display='none';
- waitLib('pdfjsLib').then(function(ok){
-  if(!ok){return;}
-  window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
-  f.arrayBuffer().then(function(b){
-   return window.pdfjsLib.getDocument({data:b}).promise.then(function(d){
-    doc=d;totalPages=d.numPages;curPage=1;renderPage();
-   });
+  if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){
+    alert('Please select a PDF file.');
+    return;
+  }
+  file=f;pick.style.display='none';work.style.display='block';done.style.display='none';
+  
+  /* Lazy load pdf.js only when file is selected */
+  loadJS(PDFJS_SRC,function(err){
+    if(err||!window.pdfjsLib){return;}
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
+    f.arrayBuffer().then(function(b){
+      return window.pdfjsLib.getDocument({data:b}).promise.then(function(d){
+        doc=d;totalPages=d.numPages;curPage=1;renderPage();
+      });
+    });
   });
- });
 }
+
 function renderPage(){
- doc.getPage(curPage).then(function(page){
-  var vp1=page.getViewport({scale:1});
-  pdfScale=Math.min(1.6,520/vp1.width);
-  var vp=page.getViewport({scale:pdfScale});
-  canvas.width=Math.floor(vp.width);canvas.height=Math.floor(vp.height);
-  page.render({canvasContext:ctx,viewport:vp}).promise.then(function(){
-   pageLbl.textContent='Page '+curPage+' / '+totalPages;
+  doc.getPage(curPage).then(function(page){
+    var vp1=page.getViewport({scale:1});
+    pdfScale=Math.min(1.6,520/vp1.width);
+    var vp=page.getViewport({scale:pdfScale});
+    canvas.width=Math.floor(vp.width);canvas.height=Math.floor(vp.height);
+    page.render({canvasContext:ctx,viewport:vp}).promise.then(function(){
+      pageLbl.textContent='Page '+curPage+' / '+totalPages;
+    });
   });
- });
 }
+
 document.getElementById('sgPrev').onclick=function(){if(curPage>1){curPage--;renderPage();}};
 document.getElementById('sgNext').onclick=function(){if(curPage<totalPages){curPage++;renderPage();}};
+
 btn.onclick=function(){inp.click();};
+
 inp.onchange=function(){if(inp.files[0]){addFile(inp.files[0]);}inp.value='';};
+
 zone.ondragover=function(e){e.preventDefault();zone.classList.add('on');};
 zone.ondragleave=function(){zone.classList.remove('on');};
-zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){addFile(e.dataTransfer.files[0]);}};
-function pct(p){document.getElementById('sgPct').textContent=Math.round(p)+'%';document.getElementById('sgBarFill').style.width=p+'%';}
-document.getElementById('sgGo').onclick=function(){
- if(!file){return;}
- if(!sigData){alert('Please create a signature first (draw, type or upload).');return;}
- work.style.display='none';busy.style.display='block';
- document.getElementById('sgBusyName').textContent=file.name;
- pct(5);
- waitLib('PDFLib').then(function(ok){
-  if(!ok){throw new Error('libs');}
-  return file.arrayBuffer();
- }).then(function(buf){
-  return PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(pdf){
-   return pdf.embedPng(sigData).then(function(sigImgLib){
-    var pages=pdf.getPages();
-    var targets=document.getElementById('sgAll').checked?pages:[pages[curPage-1]];
-    var leftCss=parseFloat(sigEl.style.left)||40;
-    var topCss=parseFloat(sigEl.style.top)||40;
-    var wCss=sigEl.offsetWidth||160;
-    var hCss=sigEl.offsetHeight||64;
-    var wPdf=wCss/pdfScale,hPdf=hCss/pdfScale,xPdf=leftCss/pdfScale,yTop=topCss/pdfScale;
-    for(var i=0;i<targets.length;i++){
-     var pg=targets[i];
-     var size=pg.getSize();
-     pg.drawImage(sigImgLib,{x:xPdf,y:size.height-yTop-hPdf,width:wPdf,height:hPdf});
-     pct(10+((i+1)/targets.length)*70);
+zone.ondrop=function(e){
+  e.preventDefault();zone.classList.remove('on');
+  if(e.dataTransfer.files[0]){addFile(e.dataTransfer.files[0]);}
+};
+
+goBtn.onclick=function(){
+  if(!file){return;}
+  if(!sigData){alert('Please create a signature first (draw, type or upload).');return;}
+  
+  work.style.display='none';busy.style.display='block';
+  document.getElementById('sgBusyName').textContent=file.name;
+  document.getElementById('sgPct').textContent='0%';
+  document.getElementById('sgBarFill').style.width='0%';
+  statusEl.textContent='Reading file...';
+  cancelRequested=false;
+  goBtn.disabled=true;
+  
+  /* Collect signature coordinates */
+  var leftCss=parseFloat(sigEl.style.left)||40;
+  var topCss=parseFloat(sigEl.style.top)||40;
+  var wCss=sigEl.offsetWidth||160;
+  var hCss=sigEl.offsetHeight||64;
+  var applyAll=document.getElementById('sgAll').checked;
+  
+  /* Read file and send to worker */
+  file.arrayBuffer().then(function(buf){
+    if(cancelRequested){
+      busy.style.display='none';
+      work.style.display='block';
+      goBtn.disabled=false;
+      return;
     }
-    return pdf.save();
-   });
+    
+    worker.postMessage({
+      type: 'sign',
+      buffer: buf,
+      sigData: sigData,
+      coords: {leftCss: leftCss, topCss: topCss, wCss: wCss, hCss: hCss},
+      applyAll: applyAll,
+      curPage: curPage,
+      pdfScale: pdfScale
+    }, [buf]); /* Transfer ArrayBuffer for zero-copy */
+  }).catch(function(err){
+    busy.style.display='none';
+    work.style.display='block';
+    goBtn.disabled=false;
+    alert('Error reading file: '+err.message);
   });
- }).then(function(bytes){
-  pct(100);
-  setTimeout(function(){
-   busy.style.display='none';done.style.display='block';
-   document.getElementById('sgDoneInfo').textContent=fmtB(bytes.length);
-   var blob=new Blob([bytes],{type:'application/pdf'});
-   var dl=document.getElementById('sgDl');
-   dl.href=URL.createObjectURL(blob);
-   dl.download='signed-'+(file.name||'document.pdf');
-  },200);
- }).catch(function(){
-  busy.style.display='none';work.style.display='block';
-  alert('Error signing PDF. Please try again.');
- });
 };
+
+cancelBtn.onclick=function(){
+  cancelRequested=true;
+  statusEl.textContent='Cancelling...';
+  busy.style.display='none';
+  work.style.display='block';
+  goBtn.disabled=false;
+};
+
 document.getElementById('sgAgain').onclick=function(){
- done.style.display='none';pick.style.display='block';work.style.display='none';
- file=null;doc=null;totalPages=0;sigData=null;sigEl.style.display='none';
- dctx.clearRect(0,0,drawC.width,drawC.height);
+  done.style.display='none';pick.style.display='block';work.style.display='none';
+  file=null;doc=null;totalPages=0;sigData=null;sigEl.style.display='none';
+  dctx.clearRect(0,0,drawC.width,drawC.height);
 };
+
 })();
