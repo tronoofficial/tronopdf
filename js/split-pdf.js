@@ -1,26 +1,146 @@
-/* TronoPDF - Split PDF v2 | visual selector, multiple ranges, thumbnails */
+/* TronoPDF - Split PDF v3 | Web Worker + Lazy Load + Progress */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
+
 var PDFJS_SRC='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 var PDFJS_WORKER='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 var PDFLIB_SRC='https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
-function loadJS(src,cb){var s=document.createElement('script');s.src=src;s.onload=function(){cb(false);};s.onerror=function(){cb(true);};document.head.appendChild(s);}
-loadJS(PDFJS_SRC,function(e){if(!e&&window.pdfjsLib){window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;}});
-loadJS(PDFLIB_SRC,function(){});
+
+/* Lazy load function */
+var loadedLibs={};
+function loadJS(src,cb){
+  if(loadedLibs[src]){cb(false);return;}
+  var s=document.createElement('script');
+  s.src=src;
+  s.onload=function(){loadedLibs[src]=true;cb(false);};
+  s.onerror=function(){cb(true);};
+  document.head.appendChild(s);
+}
+
+/* Web Worker code for splitting */
+var workerCode = `
+importScripts('https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js');
+
+self.onmessage = function(e) {
+  var data = e.data;
+  
+  if (data.type === 'split') {
+    var buffer = data.buffer;
+    var ranges = data.ranges;
+    var mergeAll = data.mergeAll;
+    
+    self.postMessage({type: 'progress', percent: 5, msg: 'Loading PDF...'});
+    
+    PDFLib.PDFDocument.load(buffer, {ignoreEncryption: true}).then(function(srcDoc) {
+      self.postMessage({type: 'progress', percent: 15, msg: 'Processing pages...'});
+      
+      if (mergeAll) {
+        /* Merge all ranges into single PDF */
+        var allPages = [];
+        ranges.forEach(function(r) {
+          for (var i = r.from; i <= r.to; i++) {
+            if (allPages.indexOf(i) === -1) {
+              allPages.push(i);
+            }
+          }
+        });
+        allPages.sort(function(a, b) { return a - b; });
+        
+        if (allPages.length === 0) {
+          self.postMessage({type: 'error', msg: 'No pages selected'});
+          return;
+        }
+        
+        self.postMessage({type: 'progress', percent: 30, msg: 'Creating merged PDF...'});
+        
+        return PDFLib.PDFDocument.create().then(function(outDoc) {
+          var pageIndices = allPages.map(function(p) { return p - 1; });
+          return outDoc.copyPages(srcDoc, pageIndices).then(function(copiedPages) {
+            copiedPages.forEach(function(p) { outDoc.addPage(p); });
+            self.postMessage({type: 'progress', percent: 80, msg: 'Saving PDF...'});
+            return outDoc.save();
+          });
+        }).then(function(bytes) {
+          self.postMessage({
+            type: 'complete',
+            files: [{name: 'extracted-pages.pdf', bytes: bytes}]
+          });
+        });
+        
+      } else {
+        /* Create separate PDF for each range */
+        var chain = Promise.resolve();
+        var results = [];
+        
+        ranges.forEach(function(r, idx) {
+          chain = chain.then(function() {
+            var percent = 30 + ((idx + 1) / ranges.length) * 60;
+            self.postMessage({
+              type: 'progress',
+              percent: percent,
+              msg: 'Processing range ' + (idx + 1) + ' of ' + ranges.length
+            });
+            
+            var pages = [];
+            for (var i = r.from; i <= r.to; i++) {
+              pages.push(i - 1);
+            }
+            
+            return PDFLib.PDFDocument.create().then(function(outDoc) {
+              return outDoc.copyPages(srcDoc, pages).then(function(copiedPages) {
+                copiedPages.forEach(function(p) { outDoc.addPage(p); });
+                return outDoc.save();
+              });
+            }).then(function(bytes) {
+              results.push({
+                name: 'pages-' + r.from + '-' + r.to + '.pdf',
+                bytes: bytes
+              });
+            });
+          });
+        });
+        
+        return chain.then(function() {
+          self.postMessage({
+            type: 'complete',
+            files: results
+          });
+        });
+      }
+    }).catch(function(err) {
+      self.postMessage({
+        type: 'error',
+        msg: 'Split failed: ' + err.message
+      });
+    });
+  }
+};
+`;
+
+/* Create Worker */
+var blob = new Blob([workerCode], {type: 'application/javascript'});
+var workerUrl = URL.createObjectURL(blob);
+var worker = new Worker(workerUrl);
+
+/* Original UI code with optimizations */
 var pdfjsReady=null;
 function ensurePdfjs(){
- if(pdfjsReady){return pdfjsReady;}
- pdfjsReady=new Promise(function(res){
-  var tries=0;
-  (function wait(){
-   if(window.pdfjsLib){window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;res(true);return;}
-   if(tries>40){res(false);return;}
-   tries++;setTimeout(wait,500);
-  })();
- });
- return pdfjsReady;
+  if(pdfjsReady){return pdfjsReady;}
+  pdfjsReady=new Promise(function(res){
+    var tries=0;
+    (function wait(){
+      if(window.pdfjsLib){
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
+        res(true);return;
+      }
+      if(tries>40){res(false);return;}
+      tries++;setTimeout(wait,500);
+    })();
+  });
+  return pdfjsReady;
 }
+
 root.innerHTML='<style>'+
 '.sp-wrap{max-width:1400px;margin:0 auto}'+
 '.sp-hero{text-align:center;padding:50px 16px 40px}'+
@@ -90,172 +210,280 @@ root.innerHTML='<style>'+
 '<div class="sp-done" id="spDone"><div class="sp-done-ic">✓</div><h1 style="font-size:28px;font-weight:900;margin-bottom:8px">PDF split successfully!</h1><p style="color:#7a7a85;font-size:15px;margin-bottom:28px" id="spDoneInfo"></p><div id="spDownloads"></div><button class="sp-again" id="spAgain" type="button">Split another PDF</button></div>'+
 '<input type="file" id="spFile" accept="application/pdf,.pdf" style="display:none">'+
 '</div>';
+
 var file=null;var totalPages=0;var doc=null;var ranges=[{from:1,to:1}];var mode='range';
 var pick=document.getElementById('spPick'),work=document.getElementById('spWork'),busy=document.getElementById('spBusy'),done=document.getElementById('spDone');
 var zone=document.getElementById('spZone'),btn=document.getElementById('spBtn'),inp=document.getElementById('spFile');
 var go=document.getElementById('spGo'),grid=document.getElementById('spGrid'),rangesEl=document.getElementById('spRanges');
+
 function fmtB(n){return n<1024?n+' B':(n<1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
+
+/* Worker message handler */
+worker.onmessage = function(e) {
+  var data = e.data;
+  
+  if (data.type === 'progress') {
+    document.getElementById('spPct').textContent = Math.round(data.percent) + '%';
+    document.getElementById('spBarFill').style.width = data.percent + '%';
+    document.getElementById('spBusyTitle').textContent = data.msg;
+  } else if (data.type === 'complete') {
+    document.getElementById('spPct').textContent = '100%';
+    document.getElementById('spBarFill').style.width = '100%';
+    
+    setTimeout(function() {
+      showResults(data.files);
+    }, 400);
+  } else if (data.type === 'error') {
+    alert(data.msg);
+    busy.style.display = 'none';
+    work.style.display = 'block';
+  }
+};
+
 function addFile(f){
- if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){alert('Please select a PDF file.');return;}
- file=f;pick.style.display='none';work.style.display='block';
- ensurePdfjs().then(function(ok){
-  if(!ok){alert('Error loading PDF library');return;}
-  f.arrayBuffer().then(function(buf){
-   return window.pdfjsLib.getDocument({data:buf}).promise.then(function(d){
-    doc=d;totalPages=d.numPages;
-    ranges=[{from:1,to:totalPages}];
-    renderPages();renderRanges();
-   });
-  }).catch(function(){alert('Error reading PDF');});
- });
-}
-function renderPages(){
- grid.innerHTML='';
- for(var i=1;i<=totalPages;i++){
-  (function(pg){
-   var div=document.createElement('div');div.className='sp-page';div.setAttribute('data-page',pg);
-   div.innerHTML='<div class="thumb"><span style="color:#c3c6d4;font-size:24px">📄</span></div><div class="num">Page '+pg+'</div><div class="check">✓</div>';
-   div.onclick=function(){this.classList.toggle('selected');updateRangesFromSelection();};
-   grid.appendChild(div);
-   doc.getPage(pg).then(function(page){
-    var vp=page.getViewport({scale:1});
-    var scale=Math.min(1,140/vp.width);
-    var vp2=page.getViewport({scale:scale});
-    var canvas=document.createElement('canvas');
-    canvas.width=Math.floor(vp2.width);canvas.height=Math.floor(vp2.height);
-    page.render({canvasContext:canvas.getContext('2d'),viewport:vp2}).promise.then(function(){
-     var thumb=div.querySelector('.thumb');
-     thumb.innerHTML='<img src="'+canvas.toDataURL('image/png')+'" alt="Page '+pg+'">';
-    });
-   });
-  })(i);
- }
-}
-function renderRanges(){
- rangesEl.innerHTML='';
- ranges.forEach(function(r,idx){
-  var div=document.createElement('div');div.className='sp-range';
-  div.innerHTML='<div class="sp-range-head"><span class="sp-range-title">Range '+(idx+1)+'</span>'+(ranges.length>1?'<button class="sp-range-del" type="button">×</button>':'')+'</div>'+
-   '<div class="sp-range-inputs"><input type="number" min="1" max="'+totalPages+'" value="'+r.from+'" data-idx="'+idx+'" data-field="from"><span>to</span><input type="number" min="1" max="'+totalPages+'" value="'+r.to+'" data-idx="'+idx+'" data-field="to"></div>';
-  if(ranges.length>1){
-   div.querySelector('.sp-range-del').onclick=function(){ranges.splice(idx,1);renderRanges();};
+  if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){
+    alert('Please select a PDF file.');
+    return;
   }
-  div.querySelectorAll('input').forEach(function(inp){
-   inp.onchange=function(){
-    var i=parseInt(this.getAttribute('data-idx'));
-    var f=this.getAttribute('data-field');
-    var v=parseInt(this.value)||1;
-    v=Math.max(1,Math.min(totalPages,v));
-    ranges[i][f]=v;
-    if(ranges[i].from>ranges[i].to){ranges[i].to=ranges[i].from;}
-    renderRanges();
-   };
-  });
-  rangesEl.appendChild(div);
- });
-}
-function updateRangesFromSelection(){
- var selected=[];
- document.querySelectorAll('.sp-page.selected').forEach(function(p){selected.push(parseInt(p.getAttribute('data-page')));});
- if(selected.length>0){
-  selected.sort(function(a,b){return a-b;});
-  ranges=[];var start=selected[0],end=selected[0];
-  for(var i=1;i<selected.length;i++){
-   if(selected[i]===end+1){end=selected[i];}
-   else{ranges.push({from:start,to:end});start=end=selected[i];}
-  }
-  ranges.push({from:start,to:end});
-  renderRanges();
- }
-}
-document.getElementById('spAddRange').onclick=function(){
- ranges.push({from:1,to:Math.min(totalPages,ranges[ranges.length-1].to+1)});
- renderRanges();
-};
-document.querySelectorAll('.sp-tab').forEach(function(tab){
- tab.onclick=function(){
-  document.querySelectorAll('.sp-tab').forEach(function(t){t.classList.remove('active');});
-  this.classList.add('active');
-  mode=this.getAttribute('data-mode');
-  if(mode==='pages'){
-   document.querySelectorAll('.sp-page').forEach(function(p){p.classList.remove('selected');});
-   ranges=[{from:1,to:1}];
-   renderRanges();
-  }
- };
-});
-btn.onclick=function(){inp.click();};
-inp.onchange=function(){if(inp.files[0]){addFile(inp.files[0]);}inp.value='';};
-zone.ondragover=function(e){e.preventDefault();zone.classList.add('on');};
-zone.ondragleave=function(){zone.classList.remove('on');};
-zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){addFile(e.dataTransfer.files[0]);}};
-go.onclick=function(){
- if(!file||!doc){return;}
- var mergeAll=document.getElementById('spMerge').checked;
- var allPages=[];
- ranges.forEach(function(r){
-  for(var i=r.from;i<=r.to;i++){if(allPages.indexOf(i)===-1){allPages.push(i);}}
- });
- allPages.sort(function(a,b){return a-b;});
- if(allPages.length===0){alert('Please select at least one page.');return;}
- work.style.display='none';busy.style.display='block';
- document.getElementById('spBusyName').textContent=file.name;
- function pct(p){document.getElementById('spPct').textContent=Math.round(p)+'%';document.getElementById('spBarFill').style.width=p+'%';}
- pct(0);
- setTimeout(function(){
-  file.arrayBuffer().then(function(buf){
-   return PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(src){
-    if(mergeAll){
-     PDFLib.PDFDocument.create().then(function(out){
-      return out.copyPages(src,allPages.map(function(p){return p-1;})).then(function(copied){
-       copied.forEach(function(p){out.addPage(p);});
-       return out.save().then(function(bytes){
-        pct(100);
-        setTimeout(function(){showResults([{name:'extracted-pages.pdf',bytes:bytes}]);},400);
-       });
-      });
-     });
-    }else{
-     var chain=Promise.resolve();var results=[];
-     ranges.forEach(function(r,idx){
-      chain=chain.then(function(){
-       pct((idx/ranges.length)*90);
-       var pages=[];for(var i=r.from;i<=r.to;i++){pages.push(i-1);}
-       return PDFLib.PDFDocument.create().then(function(out){
-        return out.copyPages(src,pages).then(function(copied){
-         copied.forEach(function(p){out.addPage(p);});
-         return out.save().then(function(bytes){
-          results.push({name:'pages-'+r.from+'-'+r.to+'.pdf',bytes:bytes});
-         });
+  file=f;
+  pick.style.display='none';
+  work.style.display='block';
+  
+  /* Lazy load pdf.js only when file is added */
+  loadJS(PDFJS_SRC, function(err){
+    if(!err){
+      ensurePdfjs().then(function(ok){
+        if(!ok){
+          alert('Error loading PDF library');
+          return;
+        }
+        f.arrayBuffer().then(function(buf){
+          return window.pdfjsLib.getDocument({data:buf}).promise.then(function(d){
+            doc=d;
+            totalPages=d.numPages;
+            ranges=[{from:1,to:totalPages}];
+            renderPages();
+            renderRanges();
+          });
+        }).catch(function(){
+          alert('Error reading PDF');
         });
-       });
       });
-     });
-     chain.then(function(){
-      pct(100);
-      setTimeout(function(){showResults(results);},400);
-     });
     }
-   });
-  }).catch(function(){
-   busy.style.display='none';work.style.display='block';
-   alert('Error splitting PDF. Please try again.');
   });
- },100);
-};
-function showResults(files){
- busy.style.display='none';done.style.display='block';
- document.getElementById('spDoneInfo').textContent=files.length+' file(s) created • '+fmtB(files.reduce(function(a,f){return a+f.bytes.length;},0));
- var dl=document.getElementById('spDownloads');dl.innerHTML='';
- files.forEach(function(f){
-  var blob=new Blob([f.bytes],{type:'application/pdf'});
-  var u=URL.createObjectURL(blob);
-  var a=document.createElement('a');a.href=u;a.download=f.name;a.className='sp-dl';a.textContent='⬇ '+f.name;
-  dl.appendChild(a);
- });
 }
-document.getElementById('spAgain').onclick=function(){
- file=null;totalPages=0;doc=null;ranges=[{from:1,to:1}];
- done.style.display='none';work.style.display='none';pick.style.display='block';
+
+function renderPages(){
+  grid.innerHTML='';
+  for(var i=1;i<=totalPages;i++){
+    (function(pg){
+      var div=document.createElement('div');
+      div.className='sp-page';
+      div.setAttribute('data-page',pg);
+      div.innerHTML='<div class="thumb"><span style="color:#c3c6d4;font-size:24px">📄</span></div><div class="num">Page '+pg+'</div><div class="check">✓</div>';
+      div.onclick=function(){
+        this.classList.toggle('selected');
+        updateRangesFromSelection();
+      };
+      grid.appendChild(div);
+      
+      doc.getPage(pg).then(function(page){
+        var vp=page.getViewport({scale:1});
+        var scale=Math.min(1,140/vp.width);
+        var vp2=page.getViewport({scale:scale});
+        var canvas=document.createElement('canvas');
+        canvas.width=Math.floor(vp2.width);
+        canvas.height=Math.floor(vp2.height);
+        page.render({canvasContext:canvas.getContext('2d'),viewport:vp2}).promise.then(function(){
+          var thumb=div.querySelector('.thumb');
+          thumb.innerHTML='<img src="'+canvas.toDataURL('image/png')+'" alt="Page '+pg+'">';
+        });
+      });
+    })(i);
+  }
+}
+
+function renderRanges(){
+  rangesEl.innerHTML='';
+  ranges.forEach(function(r,idx){
+    var div=document.createElement('div');
+    div.className='sp-range';
+    div.innerHTML='<div class="sp-range-head"><span class="sp-range-title">Range '+(idx+1)+'</span>'+(ranges.length>1?'<button class="sp-range-del" type="button">×</button>':'')+'</div>'+
+     '<div class="sp-range-inputs"><input type="number" min="1" max="'+totalPages+'" value="'+r.from+'" data-idx="'+idx+'" data-field="from"><span>to</span><input type="number" min="1" max="'+totalPages+'" value="'+r.to+'" data-idx="'+idx+'" data-field="to"></div>';
+    
+    if(ranges.length>1){
+      div.querySelector('.sp-range-del').onclick=function(){
+        ranges.splice(idx,1);
+        renderRanges();
+      };
+    }
+    
+    div.querySelectorAll('input').forEach(function(inp){
+      inp.onchange=function(){
+        var i=parseInt(this.getAttribute('data-idx'));
+        var f=this.getAttribute('data-field');
+        var v=parseInt(this.value)||1;
+        v=Math.max(1,Math.min(totalPages,v));
+        ranges[i][f]=v;
+        if(ranges[i].from>ranges[i].to){
+          ranges[i].to=ranges[i].from;
+        }
+        renderRanges();
+      };
+    });
+    rangesEl.appendChild(div);
+  });
+}
+
+function updateRangesFromSelection(){
+  var selected=[];
+  document.querySelectorAll('.sp-page.selected').forEach(function(p){
+    selected.push(parseInt(p.getAttribute('data-page')));
+  });
+  
+  if(selected.length>0){
+    selected.sort(function(a,b){return a-b;});
+    ranges=[];
+    var start=selected[0],end=selected[0];
+    
+    for(var i=1;i<selected.length;i++){
+      if(selected[i]===end+1){
+        end=selected[i];
+      }else{
+        ranges.push({from:start,to:end});
+        start=end=selected[i];
+      }
+    }
+    ranges.push({from:start,to:end});
+    renderRanges();
+  }
+}
+
+document.getElementById('spAddRange').onclick=function(){
+  ranges.push({from:1,to:Math.min(totalPages,ranges[ranges.length-1].to+1)});
+  renderRanges();
 };
+
+document.querySelectorAll('.sp-tab').forEach(function(tab){
+  tab.onclick=function(){
+    document.querySelectorAll('.sp-tab').forEach(function(t){
+      t.classList.remove('active');
+    });
+    this.classList.add('active');
+    mode=this.getAttribute('data-mode');
+    
+    if(mode==='pages'){
+      document.querySelectorAll('.sp-page').forEach(function(p){
+        p.classList.remove('selected');
+      });
+      ranges=[{from:1,to:1}];
+      renderRanges();
+    }
+  };
+});
+
+btn.onclick=function(){inp.click();};
+
+inp.onchange=function(){
+  if(inp.files[0]){
+    addFile(inp.files[0]);
+  }
+  inp.value='';
+};
+
+zone.ondragover=function(e){
+  e.preventDefault();
+  zone.classList.add('on');
+};
+
+zone.ondragleave=function(){
+  zone.classList.remove('on');
+};
+
+zone.ondrop=function(e){
+  e.preventDefault();
+  zone.classList.remove('on');
+  if(e.dataTransfer.files[0]){
+    addFile(e.dataTransfer.files[0]);
+  }
+};
+
+go.onclick=function(){
+  if(!file||!doc){return;}
+  
+  var mergeAll=document.getElementById('spMerge').checked;
+  var allPages=[];
+  
+  ranges.forEach(function(r){
+    for(var i=r.from;i<=r.to;i++){
+      if(allPages.indexOf(i)===-1){
+        allPages.push(i);
+      }
+    }
+  });
+  
+  allPages.sort(function(a,b){return a-b;});
+  
+  if(allPages.length===0){
+    alert('Please select at least one page.');
+    return;
+  }
+  
+  work.style.display='none';
+  busy.style.display='block';
+  done.style.display='none';
+  
+  document.getElementById('spBusyName').textContent=file.name;
+  document.getElementById('spPct').textContent='0%';
+  document.getElementById('spBarFill').style.width='0%';
+  document.getElementById('spBusyTitle').textContent='Preparing...';
+  
+  /* Read file and send to worker */
+  file.arrayBuffer().then(function(buf){
+    /* Transfer ArrayBuffer to worker for zero-copy */
+    worker.postMessage({
+      type: 'split',
+      buffer: buf,
+      ranges: ranges,
+      mergeAll: mergeAll
+    }, [buf]);
+  }).catch(function(err){
+    busy.style.display='none';
+    work.style.display='block';
+    alert('Error reading file: '+err.message);
+  });
+};
+
+function showResults(files){
+  busy.style.display='none';
+  done.style.display='block';
+  
+  var totalSize = files.reduce(function(a,f){return a+f.bytes.length;},0);
+  document.getElementById('spDoneInfo').textContent=files.length+' file(s) created • '+fmtB(totalSize);
+  
+  var dl=document.getElementById('spDownloads');
+  dl.innerHTML='';
+  
+  files.forEach(function(f){
+    var blob=new Blob([f.bytes],{type:'application/pdf'});
+    var u=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=u;
+    a.download=f.name;
+    a.className='sp-dl';
+    a.textContent='⬇ '+f.name;
+    dl.appendChild(a);
+  });
+}
+
+document.getElementById('spAgain').onclick=function(){
+  file=null;
+  totalPages=0;
+  doc=null;
+  ranges=[{from:1,to:1}];
+  done.style.display='none';
+  work.style.display='none';
+  pick.style.display='block';
+};
+
 })();
