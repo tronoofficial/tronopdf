@@ -1,29 +1,196 @@
-/* TronoPDF - Watermark PDF v1 | text+image, live preview, mosaic, opacity */
+/* TronoPDF - Watermark PDF v2 | Web Worker + Cancel + Progress */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
+
 var PDFLIB_SRC='https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
 var PDFJS_SRC='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 var PDFJS_WORKER='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/* Web Worker for PDF watermarking */
+var workerCode = `
+importScripts('https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js');
+
+function hexToRgb(h){
+  var x=h.replace('#','');
+  return {r:parseInt(x.substr(0,2),16)/255,g:parseInt(x.substr(2,2),16)/255,b:parseInt(x.substr(4,2),16)/255};
+}
+
+self.onmessage = function(e) {
+  var data = e.data;
+  
+  if (data.type === 'watermark') {
+    var buffer = data.buffer;
+    var options = data.options;
+    
+    self.postMessage({type: 'progress', percent: 5, msg: 'Loading PDF...'});
+    
+    PDFLib.PDFDocument.load(buffer, {ignoreEncryption: true}).then(function(pdf) {
+      self.postMessage({type: 'progress', percent: 15, msg: 'Embedding font...'});
+      
+      var fontName = options.bold ? PDFLib.StandardFonts.HelveticaBold : 
+                     (options.italic ? PDFLib.StandardFonts.HelveticaOblique : 
+                     PDFLib.StandardFonts.Helvetica);
+      
+      return pdf.embedFont(fontName).then(function(stdFont) {
+        var pages = pdf.getPages();
+        var from = options.allPages ? 0 : Math.max(0, options.from - 1);
+        var to = options.allPages ? pages.length : Math.min(pages.length, options.to);
+        var rgb = hexToRgb(options.color);
+        var op = options.opacity / 100;
+        var rot = parseInt(options.rotation);
+        var size = parseInt(options.size);
+        
+        var embeddedImg = null;
+        var imgPromise = Promise.resolve();
+        
+        if (options.mode === 'image' && options.imgBytes) {
+          self.postMessage({type: 'progress', percent: 20, msg: 'Embedding image...'});
+          imgPromise = pdf.embedPng(options.imgBytes).then(function(ei) {
+            embeddedImg = ei;
+          });
+        }
+        
+        return imgPromise.then(function() {
+          var totalPages = to - from;
+          
+          for (var i = from; i < to; i++) {
+            var percent = 25 + ((i - from + 1) / totalPages) * 65;
+            self.postMessage({
+              type: 'progress',
+              percent: percent,
+              msg: 'Processing page ' + (i + 1) + ' of ' + to
+            });
+            
+            var pg = pages[i];
+            var w = pg.getWidth(), h = pg.getHeight();
+            var m = 40;
+            
+            if (options.mosaic) {
+              var mrot = (rot === 0 ? 45 : rot);
+              for (var y = h * 0.9; y > 0; y -= h / 4) {
+                for (var x = w * 0.08; x < w; x += w / 2.5) {
+                  if (options.mode === 'text') {
+                    pg.drawText(options.text, {
+                      x: x, y: y,
+                      size: size * 0.6,
+                      font: stdFont,
+                      color: PDFLib.rgb(rgb.r, rgb.g, rgb.b),
+                      opacity: op,
+                      rotate: PDFLib.degrees(mrot)
+                    });
+                  } else if (embeddedImg) {
+                    var iw = w * 0.25;
+                    pg.drawImage(embeddedImg, {
+                      x: x, y: y,
+                      width: iw,
+                      height: iw * options.imgRatio,
+                      opacity: op,
+                      rotate: PDFLib.degrees(mrot)
+                    });
+                  }
+                }
+              }
+            } else {
+              if (options.mode === 'text') {
+                var textW = stdFont.widthOfTextAtSize(options.text, size);
+                var x, y;
+                switch (options.pos) {
+                  case 'tl': x = m; y = h - m - size; break;
+                  case 'tc': x = (w - textW) / 2; y = h - m - size; break;
+                  case 'tr': x = w - m - textW; y = h - m - size; break;
+                  case 'ml': x = m; y = (h - size) / 2; break;
+                  case 'mc': x = (w - textW) / 2; y = (h - size) / 2; break;
+                  case 'mr': x = w - m - textW; y = (h - size) / 2; break;
+                  case 'bl': x = m; y = m; break;
+                  case 'bc': x = (w - textW) / 2; y = m; break;
+                  case 'br': x = w - m - textW; y = m; break;
+                  default: x = (w - textW) / 2; y = (h - size) / 2;
+                }
+                pg.drawText(options.text, {
+                  x: x, y: y,
+                  size: size,
+                  font: stdFont,
+                  color: PDFLib.rgb(rgb.r, rgb.g, rgb.b),
+                  opacity: op,
+                  rotate: PDFLib.degrees(rot)
+                });
+              } else if (embeddedImg) {
+                var iw2 = w * (size / 100) * 0.6;
+                var ih2 = iw2 * options.imgRatio;
+                var x2, y2;
+                switch (options.pos) {
+                  case 'tl': x2 = m; y2 = h - m - ih2; break;
+                  case 'tc': x2 = (w - iw2) / 2; y2 = h - m - ih2; break;
+                  case 'tr': x2 = w - m - iw2; y2 = h - m - ih2; break;
+                  case 'ml': x2 = m; y2 = (h - ih2) / 2; break;
+                  case 'mc': x2 = (w - iw2) / 2; y2 = (h - ih2) / 2; break;
+                  case 'mr': x2 = w - m - iw2; y2 = (h - ih2) / 2; break;
+                  case 'bl': x2 = m; y2 = m; break;
+                  case 'bc': x2 = (w - iw2) / 2; y2 = m; break;
+                  case 'br': x2 = w - m - iw2; y2 = m; break;
+                  default: x2 = (w - iw2) / 2; y2 = (h - ih2) / 2;
+                }
+                pg.drawImage(embeddedImg, {
+                  x: x2, y: y2,
+                  width: iw2,
+                  height: ih2,
+                  opacity: op,
+                  rotate: PDFLib.degrees(rot)
+                });
+              }
+            }
+          }
+          
+          self.postMessage({type: 'progress', percent: 95, msg: 'Saving PDF...'});
+          return pdf.save();
+        });
+      });
+    }).then(function(bytes) {
+      self.postMessage({
+        type: 'complete',
+        bytes: bytes,
+        pages: data.options.to - data.options.from + 1
+      });
+    }).catch(function(err) {
+      self.postMessage({
+        type: 'error',
+        msg: 'Watermark failed: ' + (err.message || err)
+      });
+    });
+  }
+};
+`;
+
+/* Create Worker */
+var blob = new Blob([workerCode], {type: 'application/javascript'});
+var workerUrl = URL.createObjectURL(blob);
+var worker = new Worker(workerUrl);
+
 function loadJS(src,cb){var s=document.createElement('script');s.src=src;s.onload=function(){cb(false);};s.onerror=function(){cb(true);};document.head.appendChild(s);}
 loadJS(PDFLIB_SRC,function(){});
 loadJS(PDFJS_SRC,function(e){if(!e&&window.pdfjsLib){window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;}});
+
 function waitLib(name){
- return new Promise(function(res){
-  var tries=0;
-  (function w(){
-   if(window[name]){res(true);return;}
-   if(tries>40){res(false);return;}
-   tries++;setTimeout(w,500);
-  })();
- });
+  return new Promise(function(res){
+    var tries=0;
+    (function w(){
+      if(window[name]){res(true);return;}
+      if(tries>40){res(false);return;}
+      tries++;setTimeout(w,500);
+    })();
+  });
 }
+
 function fmtB(n){return n<1024?n+' B':(n<1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
+
 function hexToRgb(h){
- var x=h.replace('#','');
- return {r:parseInt(x.substr(0,2),16)/255,g:parseInt(x.substr(2,2),16)/255,b:parseInt(x.substr(4,2),16)/255};
+  var x=h.replace('#','');
+  return {r:parseInt(x.substr(0,2),16)/255,g:parseInt(x.substr(2,2),16)/255,b:parseInt(x.substr(4,2),16)/255};
 }
+
 function dataURLtoBytes(d){var b=atob(d.split(',')[1]);var a=new Uint8Array(b.length);for(var i=0;i<b.length;i++){a[i]=b.charCodeAt(i);}return a;}
+
 root.innerHTML='<style>'+
 '.wm-wrap{max-width:1400px;margin:0 auto}'+
 '.wm-hero{text-align:center;padding:50px 16px 40px}'+
@@ -69,10 +236,13 @@ root.innerHTML='<style>'+
 '.wm-go:disabled{opacity:.5;cursor:not-allowed}'+
 '.wm-busy{display:none;padding:60px 20px;text-align:center}'+
 '.wm-busy h2{font-size:28px;font-weight:900;margin-bottom:8px}'+
-'.wm-busy .fn{color:#7a7a85;font-size:15px;margin-bottom:26px}'+
+'.wm-busy .fn{color:#7a7a85;font-size:15px;margin-bottom:10px}'+
+'.wm-busy .st{color:#7c3aed;font-size:13px;font-weight:700;margin-bottom:16px;min-height:18px}'+
 '.wm-bar{max-width:600px;margin:0 auto 18px;height:14px;background:#fff;border-radius:999px;overflow:hidden}'+
 '.wm-bar div{height:100%;width:0;background:linear-gradient(90deg,#7c3aed,#a855f7);transition:width .3s}'+
 '.wm-pct{font-size:36px;font-weight:900}'+
+'.wm-cancel{margin-top:16px;background:#f4f5fa;color:#333;font-weight:700;font-size:14px;padding:12px 24px;border-radius:10px;border:none;cursor:pointer}'+
+'.wm-cancel:hover{background:#e6e8f5}'+
 '.wm-done{display:none;text-align:center;padding:60px 20px}'+
 '.wm-done-ic{width:80px;height:80px;border-radius:50%;background:#eafbef;color:#16a34a;font-size:38px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}'+
 '.wm-dl{display:inline-block;background:#16a34a;color:#fff;font-weight:800;font-size:18px;padding:17px 50px;border-radius:12px;box-shadow:0 14px 34px rgba(22,163,74,.35)}'+
@@ -99,241 +269,300 @@ root.innerHTML='<style>'+
 '<div class="wm-lbl">Pages</div><div class="wm-chk"><input type="checkbox" id="wmAll" checked><label for="wmAll">All pages</label></div>'+
 '<div class="wm-row" id="wmRangeRow" style="display:none"><input class="wm-inp" type="number" id="wmFrom" min="1" value="1"/><span>to</span><input class="wm-inp" type="number" id="wmTo" min="1" value="1"/></div>'+
 '<button class="wm-go" id="wmGo" type="button">Add Watermark →</button></aside></div></div>'+
-'<div class="wm-busy" id="wmBusy"><h2>Adding watermark...</h2><p class="fn" id="wmBusyName"></p><div class="wm-bar"><div id="wmBarFill"></div></div><div class="wm-pct" id="wmPct">0%</div></div>'+
+'<div class="wm-busy" id="wmBusy"><h2>Adding watermark...</h2><p class="fn" id="wmBusyName"></p><p class="st" id="wmStatus">Preparing...</p><div class="wm-bar"><div id="wmBarFill"></div></div><div class="wm-pct" id="wmPct">0%</div><button class="wm-cancel" id="wmCancel" type="button">✕ Cancel</button></div>'+
 '<div class="wm-done" id="wmDone"><div class="wm-done-ic">✓</div><h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Watermark added successfully!</h1><p style="color:#7a7a85;font-size:15px;margin-bottom:28px" id="wmDoneInfo"></p><a class="wm-dl" id="wmDl" href="#">⬇ Download watermarked PDF</a><button class="wm-again" id="wmAgain" type="button">Watermark another PDF</button></div>'+
 '<input type="file" id="wmFile" accept="application/pdf,.pdf" style="display:none">'+
 '<input type="file" id="wmImgFile" accept="image/*" style="display:none">'+
 '</div>';
-var file=null;var totalPages=0;
+
+var file=null;var totalPages=0;var cancelRequested=false;
 var mode='text',pos='mc',imgData=null,imgBytes=null,imgRatio=1;
 var pick=document.getElementById('wmPick'),work=document.getElementById('wmWork'),busy=document.getElementById('wmBusy'),done=document.getElementById('wmDone');
 var zone=document.getElementById('wmZone'),btn=document.getElementById('wmBtn'),inp=document.getElementById('wmFile');
 var ov=document.getElementById('wmOv'),bg=document.getElementById('wmBg'),nameEl=document.getElementById('wmName');
 var go=document.getElementById('wmGo');
+var cancelBtn=document.getElementById('wmCancel');
+var statusEl=document.getElementById('wmStatus');
 var elText=document.getElementById('wmText'),elColor=document.getElementById('wmColor'),elBold=document.getElementById('wmBold'),elItalic=document.getElementById('wmItalic');
 var elSize=document.getElementById('wmSize'),elOp=document.getElementById('wmOp'),elRot=document.getElementById('wmRot'),elMosaic=document.getElementById('wmMosaic');
 var elAll=document.getElementById('wmAll'),elFrom=document.getElementById('wmFrom'),elTo=document.getElementById('wmTo'),elRangeRow=document.getElementById('wmRangeRow');
-function cssPos(p){
- switch(p){
-  case 'tl':return{top:'5%',left:'5%'};
-  case 'tc':return{top:'5%',left:'50%',tx:1};
-  case 'tr':return{top:'5%',right:'5%'};
-  case 'ml':return{top:'50%',left:'5%',ty:1};
-  case 'mc':return{top:'50%',left:'50%',tx:1,ty:1};
-  case 'mr':return{top:'50%',right:'5%',ty:1};
-  case 'bl':return{bottom:'5%',left:'5%'};
-  case 'bc':return{bottom:'5%',left:'50%',tx:1};
-  case 'br':return{bottom:'5%',right:'5%'};
- }
- return {};
-}
-function tf(){
- var t=[];var c=cssPos(pos);
- if(c.tx){t.push('translateX(-50%)');}
- if(c.ty){t.push('translateY(-50%)');}
- t.push('rotate('+elRot.value+'deg)');
- return t.join(' ');
-}
-function makeStamp(op,rot,mosaic){
- var el;
- if(mode==='text'){
-  el=document.createElement('span');
-  el.textContent=elText.value||'Watermark';
-  el.style.color=elColor.value;
-  el.style.fontSize=(mosaic?12:Math.max(10,elSize.value/3))+'px';
-  if(elBold.checked){el.style.fontWeight='900';}
-  if(elItalic.checked){el.style.fontStyle='italic';}
- }else{
-  el=document.createElement('img');
-  el.src=imgData||'';
-  el.style.width=(mosaic?60:elSize.value*2)+'px';
- }
- el.style.opacity=op;
- return el;
-}
-function updatePreview(){
- ov.innerHTML='';
- var op=elOp.value/100;
- var rot=parseInt(elRot.value);
- if(elMosaic.checked){
-  for(var r=0;r<4;r++){
-   for(var c2=0;c2<3;c2++){
-    var el=makeStamp(op,rot,true);
-    el.style.left=(8+c2*33)+'%';el.style.top=(10+r*25)+'%';
-    el.style.transform='translate(-50%,-50%) rotate('+(rot===0?45:rot)+'deg)';
-    ov.appendChild(el);
-   }
+
+/* Worker message handler */
+worker.onmessage = function(e) {
+  var data = e.data;
+  
+  if (data.type === 'progress') {
+    document.getElementById('wmPct').textContent = Math.round(data.percent) + '%';
+    document.getElementById('wmBarFill').style.width = data.percent + '%';
+    statusEl.textContent = data.msg || 'Processing...';
+  } else if (data.type === 'complete') {
+    document.getElementById('wmPct').textContent = '100%';
+    document.getElementById('wmBarFill').style.width = '100%';
+    statusEl.textContent = 'Complete!';
+    
+    setTimeout(function() {
+      busy.style.display = 'none';
+      done.style.display = 'block';
+      document.getElementById('wmDoneInfo').textContent = data.pages + ' page(s) watermarked • ' + fmtB(data.bytes.length);
+      
+      var blob = new Blob([data.bytes], {type: 'application/pdf'});
+      var dl = document.getElementById('wmDl');
+      dl.href = URL.createObjectURL(blob);
+      dl.download = 'watermarked-' + file.name;
+      go.disabled = false;
+    }, 300);
+  } else if (data.type === 'error') {
+    busy.style.display = 'none';
+    work.style.display = 'block';
+    go.disabled = false;
+    alert('Error: ' + data.msg);
   }
- }else{
-  var c=cssPos(pos);
-  var el=makeStamp(op,rot,false);
-  for(var k in c){if(k!=='tx'&&k!=='ty'){el.style[k]=c[k];}}
-  el.style.transform=tf();
-  ov.appendChild(el);
- }
- document.getElementById('wmSizeVal').textContent=elSize.value;
- document.getElementById('wmOpVal').textContent=elOp.value;
+};
+
+function cssPos(p){
+  switch(p){
+    case 'tl':return{top:'5%',left:'5%'};
+    case 'tc':return{top:'5%',left:'50%',tx:1};
+    case 'tr':return{top:'5%',right:'5%'};
+    case 'ml':return{top:'50%',left:'5%',ty:1};
+    case 'mc':return{top:'50%',left:'50%',tx:1,ty:1};
+    case 'mr':return{top:'50%',right:'5%',ty:1};
+    case 'bl':return{bottom:'5%',left:'5%'};
+    case 'bc':return{bottom:'5%',left:'50%',tx:1};
+    case 'br':return{bottom:'5%',right:'5%'};
+  }
+  return {};
 }
+
+function tf(){
+  var t=[];var c=cssPos(pos);
+  if(c.tx){t.push('translateX(-50%)');}
+  if(c.ty){t.push('translateY(-50%)');}
+  t.push('rotate('+elRot.value+'deg)');
+  return t.join(' ');
+}
+
+function makeStamp(op,rot,mosaic){
+  var el;
+  if(mode==='text'){
+    el=document.createElement('span');
+    el.textContent=elText.value||'Watermark';
+    el.style.color=elColor.value;
+    el.style.fontSize=(mosaic?12:Math.max(10,elSize.value/3))+'px';
+    if(elBold.checked){el.style.fontWeight='900';}
+    if(elItalic.checked){el.style.fontStyle='italic';}
+  }else{
+    el=document.createElement('img');
+    el.src=imgData||'';
+    el.style.width=(mosaic?60:elSize.value*2)+'px';
+  }
+  el.style.opacity=op;
+  return el;
+}
+
+function updatePreview(){
+  ov.innerHTML='';
+  var op=elOp.value/100;
+  var rot=parseInt(elRot.value);
+  if(elMosaic.checked){
+    for(var r=0;r<4;r++){
+      for(var c2=0;c2<3;c2++){
+        var el=makeStamp(op,rot,true);
+        el.style.left=(8+c2*33)+'%';el.style.top=(10+r*25)+'%';
+        el.style.transform='translate(-50%,-50%) rotate('+(rot===0?45:rot)+'deg)';
+        ov.appendChild(el);
+      }
+    }
+  }else{
+    var c=cssPos(pos);
+    var el=makeStamp(op,rot,false);
+    for(var k in c){if(k!=='tx'&&k!=='ty'){el.style[k]=c[k];}}
+    el.style.transform=tf();
+    ov.appendChild(el);
+  }
+  document.getElementById('wmSizeVal').textContent=elSize.value;
+  document.getElementById('wmOpVal').textContent=elOp.value;
+}
+
 [elText,elColor,elSize,elOp,elRot].forEach(function(x){x.addEventListener('input',updatePreview);});
 [elBold,elItalic,elMosaic].forEach(function(x){x.addEventListener('change',updatePreview);});
+
 document.querySelectorAll('.wm-pos').forEach(function(p){
- p.onclick=function(){
-  document.querySelectorAll('.wm-pos').forEach(function(x){x.classList.remove('active');});
-  this.classList.add('active');
-  pos=this.getAttribute('data-p');
-  updatePreview();
- };
+  p.onclick=function(){
+    document.querySelectorAll('.wm-pos').forEach(function(x){x.classList.remove('active');});
+    this.classList.add('active');
+    pos=this.getAttribute('data-p');
+    updatePreview();
+  };
 });
+
 elAll.onchange=function(){elRangeRow.style.display=this.checked?'none':'flex';};
+
 document.getElementById('wmTabText').onclick=function(){mode='text';this.classList.add('active');document.getElementById('wmTabImg').classList.remove('active');document.getElementById('wmTextSec').style.display='block';document.getElementById('wmImgSec').style.display='none';updatePreview();};
 document.getElementById('wmTabImg').onclick=function(){mode='image';this.classList.add('active');document.getElementById('wmTabText').classList.remove('active');document.getElementById('wmTextSec').style.display='none';document.getElementById('wmImgSec').style.display='block';updatePreview();};
+
 document.getElementById('wmImgBtn').onclick=function(){document.getElementById('wmImgFile').click();};
+
 document.getElementById('wmImgFile').onchange=function(){
- var f=this.files[0];if(!f){return;}
- var rd=new FileReader();
- rd.onload=function(){
-  var img=new Image();
-  img.onload=function(){
-   imgRatio=img.height/img.width;
-   var c=document.createElement('canvas');c.width=600;c.height=Math.max(1,Math.round(600*imgRatio));
-   var ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);
-   imgData=c.toDataURL('image/png');
-   imgBytes=dataURLtoBytes(imgData);
-   var prev=document.getElementById('wmImgPrev');prev.src=imgData;prev.style.display='block';
-   updatePreview();
-  };
-  img.src=rd.result;
- };
- rd.readAsDataURL(f);
- this.value='';
-};
-function addFile(f){
- if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){alert('Please select a PDF file.');return;}
- file=f;pick.style.display='none';work.style.display='block';
- nameEl.textContent=f.name;
- waitLib('pdfjsLib').then(function(ok){
-  if(!ok){return;}
-  window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
-  f.arrayBuffer().then(function(b){
-   return window.pdfjsLib.getDocument({data:b}).promise.then(function(d){
-    totalPages=d.numPages;
-    elTo.value=totalPages;
-    d.getPage(1).then(function(page){
-     var vp=page.getViewport({scale:1});
-     var scale=Math.min(2,400/vp.height);
-     var vp2=page.getViewport({scale:scale});
-     var canvas=document.createElement('canvas');
-     canvas.width=Math.floor(vp2.width);canvas.height=Math.floor(vp2.height);
-     page.render({canvasContext:canvas.getContext('2d'),viewport:vp2}).promise.then(function(){
-            bg.src=canvas.toDataURL('image/png');
+  var f=this.files[0];if(!f){return;}
+  var rd=new FileReader();
+  rd.onload=function(){
+    var img=new Image();
+    img.onload=function(){
+      imgRatio=img.height/img.width;
+      var c=document.createElement('canvas');c.width=600;c.height=Math.max(1,Math.round(600*imgRatio));
+      var ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);
+      imgData=c.toDataURL('image/png');
+      imgBytes=dataURLtoBytes(imgData);
+      var prev=document.getElementById('wmImgPrev');prev.src=imgData;prev.style.display='block';
       updatePreview();
-      d.destroy();
-     });
-    });
-   });
-  }).catch(function(){alert('Error reading PDF');});
- });
+    };
+    img.src=rd.result;
+  };
+  rd.readAsDataURL(f);
+  this.value='';
+};
+
+function addFile(f){
+  if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){alert('Please select a PDF file.');return;}
+  file=f;pick.style.display='none';work.style.display='block';
+  nameEl.textContent=f.name;
+  
+  waitLib('pdfjsLib').then(function(ok){
+    if(!ok){return;}
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
+    f.arrayBuffer().then(function(b){
+      return window.pdfjsLib.getDocument({data:b}).promise.then(function(d){
+        totalPages=d.numPages;
+        elTo.value=totalPages;
+        d.getPage(1).then(function(page){
+          var vp=page.getViewport({scale:1});
+          var scale=Math.min(2,400/vp.height);
+          var vp2=page.getViewport({scale:scale});
+          var canvas=document.createElement('canvas');
+          canvas.width=Math.floor(vp2.width);canvas.height=Math.floor(vp2.height);
+          page.render({canvasContext:canvas.getContext('2d'),viewport:vp2}).promise.then(function(){
+            bg.src=canvas.toDataURL('image/png');
+            updatePreview();
+            d.destroy();
+          });
+        });
+      });
+    }).catch(function(){alert('Error reading PDF');});
+  });
 }
+
 btn.onclick=function(){inp.click();};
+
 inp.onchange=function(){if(inp.files[0]){addFile(inp.files[0]);}inp.value='';};
+
 zone.ondragover=function(e){e.preventDefault();zone.classList.add('on');};
 zone.ondragleave=function(){zone.classList.remove('on');};
 zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){addFile(e.dataTransfer.files[0]);}};
-function pct(p){document.getElementById('wmPct').textContent=Math.round(p)+'%';document.getElementById('wmBarFill').style.width=p+'%';}
+
 go.onclick=function(){
- if(!file){return;}
- if(mode==='image'&&!imgBytes){alert('Please add a watermark image first.');return;}
- if(mode==='text'&&!elText.value.trim()){alert('Please enter watermark text.');return;}
- work.style.display='none';busy.style.display='block';
- document.getElementById('wmBusyName').textContent=file.name;
- pct(5);
- waitLib('PDFLib').then(function(ok){
-  if(!ok){throw new Error('libs');}
-  return file.arrayBuffer().then(function(buf){
-   return PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(pdf){
-    var fontName=elBold.checked?PDFLib.StandardFonts.HelveticaBold:(elItalic.checked?PDFLib.StandardFonts.HelveticaOblique:PDFLib.StandardFonts.Helvetica);
-    return pdf.embedFont(fontName).then(function(stdFont){
-     var pages=pdf.getPages();
-     var from=elAll.checked?1:Math.max(1,parseInt(elFrom.value)||1);
-     var to=elAll.checked?pages.length:Math.min(pages.length,parseInt(elTo.value)||pages.length);
-     var rgb=hexToRgb(elColor.value);
-     var op=elOp.value/100;
-     var rot=parseInt(elRot.value);
-     var size=parseInt(elSize.value);
-     var chain=Promise.resolve();
-     var embeddedImg=null;
-     if(mode==='image'){chain=pdf.embedPng(imgBytes).then(function(ei){embeddedImg=ei;});}
-     return chain.then(function(){
-      for(var i=from-1;i<to;i++){
-       var pg=pages[i];
-       var w=pg.getWidth(),h=pg.getHeight();
-       var m=40;
-       pct(10+((i-from+1)/(to-from+1))*80);
-       if(elMosaic.checked){
-        var mrot=(rot===0?45:rot);
-        for(var y=h*0.9;y>0;y-=h/4){
-         for(var x=w*0.08;x<w;x+=w/2.5){
-          if(mode==='text'){pg.drawText(elText.value,{x:x,y:y,size:size*0.6,font:stdFont,color:PDFLib.rgb(rgb.r,rgb.g,rgb.b),opacity:op,rotate:PDFLib.degrees(mrot)});}
-          else{var iw=w*0.25;pg.drawImage(embeddedImg,{x:x,y:y,width:iw,height:iw*imgRatio,opacity:op,rotate:PDFLib.degrees(mrot)});}
-         }
-        }
-       }else{
-        if(mode==='text'){
-         var textW=stdFont.widthOfTextAtSize(elText.value,size);
-         var x,y;
-         switch(pos){
-          case 'tl':x=m;y=h-m-size;break;
-          case 'tc':x=(w-textW)/2;y=h-m-size;break;
-          case 'tr':x=w-m-textW;y=h-m-size;break;
-          case 'ml':x=m;y=(h-size)/2;break;
-          case 'mc':x=(w-textW)/2;y=(h-size)/2;break;
-          case 'mr':x=w-m-textW;y=(h-size)/2;break;
-          case 'bl':x=m;y=m;break;
-          case 'bc':x=(w-textW)/2;y=m;break;
-          case 'br':x=w-m-textW;y=m;break;
-          default:x=(w-textW)/2;y=(h-size)/2;
-         }
-         pg.drawText(elText.value,{x:x,y:y,size:size,font:stdFont,color:PDFLib.rgb(rgb.r,rgb.g,rgb.b),opacity:op,rotate:PDFLib.degrees(rot)});
-        }else{
-         var iw2=w*(size/100)*0.6;var ih2=iw2*imgRatio;
-         var x2,y2;
-         switch(pos){
-          case 'tl':x2=m;y2=h-m-ih2;break;
-          case 'tc':x2=(w-iw2)/2;y2=h-m-ih2;break;
-          case 'tr':x2=w-m-iw2;y2=h-m-ih2;break;
-          case 'ml':x2=m;y2=(h-ih2)/2;break;
-          case 'mc':x2=(w-iw2)/2;y2=(h-ih2)/2;break;
-          case 'mr':x2=w-m-iw2;y2=(h-ih2)/2;break;
-          case 'bl':x2=m;y2=m;break;
-          case 'bc':x2=(w-iw2)/2;y2=m;break;
-          case 'br':x2=w-m-iw2;y2=m;break;
-          default:x2=(w-iw2)/2;y2=(h-ih2)/2;
-         }
-         pg.drawImage(embeddedImg,{x:x2,y:y2,width:iw2,height:ih2,opacity:op,rotate:PDFLib.degrees(rot)});
-        }
-       }
-      }
-      return pdf.save().then(function(bytes){
-       pct(100);
-       setTimeout(function(){
-        busy.style.display='none';done.style.display='block';
-        document.getElementById('wmDoneInfo').textContent=(to-from+1)+' page(s) watermarked • '+fmtB(bytes.length);
-        var blob=new Blob([bytes],{type:'application/pdf'});
-        var dl=document.getElementById('wmDl');dl.href=URL.createObjectURL(blob);dl.download='watermarked-'+file.name;
-       },300);
-      });
-     });
-    });
-   });
+  if(!file){return;}
+  if(mode==='image'&&!imgBytes){alert('Please add a watermark image first.');return;}
+  if(mode==='text'&&!elText.value.trim()){alert('Please enter watermark text.');return;}
+  
+  work.style.display='none';
+  busy.style.display='block';
+  document.getElementById('wmBusyName').textContent=file.name;
+  document.getElementById('wmPct').textContent='0%';
+  document.getElementById('wmBarFill').style.width='0%';
+  statusEl.textContent='Starting watermark...';
+  cancelRequested=false;
+  go.disabled=true;
+  
+  var options = {
+    mode: mode,
+    text: elText.value,
+    color: elColor.value,
+    bold: elBold.checked,
+    italic: elItalic.checked,
+    size: parseInt(elSize.value),
+    opacity: parseInt(elOp.value),
+    rotation: parseInt(elRot.value),
+    pos: pos,
+    mosaic: elMosaic.checked,
+    allPages: elAll.checked,
+    from: elAll.checked ? 1 : (parseInt(elFrom.value) || 1),
+    to: elAll.checked ? totalPages : (parseInt(elTo.value) || totalPages),
+    imgBytes: mode === 'image' ? imgBytes : null,
+    imgRatio: imgRatio
+  };
+  
+  /* Read file and send to worker */
+  file.arrayBuffer().then(function(buf){
+    if(cancelRequested){
+      busy.style.display='none';
+      work.style.display='block';
+      go.disabled=false;
+      return;
+    }
+    
+    worker.postMessage({
+      type: 'watermark',
+      buffer: buf,
+      options: options
+    }, [buf]); /* Transfer ArrayBuffer for zero-copy */
+  }).catch(function(err){
+    busy.style.display='none';
+    work.style.display='block';
+    go.disabled=false;
+    alert('Error reading file: '+err.message);
   });
- }).catch(function(){
-  busy.style.display='none';work.style.display='block';
-  alert('Error adding watermark. Please try again.');
- });
 };
+
+cancelBtn.onclick=function(){
+  cancelRequested=true;
+  statusEl.textContent='Cancelling...';
+  
+  /* Terminate and recreate worker */
+  worker.terminate();
+  var blob = new Blob([workerCode], {type: 'application/javascript'});
+  var workerUrl = URL.createObjectURL(blob);
+  worker = new Worker(workerUrl);
+  
+  /* Reattach message handler */
+  worker.onmessage = function(e) {
+    var data = e.data;
+    if (data.type === 'progress') {
+      document.getElementById('wmPct').textContent = Math.round(data.percent) + '%';
+      document.getElementById('wmBarFill').style.width = data.percent + '%';
+      statusEl.textContent = data.msg || 'Processing...';
+    } else if (data.type === 'complete') {
+      document.getElementById('wmPct').textContent = '100%';
+      document.getElementById('wmBarFill').style.width = '100%';
+      statusEl.textContent = 'Complete!';
+      setTimeout(function() {
+        busy.style.display = 'none';
+        done.style.display = 'block';
+        document.getElementById('wmDoneInfo').textContent = data.pages + ' page(s) watermarked • ' + fmtB(data.bytes.length);
+        var blob = new Blob([data.bytes], {type: 'application/pdf'});
+        var dl = document.getElementById('wmDl');
+        dl.href = URL.createObjectURL(blob);
+        dl.download = 'watermarked-' + file.name;
+        go.disabled = false;
+      }, 300);
+    } else if (data.type === 'error') {
+      busy.style.display = 'none';
+      work.style.display = 'block';
+      go.disabled = false;
+      alert('Error: ' + data.msg);
+    }
+  };
+  
+  busy.style.display='none';
+  work.style.display='block';
+  go.disabled=false;
+};
+
 document.getElementById('wmAgain').onclick=function(){
- file=null;totalPages=0;
- done.style.display='none';work.style.display='none';pick.style.display='block';
+  file=null;totalPages=0;
+  done.style.display='none';work.style.display='none';pick.style.display='block';
 };
+
 updatePreview();
+
 })();
