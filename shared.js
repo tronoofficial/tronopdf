@@ -553,3 +553,21 @@ if(document.readyState==='loading'){
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyBrand);
   else applyBrand();
 })();
+/* ===== LOGO v2 (clean: gold crown + white page) ===== */
+(function(){
+  var V2 = '<svg class="lsvg" viewBox="0 0 48 48">' +
+    '<defs><linearGradient id="lgV2" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0" stop-color="#6d28d9"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs>' +
+    '<rect width="48" height="48" rx="12" fill="url(#lgV2)"/>' +
+    '<path d="M15 18 L15 12.5 L19.5 16 L24 9.5 L28.5 16 L33 12.5 L33 18 Z" fill="#fcd34d"/>' +
+    '<path d="M15 20 L33 20 L33 32 L27 38 L17 38 Q15 38 15 36 Z" fill="#fff"/>' +
+    '<path d="M33 32 L27 38 L27 32 Z" fill="#ddd6fe"/>' +
+    '</svg>';
+  function apply(){
+    var old=document.querySelector('.logo .lsvg')||document.querySelector('.lsvg');
+    if(old) old.outerHTML=V2;
+    var fav=document.querySelector('link[rel="icon"][type="image/svg+xml"]');
+    if(fav) fav.href='data:image/svg+xml,'+encodeURIComponent(V2.replace(' class="lsvg"',''));
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+})();
