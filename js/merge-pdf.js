@@ -1,26 +1,110 @@
-/* TronoPDF - Merge PDF v1 | previews, drag-drop, stable */
+/* TronoPDF - Merge PDF v2 | Web Worker + Lazy Load + Progress */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
+
 var PDFJS_SRC='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 var PDFJS_WORKER='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 var PDFLIB_SRC='https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
-function loadJS(src,cb){var s=document.createElement('script');s.src=src;s.onload=function(){cb(false);};s.onerror=function(){cb(true);};document.head.appendChild(s);}
-loadJS(PDFJS_SRC,function(e){if(!e&&window.pdfjsLib){window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;}});
-loadJS(PDFLIB_SRC,function(){});
+
+/* Lazy load function */
+var loadedLibs={};
+function loadJS(src,cb){
+  if(loadedLibs[src]){cb(false);return;}
+  var s=document.createElement('script');
+  s.src=src;
+  s.onload=function(){loadedLibs[src]=true;cb(false);};
+  s.onerror=function(){cb(true);};
+  document.head.appendChild(s);
+}
+
+/* Web Worker code for merging */
+var workerCode = `
+importScripts('https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js');
+
+self.onmessage = function(e) {
+  var data = e.data;
+  
+  if (data.type === 'merge') {
+    var files = data.files; // Array of {buffer, name, size}
+    var totalFiles = files.length;
+    var skipped = 0;
+    
+    PDFLib.PDFDocument.create().then(function(outDoc) {
+      var chain = Promise.resolve();
+      
+      files.forEach(function(file, i) {
+        chain = chain.then(function() {
+          var percent = ((i + 1) / totalFiles) * 100;
+          self.postMessage({
+            type: 'progress',
+            percent: percent,
+            msg: 'Merging file ' + (i + 1) + ' of ' + totalFiles,
+            filename: file.name,
+            filesize: file.size
+          });
+          
+          return PDFLib.PDFDocument.load(file.buffer, {ignoreEncryption: true})
+            .then(function(srcDoc) {
+              return outDoc.copyPages(srcDoc, srcDoc.getPageIndices())
+                .then(function(pages) {
+                  pages.forEach(function(p) { outDoc.addPage(p); });
+                });
+            })
+            .catch(function(err) {
+              skipped++;
+              self.postMessage({
+                type: 'warning',
+                msg: 'Skipped: ' + file.name + ' (unreadable)'
+              });
+            });
+        });
+      });
+      
+      return chain.then(function() {
+        return outDoc.save();
+      });
+    }).then(function(bytes) {
+      self.postMessage({
+        type: 'complete',
+        bytes: bytes,
+        pageCount: 0, // Will calculate in main thread
+        skipped: skipped,
+        totalFiles: totalFiles
+      });
+    }).catch(function(err) {
+      self.postMessage({
+        type: 'error',
+        msg: 'Merge failed: ' + err.message
+      });
+    });
+  }
+};
+`;
+
+/* Create Worker */
+var blob = new Blob([workerCode], {type: 'application/javascript'});
+var workerUrl = URL.createObjectURL(blob);
+var worker = new Worker(workerUrl);
+
+/* Original UI code with optimizations */
 var pdfjsReady=null;
 function ensurePdfjs(){
- if(pdfjsReady){return pdfjsReady;}
- pdfjsReady=new Promise(function(res){
-  var tries=0;
-  (function wait(){
-   if(window.pdfjsLib){window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;res(true);return;}
-   if(tries>40){res(false);return;}
-   tries++;setTimeout(wait,500);
-  })();
- });
- return pdfjsReady;
+  if(pdfjsReady){return pdfjsReady;}
+  pdfjsReady=new Promise(function(res){
+    var tries=0;
+    (function wait(){
+      if(window.pdfjsLib){
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
+        res(true);return;
+      }
+      if(tries>40){res(false);return;}
+      tries++;setTimeout(wait,500);
+    })();
+  });
+  return pdfjsReady;
 }
+
 root.innerHTML='<style>'+
 '.mg-wrap{max-width:1400px;margin:0 auto}'+
 '.mg-hero{text-align:center;padding:50px 16px 40px}'+
@@ -83,94 +167,183 @@ root.innerHTML='<style>'+
 '<div id="mgDone" style="display:none" class="mg-done"><div class="mg-done-ic">✓</div><h1 style="font-size:28px;font-weight:900;margin-bottom:8px">PDFs merged successfully!</h1><p style="color:#7a7a85;font-size:15px;margin-bottom:28px" id="mgDoneInfo"></p><a class="mg-dl" id="mgDl" href="#">⬇ Download merged PDF</a><button class="mg-again" id="mgAgain" type="button">Merge more files</button></div>'+
 '<input type="file" id="mgFile" accept="application/pdf,.pdf" multiple style="display:none">'+
 '</div>';
+
 var files=[];var queue=[];var processing=false;var dragIdx=null;
 var pick=document.getElementById('mgPick'),work=document.getElementById('mgWork'),busy=document.getElementById('mgBusy'),done=document.getElementById('mgDone');
 var zone=document.getElementById('mgZone'),btn=document.getElementById('mgBtn'),inp=document.getElementById('mgFile'),list=document.getElementById('mgList'),go=document.getElementById('mgGo');
+
 function fmtB(n){return n<1024?n+' B':(n<1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
+
+/* Worker message handler */
+worker.onmessage = function(e) {
+  var data = e.data;
+  
+  if (data.type === 'progress') {
+    document.getElementById('mgPct').textContent = Math.round(data.percent) + '%';
+    document.getElementById('mgBarFill').style.width = data.percent + '%';
+    document.getElementById('mgBusyTitle').textContent = data.msg;
+    document.getElementById('mgBusyName').textContent = data.filename + ' (' + fmtB(data.filesize) + ')';
+  } else if (data.type === 'warning') {
+    console.warn(data.msg);
+  } else if (data.type === 'complete') {
+    var blob = new Blob([data.bytes], {type: 'application/pdf'});
+    var u = URL.createObjectURL(blob);
+    
+    document.getElementById('mgPct').textContent = '100%';
+    document.getElementById('mgBarFill').style.width = '100%';
+    
+    setTimeout(function(){
+      busy.style.display = 'none';
+      done.style.display = 'block';
+      
+      var info = fmtB(blob.size);
+      if (data.skipped > 0) {
+        info += ' • ' + data.skipped + ' unreadable file(s) skipped';
+      }
+      document.getElementById('mgDoneInfo').textContent = info;
+      
+      var dl = document.getElementById('mgDl');
+      dl.href = u;
+      dl.download = 'tronopdf-merged.pdf';
+    }, 400);
+  } else if (data.type === 'error') {
+    alert(data.msg);
+    busy.style.display = 'none';
+    work.style.display = 'flex';
+  }
+};
+
 function addFiles(fl){
- var added=0;
- for(var i=0;i<fl.length;i++){var f=fl[i];if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){var it={f:f,size:f.size,pages:null,thumb:null,bad:false,done:false};files.push(it);queue.push(it);added++;}}
- if(!added){return;}
- pick.style.display='none';work.style.display='flex';
- render();processQueue();
+  var added=0;
+  for(var i=0;i<fl.length;i++){
+    var f=fl[i];
+    if(f.type==='application/pdf'||/\.pdf$/i.test(f.name)){
+      var it={f:f,size:f.size,pages:null,thumb:null,bad:false,done:false};
+      files.push(it);queue.push(it);added++;
+    }
+  }
+  if(!added){return;}
+  
+  pick.style.display='none';
+  work.style.display='flex';
+  render();
+  
+  /* Lazy load pdf.js only when files are added */
+  loadJS(PDFJS_SRC, function(err){
+    if(!err){
+      ensurePdfjs().then(function(){
+        processQueue();
+      });
+    }
+  });
 }
+
 function processQueue(){
- if(processing){return;}
- var it=queue.shift();
- if(!it){return;}
- processing=true;
- ensurePdfjs().then(function(ok){
-  if(!ok){it.done=true;processing=false;render();processQueue();return;}
-  it.f.arrayBuffer().then(function(buf){
-   return window.pdfjsLib.getDocument({data:buf}).promise.then(function(doc){
-    it.pages=doc.numPages;
-    return doc.getPage(1).then(function(p){
-     var vp=p.getViewport({scale:1});
-     var vp2=p.getViewport({scale:Math.min(2,220/vp.width)});
-     var canvas=document.createElement('canvas');
-     canvas.width=Math.floor(vp2.width);canvas.height=Math.floor(vp2.height);
-     return p.render({canvasContext:canvas.getContext('2d'),viewport:vp2}).promise.then(function(){it.thumb=canvas.toDataURL('image/png');doc.destroy();});
+  if(processing){return;}
+  var it=queue.shift();
+  if(!it){return;}
+  processing=true;
+  
+  ensurePdfjs().then(function(ok){
+    if(!ok){it.done=true;processing=false;render();processQueue();return;}
+    it.f.arrayBuffer().then(function(buf){
+      return window.pdfjsLib.getDocument({data:buf}).promise.then(function(doc){
+        it.pages=doc.numPages;
+        return doc.getPage(1).then(function(p){
+          var vp=p.getViewport({scale:1});
+          var vp2=p.getViewport({scale:Math.min(2,220/vp.width)});
+          var canvas=document.createElement('canvas');
+          canvas.width=Math.floor(vp2.width);canvas.height=Math.floor(vp2.height);
+          return p.render({canvasContext:canvas.getContext('2d'),viewport:vp2}).promise.then(function(){
+            it.thumb=canvas.toDataURL('image/png');
+            doc.destroy();
+          });
+        });
+      });
+    }).catch(function(){}).then(function(){
+      it.done=true;processing=false;render();processQueue();
     });
-   });
-  }).catch(function(){}).then(function(){it.done=true;processing=false;render();processQueue();});
- });
+  });
 }
+
 function render(){
- list.innerHTML='';
- files.forEach(function(it,i){
-  var c=document.createElement('div');c.className='mg-card'+(it.bad?' bad':'');c.draggable=true;
-  var th=it.thumb?'<img src="'+it.thumb+'" alt="">':(it.bad?'<span class="mg-ph">⚠️</span>':(it.done?'<span class="mg-ph">📄</span>':'<span class="mg-load"></span>'));
-  c.innerHTML='<button class="mg-x" type="button" title="Remove">✕</button><div class="mg-thumb">'+th+'</div><div class="mg-nm">'+it.f.name+(it.pages?' <span style="color:#9a9aa5;font-weight:600">• '+it.pages+'p</span>':'')+'</div>';
-  c.querySelector('.mg-x').onclick=function(){files.splice(i,1);render();};
-  c.addEventListener('dragstart',function(){dragIdx=i;c.classList.add('drag');});
-  c.addEventListener('dragend',function(){c.classList.remove('drag');dragIdx=null;});
-  c.addEventListener('dragover',function(e){e.preventDefault();});
-  c.addEventListener('drop',function(e){e.preventDefault();if(dragIdx===null||dragIdx===i){return;}files.splice(i,0,files.splice(dragIdx,1)[0]);dragIdx=null;render();});
-  list.appendChild(c);
- });
- var add=document.createElement('div');add.className='mg-addcard';
- add.innerHTML='<button class="mg-addcircle" type="button">+</button><span>Add more files</span>';
- add.onclick=function(){inp.click();};
- list.appendChild(add);
- var good=files.filter(function(x){return !x.bad;});
- go.disabled=good.length<2;
+  list.innerHTML='';
+  files.forEach(function(it,i){
+    var c=document.createElement('div');
+    c.className='mg-card'+(it.bad?' bad':'');
+    c.draggable=true;
+    var th=it.thumb?'<img src="'+it.thumb+'" alt="">':(it.bad?'<span class="mg-ph">⚠️</span>':(it.done?'<span class="mg-ph">📄</span>':'<span class="mg-load"></span>'));
+    c.innerHTML='<button class="mg-x" type="button" title="Remove">✕</button><div class="mg-thumb">'+th+'</div><div class="mg-nm">'+it.f.name+(it.pages?' <span style="color:#9a9aa5;font-weight:600">• '+it.pages+'p</span>':'')+'</div>';
+    c.querySelector('.mg-x').onclick=function(){files.splice(i,1);render();};
+    c.addEventListener('dragstart',function(){dragIdx=i;c.classList.add('drag');});
+    c.addEventListener('dragend',function(){c.classList.remove('drag');dragIdx=null;});
+    c.addEventListener('dragover',function(e){e.preventDefault();});
+    c.addEventListener('drop',function(e){e.preventDefault();if(dragIdx===null||dragIdx===i){return;}files.splice(i,0,files.splice(dragIdx,1)[0]);dragIdx=null;render();});
+    list.appendChild(c);
+  });
+  var add=document.createElement('div');
+  add.className='mg-addcard';
+  add.innerHTML='<button class="mg-addcircle" type="button">+</button><span>Add more files</span>';
+  add.onclick=function(){inp.click();};
+  list.appendChild(add);
+  var good=files.filter(function(x){return !x.bad;});
+  go.disabled=good.length<2;
 }
-document.getElementById('mgSort').onclick=function(){files.sort(function(a,b){return a.f.name.toLowerCase()<b.f.name.toLowerCase()?-1:1;});render();};
+
+document.getElementById('mgSort').onclick=function(){
+  files.sort(function(a,b){return a.f.name.toLowerCase()<b.f.name.toLowerCase()?-1:1;});
+  render();
+};
+
 btn.onclick=function(){inp.click();};
+
 inp.onchange=function(){addFiles(inp.files);inp.value='';};
+
 zone.ondragover=function(e){e.preventDefault();zone.classList.add('on');};
 zone.ondragleave=function(){zone.classList.remove('on');};
 zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');addFiles(e.dataTransfer.files);};
+
 go.onclick=function(){
- var good=files.filter(function(x){return !x.bad;});
- if(good.length<2){return;}
- work.style.display='none';busy.style.display='block';
- var skipped=0;
- function pct(p){document.getElementById('mgPct').textContent=Math.round(p)+'%';document.getElementById('mgBarFill').style.width=p+'%';}
- function step(i,out){
-  pct(i/good.length*100);
-  if(i>=good.length){
-   out.save().then(function(bytes){
-    var blob=new Blob([bytes],{type:'application/pdf'});
-    var u=URL.createObjectURL(blob);
-    pct(100);
-    setTimeout(function(){
-     busy.style.display='none';done.style.display='block';
-     document.getElementById('mgDoneInfo').textContent=out.getPageCount()+' pages • '+fmtB(blob.size)+(skipped?' • '+skipped+' unreadable file(s) skipped':'');
-     var dl=document.getElementById('mgDl');dl.href=u;dl.download='tronopdf-merged.pdf';
-    },400);
-   }).catch(function(){busy.style.display='none';work.style.display='flex';});
-   return;
-  }
-  document.getElementById('mgBusyTitle').textContent='Merging file '+(i+1)+' of '+good.length;
-  document.getElementById('mgBusyName').textContent=good[i].f.name+' ('+fmtB(good[i].size)+')';
-  good[i].f.arrayBuffer().then(function(buf){
-   return PDFLib.PDFDocument.load(buf,{ignoreEncryption:true}).then(function(src){
-    return out.copyPages(src,src.getPageIndices()).then(function(pg){pg.forEach(function(p){out.addPage(p);});});
-   });
-  }).catch(function(){skipped++;}).then(function(){step(i+1,out);});
- }
- PDFLib.PDFDocument.create().then(function(out){step(0,out);});
+  var good=files.filter(function(x){return !x.bad;});
+  if(good.length<2){return;}
+  
+  work.style.display='none';
+  busy.style.display='block';
+  done.style.display='none';
+  
+  document.getElementById('mgPct').textContent='0%';
+  document.getElementById('mgBarFill').style.width='0%';
+  document.getElementById('mgBusyTitle').textContent='Preparing files...';
+  document.getElementById('mgBusyName').textContent='';
+  
+  /* Read all files and send to worker */
+  var fileData = [];
+  var readPromises = good.map(function(it) {
+    return it.f.arrayBuffer().then(function(buf) {
+      fileData.push({
+        buffer: buf,
+        name: it.f.name,
+        size: it.size
+      });
+    });
+  });
+  
+  Promise.all(readPromises).then(function() {
+    /* Transfer ArrayBuffers to worker for zero-copy */
+    var transferables = fileData.map(function(f) { return f.buffer; });
+    worker.postMessage({
+      type: 'merge',
+      files: fileData
+    }, transferables);
+  }).catch(function(err) {
+    alert('Error reading files: ' + err.message);
+    busy.style.display = 'none';
+    work.style.display = 'flex';
+  });
 };
-document.getElementById('mgAgain').onclick=function(){files=[];queue=[];done.style.display='none';busy.style.display='none';work.style.display='none';pick.style.display='block';};
+
+document.getElementById('mgAgain').onclick=function(){
+  files=[];queue=[];done.style.display='none';busy.style.display='none';work.style.display='none';pick.style.display='block';
+};
+
 })();
