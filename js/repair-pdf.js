@@ -1,11 +1,81 @@
-/* TronoPDF - Repair PDF v1 | pdf-lib structure rebuild + page recovery, browser-only */
+/* TronoPDF - Repair PDF v2 | Web Worker + Cancel + Progress */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
+
 var PDFLIB_SRC='https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
 var PDFJS_SRC='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 var PDFJS_WORKER='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+/* Web Worker for PDF repair */
+var workerCode = `
+importScripts('https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js');
+
+self.onmessage = function(e) {
+  var data = e.data;
+  
+  if (data.type === 'repair') {
+    var buffer = data.buffer;
+    
+    self.postMessage({type: 'progress', percent: 5, msg: 'Loading PDF...'});
+    
+    PDFLib.PDFDocument.load(buffer, {ignoreEncryption: true, updateMetadata: false}).then(function(srcPdf) {
+      self.postMessage({type: 'progress', percent: 15, msg: 'Creating repaired structure...'});
+      
+      return PDFLib.PDFDocument.create().then(function(newPdf) {
+        var total = srcPdf.getPageCount();
+        var recovered = 0;
+        var chain = Promise.resolve();
+        
+        for (var i = 0; i < total; i++) {
+          (function(idx) {
+            chain = chain.then(function() {
+              var percent = 20 + ((idx + 1) / total) * 65;
+              self.postMessage({
+                type: 'progress',
+                percent: percent,
+                msg: 'Recovering page ' + (idx + 1) + ' of ' + total
+              });
+              
+              return newPdf.copyPages(srcPdf, [idx]).then(function(copied) {
+                newPdf.addPage(copied[0]);
+                recovered++;
+              }).catch(function() {
+                /* skip damaged page */
+              });
+            });
+          })(i);
+        }
+        
+        return chain.then(function() {
+          self.postMessage({type: 'progress', percent: 90, msg: 'Saving repaired PDF...'});
+          return newPdf.save().then(function(bytes) {
+            self.postMessage({
+              type: 'complete',
+              bytes: bytes,
+              recovered: recovered,
+              total: total
+            });
+          });
+        });
+      });
+    }).catch(function(err) {
+      self.postMessage({
+        type: 'error',
+        msg: 'Repair failed: ' + (err.message || err)
+      });
+    });
+  }
+};
+`;
+
+/* Create Worker */
+var blob = new Blob([workerCode], {type: 'application/javascript'});
+var workerUrl = URL.createObjectURL(blob);
+var worker = new Worker(workerUrl);
+
 function loadJS(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.onload=function(){res(true);};s.onerror=function(){rej(new Error('load fail'));};document.head.appendChild(s);});}
+
 var html='';
 html+='<style>';
 html+='.rp-wrap{max-width:1400px;margin:0 auto}';
@@ -14,6 +84,7 @@ html+='.rp-hero h1{font-size:42px;font-weight:900;margin-bottom:12px;letter-spac
 html+='.rp-hero p{font-size:18px;color:#7a7a85;margin-bottom:36px}';
 html+='.rp-big{background:linear-gradient(135deg,#ef4444,#f87171);color:#fff;font-size:20px;font-weight:800;padding:20px 70px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 14px 34px rgba(239,68,68,.35)}';
 html+='.rp-big:hover{transform:translateY(-2px)}';
+html+='.rp-big:disabled{opacity:.5;cursor:not-allowed}';
 html+='.rp-drop-hint{margin-top:16px;color:#9a9aa5;font-size:15px}';
 html+='.rp-zone{border:2px dashed transparent;border-radius:18px}';
 html+='.rp-zone.on{border-color:#ef4444;background:#fef2f2}';
@@ -41,10 +112,13 @@ html+='.rp-page.ok .badge{background:#16a34a;color:#fff}';
 html+='.rp-page.fail .badge{background:#dc2626;color:#fff}';
 html+='.rp-busy{display:none;text-align:center;padding:60px 20px}';
 html+='.rp-busy h2{font-size:28px;font-weight:900;margin-bottom:8px}';
-html+='.rp-busy .st{color:#7a7a85;font-size:15px;margin-bottom:26px}';
+html+='.rp-busy .st{color:#7a7a85;font-size:15px;margin-bottom:10px;min-height:20px}';
+html+='.rp-busy .st2{color:#ef4444;font-size:13px;font-weight:700;margin-bottom:16px;min-height:18px}';
 html+='.rp-bar{max-width:600px;margin:0 auto 18px;height:14px;background:#fff;border-radius:999px;overflow:hidden}';
 html+='.rp-bar div{height:100%;width:0;background:linear-gradient(90deg,#ef4444,#f87171);transition:width .3s}';
 html+='.rp-pct{font-size:36px;font-weight:900}';
+html+='.rp-cancel{margin-top:16px;background:#f4f5fa;color:#333;font-weight:700;font-size:14px;padding:12px 24px;border-radius:10px;border:none;cursor:pointer}';
+html+='.rp-cancel:hover{background:#e6e8f5}';
 html+='.rp-done{display:none;text-align:center;padding:50px 20px}';
 html+='.rp-done-ic{width:80px;height:80px;border-radius:50%;background:#eafbef;color:#16a34a;font-size:38px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}';
 html+='.rp-dl{display:inline-block;background:#16a34a;color:#fff;font-weight:800;font-size:18px;padding:17px 50px;border-radius:12px;box-shadow:0 14px 34px rgba(22,163,74,.35)}';
@@ -64,117 +138,236 @@ html+='<div class="rp-count" id="rpCount">0 page(s) detected</div>';
 html+='<button class="rp-go" id="rpGo" type="button" disabled>Repair PDF →</button></div>';
 html+='<div class="rp-preview"><h3>Page recovery preview</h3><div class="rp-pages" id="rpPages"></div></div>';
 html+='</div></div>';
-html+='<div class="rp-busy" id="rpBusy"><h2>Repairing PDF...</h2><p class="st" id="rpBusyStatus">Working...</p><div class="rp-bar"><div id="rpBarFill"></div></div><div class="rp-pct" id="rpPct">0%</div></div>';
+html+='<div class="rp-busy" id="rpBusy"><h2>Repairing PDF...</h2><p class="st" id="rpBusyStatus">Working...</p><p class="st2" id="rpBusyStatus2"></p><div class="rp-bar"><div id="rpBarFill"></div></div><div class="rp-pct" id="rpPct">0%</div><button class="rp-cancel" id="rpCancel" type="button">✕ Cancel</button></div>';
 html+='<div class="rp-done" id="rpDone"><div class="rp-done-ic">✓</div><h1 style="font-size:28px;font-weight:900;margin-bottom:8px">PDF repaired!</h1><p style="color:#7a7a85;font-size:15px;margin-bottom:28px" id="rpDoneInfo"></p><a class="rp-dl" id="rpDl" href="#">⬇ Download Repaired PDF</a><button class="rp-again" id="rpAgain" type="button">Repair another</button></div>';
 html+='<div class="rp-toast" id="rpToast"></div>';
 html+='<input type="file" id="rpFile" accept="application/pdf,.pdf" style="display:none"/>';
 html+='</div>';
 root.innerHTML=html;
+
 var file=null,doc=null,totalPages=0,recoverable=[];
+var cancelRequested=false;
+
 var pick=document.getElementById('rpPick'),work=document.getElementById('rpWork'),busy=document.getElementById('rpBusy'),done=document.getElementById('rpDone');
 var zone=document.getElementById('rpZone'),btn=document.getElementById('rpBtn'),inp=document.getElementById('rpFile');
 var pagesBox=document.getElementById('rpPages'),countEl=document.getElementById('rpCount'),statusEl=document.getElementById('rpStatus'),goBtn=document.getElementById('rpGo');
 var toastEl=document.getElementById('rpToast');
-function toast(m,e){toastEl.textContent=m;toastEl.classList.toggle('err',!!e);toastEl.classList.add('show');clearTimeout(toastEl.__h);toastEl.__h=setTimeout(function(){toastEl.classList.remove('show');},2200);}
-function pct(p){document.getElementById('rpPct').textContent=Math.round(p)+'%';document.getElementById('rpBarFill').style.width=p+'%';}
-function setBusyStatus(s){document.getElementById('rpBusyStatus').textContent=s;}
-btn.onclick=function(){inp.click();};
-function renderPageThumb(n){
- return doc.getPage(n).then(function(page){
-  var vp1=page.getViewport({scale:1});
-  var scale=Math.min(0.4,200/vp1.width);
-  var vp=page.getViewport({scale:scale});
-  var cv=document.createElement('canvas');cv.width=Math.floor(vp.width);cv.height=Math.floor(vp.height);
-  var cx=cv.getContext('2d');
-  cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);
-  return page.render({canvasContext:cx,viewport:vp}).promise.then(function(){return cv.toDataURL('image/jpeg',0.8);});
- });
-}
-function loadFile(f){
- if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){toast('Please select a PDF file',true);return;}
- file=f;
- Promise.all([loadJS(PDFLIB_SRC),loadJS(PDFJS_SRC)]).then(function(){
-  window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
-  return f.arrayBuffer();
- }).then(function(b){
-  return window.pdfjsLib.getDocument({data:b}).promise;
- }).then(function(d){
-  doc=d;totalPages=d.numPages;
-  pick.style.display='none';done.style.display='none';work.style.display='block';
-  statusEl.textContent='✓ PDF loaded - '+totalPages+' page(s) detected';
-  statusEl.classList.add('ok');
-  countEl.textContent=totalPages+' page(s) detected';
-  goBtn.disabled=false;
-  // render thumbnails
-  pagesBox.innerHTML='';
-  for(var i=1;i<=totalPages;i++){
-   (function(n){
-    var d=document.createElement('div');d.className='rp-page';d.innerHTML='<span class="num">'+n+'</span><div class="badge">Checking...</div>';
-    pagesBox.appendChild(d);
-    renderPageThumb(n).then(function(data){
-     var img=document.createElement('img');img.src=data;
-     d.insertBefore(img,d.firstChild);
-     d.classList.add('ok');
-     d.querySelector('.badge').textContent='OK';
-     recoverable.push(n);
-    }).catch(function(){
-     d.classList.add('fail');
-     d.querySelector('.badge').textContent='Damaged';
-    });
-   })(i);
+var cancelBtn=document.getElementById('rpCancel');
+var busyStatusEl=document.getElementById('rpBusyStatus');
+var busyStatus2El=document.getElementById('rpBusyStatus2');
+
+/* Worker message handler */
+worker.onmessage = function(e) {
+  var data = e.data;
+  
+  if (data.type === 'progress') {
+    document.getElementById('rpPct').textContent = Math.round(data.percent) + '%';
+    document.getElementById('rpBarFill').style.width = data.percent + '%';
+    busyStatusEl.textContent = data.msg || 'Processing...';
+  } else if (data.type === 'complete') {
+    document.getElementById('rpPct').textContent = '100%';
+    document.getElementById('rpBarFill').style.width = '100%';
+    busyStatusEl.textContent = 'Complete!';
+    busyStatus2El.textContent = '';
+    
+    setTimeout(function() {
+      busy.style.display = 'none';
+      done.style.display = 'block';
+      document.getElementById('rpDoneInfo').textContent = data.recovered + ' of ' + data.total + ' page(s) recovered • ' + (data.bytes.length / 1024).toFixed(1) + ' KB';
+      
+      var blob = new Blob([data.bytes], {type: 'application/pdf'});
+      var dl = document.getElementById('rpDl');
+      dl.href = URL.createObjectURL(blob);
+      dl.download = 'repaired-' + (file ? file.name.replace(/\.pdf$/i, '') : 'document') + '.pdf';
+      goBtn.disabled = false;
+      toast('✓ PDF repaired! (' + data.recovered + '/' + data.total + ' pages)');
+    }, 300);
+  } else if (data.type === 'error') {
+    busy.style.display = 'none';
+    work.style.display = 'block';
+    goBtn.disabled = false;
+    toast('Repair failed: ' + data.msg, true);
   }
-  toast('✓ PDF loaded ('+totalPages+' pages)');
- }).catch(function(e){
-  pick.style.display='block';
-  toast('Could not read PDF: '+((e&&e.message)||e),true);
- });
+};
+
+function toast(m,e){
+  toastEl.textContent=m;
+  toastEl.classList.toggle('err',!!e);
+  toastEl.classList.add('show');
+  clearTimeout(toastEl.__h);
+  toastEl.__h=setTimeout(function(){toastEl.classList.remove('show');},2200);
 }
+
+btn.onclick=function(){inp.click();};
+
+function renderPageThumb(n){
+  return doc.getPage(n).then(function(page){
+    var vp1=page.getViewport({scale:1});
+    var scale=Math.min(0.4,200/vp1.width);
+    var vp=page.getViewport({scale:scale});
+    var cv=document.createElement('canvas');
+    cv.width=Math.floor(vp.width);
+    cv.height=Math.floor(vp.height);
+    var cx=cv.getContext('2d');
+    cx.fillStyle='#fff';
+    cx.fillRect(0,0,cv.width,cv.height);
+    return page.render({canvasContext:cx,viewport:vp}).promise.then(function(){
+      return cv.toDataURL('image/jpeg',0.8);
+    });
+  });
+}
+
+function loadFile(f){
+  if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){
+    toast('Please select a PDF file',true);
+    return;
+  }
+  file=f;
+  
+  Promise.all([loadJS(PDFLIB_SRC),loadJS(PDFJS_SRC)]).then(function(){
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
+    return f.arrayBuffer();
+  }).then(function(b){
+    return window.pdfjsLib.getDocument({data:b}).promise;
+  }).then(function(d){
+    doc=d;
+    totalPages=d.numPages;
+    pick.style.display='none';
+    done.style.display='none';
+    work.style.display='block';
+    statusEl.textContent='✓ PDF loaded - '+totalPages+' page(s) detected';
+    statusEl.classList.add('ok');
+    countEl.textContent=totalPages+' page(s) detected';
+    goBtn.disabled=false;
+    
+    /* render thumbnails */
+    pagesBox.innerHTML='';
+    for(var i=1;i<=totalPages;i++){
+      (function(n){
+        var d=document.createElement('div');
+        d.className='rp-page';
+        d.innerHTML='<span class="num">'+n+'</span><div class="badge">Checking...</div>';
+        pagesBox.appendChild(d);
+        
+        renderPageThumb(n).then(function(data){
+          var img=document.createElement('img');
+          img.src=data;
+          d.insertBefore(img,d.firstChild);
+          d.classList.add('ok');
+          d.querySelector('.badge').textContent='OK';
+          recoverable.push(n);
+        }).catch(function(){
+          d.classList.add('fail');
+          d.querySelector('.badge').textContent='Damaged';
+        });
+      })(i);
+    }
+    
+    toast('✓ PDF loaded ('+totalPages+' pages)');
+  }).catch(function(e){
+    pick.style.display='block';
+    toast('Could not read PDF: '+((e&&e.message)||e),true);
+  });
+}
+
 inp.onchange=function(){if(inp.files[0]){loadFile(inp.files[0]);}inp.value='';};
+
 zone.ondragover=function(e){e.preventDefault();zone.classList.add('on');};
 zone.ondragleave=function(){zone.classList.remove('on');};
-zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){loadFile(e.dataTransfer.files[0]);}};
-goBtn.onclick=async function(){
- if(!file||!doc){toast('Select a PDF first',true);return;}
- work.style.display='none';done.style.display='none';busy.style.display='block';
- pct(5);setBusyStatus('Loading engines...');
- try{
-  await loadJS(PDFLIB_SRC);
-  var PDFLib=window.PDFLib;
-  setBusyStatus('Reading original file...');
-  var buf=await file.arrayBuffer();
-  var srcPdf=await PDFLib.PDFDocument.load(buf,{ignoreEncryption:true,updateMetadata:false});
-  setBusyStatus('Creating repaired structure...');
-  var newPdf=await PDFLib.PDFDocument.create();
-  var total=srcPdf.getPageCount();
-  var recovered=0;
-  for(var i=0;i<total;i++){
-   setBusyStatus('Recovering page '+(i+1)+' of '+total+'...');
-   try{
-    var copied=await newPdf.copyPages(srcPdf,[i]);
-    newPdf.addPage(copied[0]);
-    recovered++;
-   }catch(e){/* skip damaged page */}
-   pct(5+((i+1)/total)*85);
-  }
-  setBusyStatus('Saving repaired PDF...');
-  var bytes=await newPdf.save();
-  pct(100);setBusyStatus('Done!');
-  setTimeout(function(){
-   busy.style.display='none';done.style.display='block';
-   document.getElementById('rpDoneInfo').textContent=recovered+' of '+total+' page(s) recovered • '+(bytes.length/1024).toFixed(1)+' KB';
-   var blob=new Blob([bytes],{type:'application/pdf'});
-   var dl=document.getElementById('rpDl');
-   dl.href=URL.createObjectURL(blob);
-   dl.download='repaired-'+(file?file.name.replace(/\.pdf$/i,''):'document')+'.pdf';
-   toast('✓ PDF repaired! ('+recovered+'/'+total+' pages)');
-  },300);
- }catch(err){
-  busy.style.display='none';work.style.display='block';
-  toast('Repair failed: '+((err&&err.message)||err),true);
- }
+zone.ondrop=function(e){
+  e.preventDefault();
+  zone.classList.remove('on');
+  if(e.dataTransfer.files[0]){loadFile(e.dataTransfer.files[0]);}
 };
+
+goBtn.onclick=function(){
+  if(!file||!doc){toast('Select a PDF first',true);return;}
+  
+  work.style.display='none';
+  done.style.display='none';
+  busy.style.display='block';
+  
+  document.getElementById('rpPct').textContent='0%';
+  document.getElementById('rpBarFill').style.width='0%';
+  busyStatusEl.textContent='Starting repair...';
+  busyStatus2El.textContent='';
+  cancelRequested=false;
+  goBtn.disabled=true;
+  
+  /* Read file and send to worker */
+  file.arrayBuffer().then(function(buf){
+    if(cancelRequested){
+      busy.style.display='none';
+      work.style.display='block';
+      goBtn.disabled=false;
+      return;
+    }
+    
+    worker.postMessage({
+      type: 'repair',
+      buffer: buf
+    }, [buf]); /* Transfer ArrayBuffer for zero-copy */
+  }).catch(function(err){
+    busy.style.display='none';
+    work.style.display='block';
+    goBtn.disabled=false;
+    toast('Error reading file: '+err.message,true);
+  });
+};
+
+cancelBtn.onclick=function(){
+  cancelRequested=true;
+  busyStatusEl.textContent='Cancelling...';
+  busyStatus2El.textContent='';
+  
+  /* Terminate and recreate worker */
+  worker.terminate();
+  var blob = new Blob([workerCode], {type: 'application/javascript'});
+  var workerUrl = URL.createObjectURL(blob);
+  worker = new Worker(workerUrl);
+  
+  /* Reattach message handler */
+  worker.onmessage = function(e) {
+    var data = e.data;
+    if (data.type === 'progress') {
+      document.getElementById('rpPct').textContent = Math.round(data.percent) + '%';
+      document.getElementById('rpBarFill').style.width = data.percent + '%';
+      busyStatusEl.textContent = data.msg || 'Processing...';
+    } else if (data.type === 'complete') {
+      document.getElementById('rpPct').textContent = '100%';
+      document.getElementById('rpBarFill').style.width = '100%';
+      busyStatusEl.textContent = 'Complete!';
+      busyStatus2El.textContent = '';
+      setTimeout(function() {
+        busy.style.display = 'none';
+        done.style.display = 'block';
+        document.getElementById('rpDoneInfo').textContent = data.recovered + ' of ' + data.total + ' page(s) recovered • ' + (data.bytes.length / 1024).toFixed(1) + ' KB';
+        var blob = new Blob([data.bytes], {type: 'application/pdf'});
+        var dl = document.getElementById('rpDl');
+        dl.href = URL.createObjectURL(blob);
+        dl.download = 'repaired-' + (file ? file.name.replace(/\.pdf$/i, '') : 'document') + '.pdf';
+        goBtn.disabled = false;
+        toast('✓ PDF repaired! (' + data.recovered + '/' + data.total + ' pages)');
+      }, 300);
+    } else if (data.type === 'error') {
+      busy.style.display = 'none';
+      work.style.display = 'block';
+      goBtn.disabled = false;
+      toast('Repair failed: ' + data.msg, true);
+    }
+  };
+  
+  busy.style.display='none';
+  work.style.display='block';
+  goBtn.disabled=false;
+};
+
 document.getElementById('rpAgain').onclick=function(){
- done.style.display='none';pick.style.display='block';
- file=null;doc=null;recoverable=[];
+  done.style.display='none';
+  pick.style.display='block';
+  file=null;
+  doc=null;
+  recoverable=[];
 };
+
 })();
