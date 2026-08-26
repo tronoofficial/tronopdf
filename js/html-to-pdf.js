@@ -1,14 +1,31 @@
-/* TronoPDF - HTML to PDF v1 | live preview, page sizes, orientation, margins */
+/* TronoPDF - HTML to PDF v2 | Lazy Load + Cancel + Progress + Chunked Render */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
+
+var JSPDF_SRC='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+var HTML2CANVAS_SRC='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+
+function loadJS(src){
+  return new Promise(function(res,rej){
+    var s=document.createElement('script');
+    s.src=src;
+    s.onload=function(){res(true);};
+    s.onerror=function(){rej(new Error('load fail: '+src));};
+    document.head.appendChild(s);
+  });
+}
+
 function fmtB(n){return n<1024?n+' B':(n<1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
+
 var PAGES={
- a4:{w:595.28,h:841.89,label:'A4 (210 × 297 mm)'},
- letter:{w:612,h:792,label:'Letter (8.5 × 11 in)'},
- legal:{w:612,h:1008,label:'Legal (8.5 × 14 in)'}
+  a4:{w:595.28,h:841.89,label:'A4 (210 × 297 mm)'},
+  letter:{w:612,h:792,label:'Letter (8.5 × 11 in)'},
+  legal:{w:612,h:1008,label:'Legal (8.5 × 14 in)'}
 };
+
 var SAMPLE='<!DOCTYPE html>\n<html>\n<head>\n<style>\n  body{font-family:Arial,sans-serif;padding:40px;color:#1e293b;line-height:1.6}\n  h1{color:#7c3aed;border-bottom:3px solid #7c3aed;padding-bottom:10px}\n  .box{background:#f3f0ff;padding:20px;border-radius:10px;margin:20px 0}\n  .highlight{background:#fde047;padding:2px 6px}\n  table{width:100%;border-collapse:collapse;margin:20px 0}\n  th,td{border:1px solid #ddd;padding:10px;text-align:left}\n  th{background:#7c3aed;color:#fff}\n</style>\n</head>\n<body>\n  <h1>My Document Title</h1>\n  <p>Welcome to your <span class="highlight">HTML to PDF</span> conversion! Type any HTML code here and watch it come alive.</p>\n  <div class="box">\n    <h2>Features</h2>\n    <ul>\n      <li>✅ Live preview as you type</li>\n      <li>✅ Multiple page sizes (A4, Letter, Legal)</li>\n      <li>✅ Portrait or landscape</li>\n      <li>✅ Custom margins</li>\n    </ul>\n  </div>\n  <table>\n    <tr><th>Item</th><th>Quantity</th><th>Price</th></tr>\n    <tr><td>Product A</td><td>5</td><td>$25</td></tr>\n    <tr><td>Product B</td><td>3</td><td>$42</td></tr>\n    <tr><td>Product C</td><td>8</td><td>$15</td></tr>\n  </table>\n  <p>Footer note: Generated with TronoPDF.</p>\n</body>\n</html>';
+
 var html='';
 html+='<style>';
 html+='.hp-wrap{max-width:1500px;margin:0 auto}';
@@ -43,9 +60,16 @@ html+='.hp-fmt{border:2px solid #eceaf6;border-radius:8px;padding:8px;font-size:
 html+='.hp-fmt.active{border-color:#7c3aed;color:#7c3aed;background:#f3f0ff}';
 html+='.hp-go{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:17px;font-weight:800;padding:16px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 14px 34px rgba(124,58,237,.35);margin-top:14px}';
 html+='.hp-go:disabled{opacity:.5;cursor:not-allowed}';
-html+='.hp-busy{display:none;padding:40px 20px;text-align:center;background:#f3f0ff;border-radius:10px;margin-top:10px}';
-html+='.hp-spin{width:32px;height:32px;border:4px solid #e0e7ff;border-top-color:#7c3aed;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px}';
-html+='@keyframes spin{to{transform:rotate(360deg)}}';
+html+='.hp-busy{display:none;padding:20px;background:#f3f0ff;border-radius:10px;margin-top:10px}';
+html+='.hp-busy h4{font-size:14px;font-weight:800;color:#5b21b6;margin:0 0 10px;text-align:center}';
+html+='.hp-busy .st{font-size:12px;color:#7c3aed;font-weight:700;text-align:center;min-height:16px;margin-bottom:8px}';
+html+='.hp-bar{max-width:100%;height:10px;background:#fff;border-radius:999px;overflow:hidden;margin-bottom:10px}';
+html+='.hp-bar div{height:100%;width:0;background:linear-gradient(90deg,#7c3aed,#a855f7);transition:width .3s}';
+html+='.hp-cancel{width:100%;background:#f4f5fa;color:#333;font-weight:700;font-size:13px;padding:10px;border-radius:8px;border:none;cursor:pointer}';
+html+='.hp-cancel:hover{background:#e6e8f5}';
+html+='.hp-toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);background:#16a34a;color:#fff;font-weight:800;padding:14px 28px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:all .3s;z-index:999;font-size:14px}';
+html+='.hp-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}';
+html+='.hp-toast.err{background:#dc2626}';
 html+='@media(max-width:1000px){.hp-main{flex-direction:column}.hp-side{width:auto;border-left:none;border-top:1px solid #eceaf6}}';
 html+='</style>';
 html+='<div class="hp-wrap">';
@@ -67,159 +91,243 @@ html+='<div class="hp-lbl">Margins (mm)</div><div class="hp-row"><input class="h
 html+='<div class="hp-lbl">Quality</div><select class="hp-inp" id="hpQ"><option value="2">High (sharp, larger)</option><option value="1.5" selected>Balanced</option><option value="1">Standard</option></select>';
 html+='<div class="hp-chk"><input type="checkbox" id="hpGray"/><label for="hpGray">Convert to grayscale</label></div>';
 html+='<button class="hp-go" id="hpGo" type="button">Convert to PDF →</button>';
-html+='<div class="hp-busy" id="hpBusy"><div class="hp-spin"></div><p style="font-weight:800;color:#5b21b6">Rendering your PDF...</p></div>';
+html+='<div class="hp-busy" id="hpBusy"><h4>Rendering PDF...</h4><p class="st" id="hpStatus">Loading engines...</p><div class="hp-bar"><div id="hpBarFill"></div></div><button class="hp-cancel" id="hpCancel" type="button">✕ Cancel</button></div>';
 html+='</aside></div></div></div>';
+html+='<div class="hp-toast" id="hpToast"></div>';
+html+='</div>';
 root.innerHTML=html;
+
 var pageSize='a4',orient='p';
+var cancelRequested=false;
 var code=document.getElementById('hpCode');
 var prevBody=document.getElementById('hpPrevBody'),pageInfo=document.getElementById('hpPageInfo');
+var goBtn=document.getElementById('hpGo');
+var busy=document.getElementById('hpBusy');
+var statusEl=document.getElementById('hpStatus');
+var barFill=document.getElementById('hpBarFill');
+var cancelBtn=document.getElementById('hpCancel');
+var toastEl=document.getElementById('hpToast');
+
 code.value=SAMPLE;
+
+function toast(m,e){
+  toastEl.textContent=m;
+  toastEl.classList.toggle('err',!!e);
+  toastEl.classList.add('show');
+  clearTimeout(toastEl.__h);
+  toastEl.__h=setTimeout(function(){toastEl.classList.remove('show');},2200);
+}
+
 var prevTimer=null;
 function debouncedPreview(){clearTimeout(prevTimer);prevTimer=setTimeout(renderPreview,300);}
 code.addEventListener('input',debouncedPreview);
+
 document.getElementById('hpReset').onclick=function(){code.value=SAMPLE;renderPreview();};
+
 var sizeBtns=document.querySelectorAll('[data-s]');
 for(var i=0;i<sizeBtns.length;i++){
- sizeBtns[i].onclick=function(){
-  for(var j=0;j<sizeBtns.length;j++){sizeBtns[j].classList.remove('active');}
-  this.classList.add('active');
-  pageSize=this.getAttribute('data-s');
-  renderPreview();
- };
+  sizeBtns[i].onclick=function(){
+    for(var j=0;j<sizeBtns.length;j++){sizeBtns[j].classList.remove('active');}
+    this.classList.add('active');
+    pageSize=this.getAttribute('data-s');
+    renderPreview();
+  };
 }
+
 var orBtns=document.querySelectorAll('[data-o]');
 for(var i=0;i<orBtns.length;i++){
- orBtns[i].onclick=function(){
-  for(var j=0;j<orBtns.length;j++){orBtns[j].classList.remove('active');}
-  this.classList.add('active');
-  orient=this.getAttribute('data-o');
-  renderPreview();
- };
+  orBtns[i].onclick=function(){
+    for(var j=0;j<orBtns.length;j++){orBtns[j].classList.remove('active');}
+    this.classList.add('active');
+    orient=this.getAttribute('data-o');
+    renderPreview();
+  };
 }
-['hpMTop','hpMRight','hpMBottom','hpMLeft'].forEach(function(id){document.getElementById(id).addEventListener('input',renderPreview);});
+
+['hpMTop','hpMRight','hpMBottom','hpMLeft'].forEach(function(id){
+  document.getElementById(id).addEventListener('input',renderPreview);
+});
+
 function renderPreview(){
- prevBody.innerHTML='';
- var src=code.value||'<p style="color:#9a9aa5;padding:40px;text-align:center">Type some HTML to see the preview</p>';
- var p=PAGES[pageSize];
- var w=orient==='l'?p.h:p.w,h=orient==='l'?p.w:p.h;
- var mTop=parseFloat(document.getElementById('hpMTop').value)||0;
- var mRight=parseFloat(document.getElementById('hpMRight').value)||0;
- var mBottom=parseFloat(document.getElementById('hpMBottom').value)||0;
- var mLeft=parseFloat(document.getElementById('hpMLeft').value)||0;
- // scale points to pixels (1pt = 1.333px at 96dpi)
- var pt2px=96/72;
- var pageW=w*pt2px,pageH=h*pt2px;
- var mt=mTop*pt2px*2.83,mr=mRight*pt2px*2.83,mb=mBottom*pt2px*2.83,ml=mLeft*pt2px*2.83;
- // fit preview in container
- var maxW=Math.min(640,prevBody.clientWidth-40);
- var scale=maxW/pageW;
- var frame=document.createElement('div');
- frame.className='hp-page';
- frame.style.width=pageW+'px';frame.style.height=pageH+'px';
- frame.style.transform='scale('+scale+')';
- frame.style.marginBottom=(pageH*scale-pageH)+'px';
- frame.style.position='relative';
- frame.style.overflow='hidden';
- var inner=document.createElement('div');
- inner.style.position='absolute';
- inner.style.top=mt+'px';inner.style.left=ml+'px';
- inner.style.right=mr+'px';inner.style.bottom=mb+'px';
- inner.style.overflow='hidden';
- // sandbox iframe for HTML
- var iframe=document.createElement('iframe');
- iframe.style.cssText='width:100%;height:100%;border:0;background:#fff';
- iframe.sandbox='allow-same-origin';
- inner.appendChild(iframe);
- frame.appendChild(inner);
- prevBody.appendChild(frame);
- var doc=iframe.contentDocument||iframe.contentWindow.document;
- doc.open();doc.write(src);doc.close();
- // count pages roughly
- setTimeout(function(){
-  var contentH=doc.body?doc.body.scrollHeight:pageH;
-  var usableH=pageH-mt-mb;
-  var pages=Math.max(1,Math.ceil(contentH/usableH));
-  pageInfo.textContent=pageSize.toUpperCase()+' • '+Math.round(pageW)+'×'+Math.round(pageH)+' px • ~'+pages+' page(s)';
- },100);
+  prevBody.innerHTML='';
+  var src=code.value||'<p style="color:#9a9aa5;padding:40px;text-align:center">Type some HTML to see the preview</p>';
+  var p=PAGES[pageSize];
+  var w=orient==='l'?p.h:p.w,h=orient==='l'?p.w:p.h;
+  var mTop=parseFloat(document.getElementById('hpMTop').value)||0;
+  var mRight=parseFloat(document.getElementById('hpMRight').value)||0;
+  var mBottom=parseFloat(document.getElementById('hpMBottom').value)||0;
+  var mLeft=parseFloat(document.getElementById('hpMLeft').value)||0;
+  var pt2px=96/72;
+  var pageW=w*pt2px,pageH=h*pt2px;
+  var mt=mTop*pt2px*2.83,mr=mRight*pt2px*2.83,mb=mBottom*pt2px*2.83,ml=mLeft*pt2px*2.83;
+  var maxW=Math.min(640,prevBody.clientWidth-40);
+  var scale=maxW/pageW;
+  var frame=document.createElement('div');
+  frame.className='hp-page';
+  frame.style.width=pageW+'px';frame.style.height=pageH+'px';
+  frame.style.transform='scale('+scale+')';
+  frame.style.marginBottom=(pageH*scale-pageH)+'px';
+  frame.style.position='relative';
+  frame.style.overflow='hidden';
+  var inner=document.createElement('div');
+  inner.style.position='absolute';
+  inner.style.top=mt+'px';inner.style.left=ml+'px';
+  inner.style.right=mr+'px';inner.style.bottom=mb+'px';
+  inner.style.overflow='hidden';
+  var iframe=document.createElement('iframe');
+  iframe.style.cssText='width:100%;height:100%;border:0;background:#fff';
+  iframe.sandbox='allow-same-origin';
+  inner.appendChild(iframe);
+  frame.appendChild(inner);
+  prevBody.appendChild(frame);
+  var doc=iframe.contentDocument||iframe.contentWindow.document;
+  doc.open();doc.write(src);doc.close();
+  setTimeout(function(){
+    var contentH=doc.body?doc.body.scrollHeight:pageH;
+    var usableH=pageH-mt-mb;
+    var pages=Math.max(1,Math.ceil(contentH/usableH));
+    pageInfo.textContent=pageSize.toUpperCase()+' • '+Math.round(pageW)+'×'+Math.round(pageH)+' px • ~'+pages+' page(s)';
+  },100);
 }
-document.getElementById('hpGo').onclick=function(){
- var src=code.value.trim();
- if(!src){alert('Please enter some HTML code first.');return;}
- var goBtn=document.getElementById('hpGo');
- var busy=document.getElementById('hpBusy');
- goBtn.disabled=true;busy.style.display='block';
- setTimeout(function(){
+
+goBtn.onclick=async function(){
+  var src=code.value.trim();
+  if(!src){toast('Please enter some HTML code first.',true);return;}
+  
+  goBtn.disabled=true;
+  busy.style.display='block';
+  barFill.style.width='0%';
+  statusEl.textContent='Loading engines...';
+  cancelRequested=false;
+  
   try{
-   var p=PAGES[pageSize];
-   var w=orient==='l'?p.h:p.w,h=orient==='l'?p.w:p.h;
-   var mTop=parseFloat(document.getElementById('hpMTop').value)||0;
-   var mRight=parseFloat(document.getElementById('hpMRight').value)||0;
-   var mBottom=parseFloat(document.getElementById('hpMBottom').value)||0;
-   var mLeft=parseFloat(document.getElementById('hpMLeft').value)||0;
-   var q=parseFloat(document.getElementById('hpQ').value)||1.5;
-   var gray=document.getElementById('hpGray').checked;
-   var pt2px=96/72;
-   var pageWpx=w*pt2px,pageHpx=h*pt2px;
-   var mt=mTop*pt2px*2.83,mr=mRight*pt2px*2.83,mb=mBottom*pt2px*2.83,ml=mLeft*pt2px*2.83;
-   var iframe=document.createElement('iframe');
-   iframe.style.cssText='position:fixed;left:-99999px;top:0;width:'+pageWpx+'px;height:'+pageHpx+'px;border:0;background:#fff';
-   iframe.sandbox='allow-same-origin';
-   document.body.appendChild(iframe);
-   var doc=iframe.contentDocument||iframe.contentWindow.document;
-   doc.open();doc.write(src);doc.close();
-   setTimeout(function(){
+    /* Lazy load libraries */
+    await Promise.all([loadJS(JSPDF_SRC),loadJS(HTML2CANVAS_SRC)]);
+    
+    if(cancelRequested){
+      busy.style.display='none';goBtn.disabled=false;return;
+    }
+    
+    statusEl.textContent='Preparing document...';
+    barFill.style.width='5%';
+    
+    var p=PAGES[pageSize];
+    var w=orient==='l'?p.h:p.w,h=orient==='l'?p.w:p.h;
+    var mTop=parseFloat(document.getElementById('hpMTop').value)||0;
+    var mRight=parseFloat(document.getElementById('hpMRight').value)||0;
+    var mBottom=parseFloat(document.getElementById('hpMBottom').value)||0;
+    var mLeft=parseFloat(document.getElementById('hpMLeft').value)||0;
+    var q=parseFloat(document.getElementById('hpQ').value)||1.5;
+    var gray=document.getElementById('hpGray').checked;
+    var pt2px=96/72;
+    var pageWpx=w*pt2px,pageHpx=h*pt2px;
+    var mt=mTop*pt2px*2.83,mr=mRight*pt2px*2.83,mb=mBottom*pt2px*2.83,ml=mLeft*pt2px*2.83;
+    
+    var iframe=document.createElement('iframe');
+    iframe.style.cssText='position:fixed;left:-99999px;top:0;width:'+pageWpx+'px;height:'+pageHpx+'px;border:0;background:#fff';
+    iframe.sandbox='allow-same-origin';
+    document.body.appendChild(iframe);
+    var doc=iframe.contentDocument||iframe.contentWindow.document;
+    doc.open();doc.write(src);doc.close();
+    
+    await new Promise(function(res){setTimeout(res,300);});
+    
+    if(cancelRequested){
+      document.body.removeChild(iframe);
+      busy.style.display='none';goBtn.disabled=false;return;
+    }
+    
     var body=doc.body;
     var contentH=body.scrollHeight;
     var usableHpx=pageHpx-mt-mb;
     var usableWpx=pageWpx-ml-mr;
     var pages=Math.max(1,Math.ceil(contentH/usableHpx));
-    var {jsPDF}=window.jspdf;
+    
+    var jsPDF=window.jspdf.jsPDF;
     var pdf=new jsPDF({orientation:orient==='l'?'landscape':'portrait',unit:'pt',format:[w,h]});
-    var rendered=0;
-    function renderNextPage(pg){
-     if(pg>=pages){
-      document.body.removeChild(iframe);
-      var bytes=pdf.output('arraybuffer');
-      var blob=new Blob([bytes],{type:'application/pdf'});
-      var url=URL.createObjectURL(blob);
-      var a=document.createElement('a');a.href=url;a.download='converted.pdf';
-      document.body.appendChild(a);a.click();document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      goBtn.disabled=false;busy.style.display='none';
-      return;
-     }
-     var wrap=document.createElement('div');
-     wrap.style.cssText='position:absolute;top:0;left:0;width:'+pageWpx+'px;height:'+pageHpx+'px;background:#fff;overflow:hidden';
-     var content=document.createElement('div');
-     content.style.cssText='position:absolute;top:'+(-pg*usableHpx+mt)+'px;left:'+ml+'px;width:'+usableWpx+'px';
-     content.innerHTML=body.innerHTML;
-     // copy stylesheets
-     var sheets=doc.querySelectorAll('style,link[rel="stylesheet"]');
-     for(var i=0;i<sheets.length;i++){content.insertBefore(sheets[i].cloneNode(true),content.firstChild);}
-     wrap.appendChild(content);
-     doc.body.appendChild(wrap);
-     var canvasOpts={scale:q,useCORS:true,logging:false,backgroundColor:'#ffffff',width:pageWpx,height:pageHpx,windowWidth:pageWpx};
-     if(gray){canvasOpts.filter=function(c){c.style.filter='grayscale(1)';};}
-     html2canvas(wrap,canvasOpts).then(function(canvas){
+    
+    statusEl.textContent='Rendering '+pages+' page(s)...';
+    
+    for(var pg=0;pg<pages;pg++){
+      if(cancelRequested){
+        document.body.removeChild(iframe);
+        busy.style.display='none';goBtn.disabled=false;
+        toast('Cancelled',true);
+        return;
+      }
+      
+      var pct=5+((pg+1)/pages)*85;
+      barFill.style.width=pct+'%';
+      statusEl.textContent='Rendering page '+(pg+1)+' of '+pages+'...';
+      
+      var wrap=document.createElement('div');
+      wrap.style.cssText='position:absolute;top:0;left:0;width:'+pageWpx+'px;height:'+pageHpx+'px;background:#fff;overflow:hidden';
+      var content=document.createElement('div');
+      content.style.cssText='position:absolute;top:'+(-pg*usableHpx+mt)+'px;left:'+ml+'px;width:'+usableWpx+'px';
+      content.innerHTML=body.innerHTML;
+      var sheets=doc.querySelectorAll('style,link[rel="stylesheet"]');
+      for(var i=0;i<sheets.length;i++){content.insertBefore(sheets[i].cloneNode(true),content.firstChild);}
+      wrap.appendChild(content);
+      doc.body.appendChild(wrap);
+      
+      var canvasOpts={scale:q,useCORS:true,logging:false,backgroundColor:'#ffffff',width:pageWpx,height:pageHpx,windowWidth:pageWpx};
+      if(gray){canvasOpts.filter=function(c){c.style.filter='grayscale(1)';};}
+      
+      try{
+        var canvas=await window.html2canvas(wrap,canvasOpts);
+        if(pg>0){pdf.addPage([w,h],orient==='l'?'landscape':'portrait');}
+        var imgData=canvas.toDataURL('image/jpeg',0.95);
+        pdf.addImage(imgData,'JPEG',0,0,w,h);
+      }catch(e){
+        if(pg>0){pdf.addPage();}
+      }
       doc.body.removeChild(wrap);
-      if(pg>0){pdf.addPage([w,h],orient==='l'?'landscape':'portrait');}
-      var imgData=canvas.toDataURL('image/jpeg',0.95);
-      pdf.addImage(imgData,'JPEG',0,0,w,h);
-      rendered++;
-      renderNextPage(pg+1);
-     }).catch(function(){
-      doc.body.removeChild(wrap);
-      if(pg>0){pdf.addPage();}
-      renderNextPage(pg+1);
-     });
+      
+      /* Yield to UI thread */
+      await new Promise(function(res){setTimeout(res,10);});
     }
-    renderNextPage(0);
-   },300);
+    
+    document.body.removeChild(iframe);
+    
+    if(cancelRequested){
+      busy.style.display='none';goBtn.disabled=false;return;
+    }
+    
+    statusEl.textContent='Finalizing...';
+    barFill.style.width='95%';
+    
+    var bytes=pdf.output('arraybuffer');
+    var blob=new Blob([bytes],{type:'application/pdf'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    a.href=url;
+    a.download='converted.pdf';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    barFill.style.width='100%';
+    statusEl.textContent='Complete!';
+    
+    setTimeout(function(){
+      busy.style.display='none';
+      goBtn.disabled=false;
+      toast('✓ PDF downloaded! ('+pages+' pages, '+fmtB(bytes.byteLength)+')');
+    },300);
+    
   }catch(e){
-   goBtn.disabled=false;busy.style.display='none';
-   alert('Error generating PDF: '+(e.message||e));
+    busy.style.display='none';
+    goBtn.disabled=false;
+    toast('Error: '+(e.message||e),true);
   }
- },50);
 };
+
+cancelBtn.onclick=function(){
+  cancelRequested=true;
+  statusEl.textContent='Cancelling...';
+};
+
 renderPreview();
+
 })();
