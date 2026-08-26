@@ -1,9 +1,188 @@
-/* TronoPDF - Passport Photo Maker v4 | clean: presets, crop+zoom, exact KB, print sheet */
+/* TronoPDF - Passport Photo Maker v5 | Web Worker + Cancel + Progress */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
+
+/* Web Worker for passport photo generation */
+var workerCode = `
+function makePhoto(imgData, opts) {
+  return createImageBitmap(imgData.blob).then(function(bitmap) {
+    var t = opts.targetPx;
+    var f = t[0] / opts.frameW;
+    
+    var c = new OffscreenCanvas(t[0], t[1]);
+    var x = c.getContext('2d');
+    x.fillStyle = '#fff';
+    x.fillRect(0, 0, t[0], t[1]);
+    x.imageSmoothingEnabled = true;
+    x.imageSmoothingQuality = 'high';
+    x.drawImage(bitmap, opts.ox * f, opts.oy * f, bitmap.width * opts.scale * f, bitmap.height * opts.scale * f);
+    
+    bitmap.close();
+    
+    if (opts.useKb) {
+      /* Binary search for target KB */
+      var target = opts.targetKb * 1024;
+      var lo = 0.05, hi = 0.95, best = null;
+      var chain = Promise.resolve();
+      
+      for (var i = 0; i < 9; i++) {
+        (function(idx) {
+          chain = chain.then(function() {
+            self.postMessage({
+              type: 'progress',
+              percent: 20 + ((idx + 1) / 9) * 40,
+              msg: 'Optimizing file size (' + (idx + 1) + '/9)...'
+            });
+            
+            var q = (lo + hi) / 2;
+            return c.convertToBlob({type: 'image/jpeg', quality: q}).then(function(b) {
+              return b.arrayBuffer().then(function(ab) {
+                var bytes = new Uint8Array(ab);
+                var binary = '';
+                var chunkSize = 8192;
+                for (var j = 0; j < bytes.length; j += chunkSize) {
+                  var chunk = bytes.subarray(j, Math.min(j + chunkSize, bytes.length));
+                  binary += String.fromCharCode.apply(null, chunk);
+                }
+                var dataURL = 'data:image/jpeg;base64,' + btoa(binary);
+                var size = b.size;
+                
+                if (size <= target) {
+                  best = {dataURL: dataURL, bytes: size};
+                  lo = q;
+                } else {
+                  hi = q;
+                }
+                
+                if (!best && idx === 8) {
+                  /* Fallback: use lowest quality */
+                  return c.convertToBlob({type: 'image/jpeg', quality: 0.05}).then(function(b2) {
+                    return b2.arrayBuffer().then(function(ab2) {
+                      var bytes2 = new Uint8Array(ab2);
+                      var binary2 = '';
+                      for (var k = 0; k < bytes2.length; k += chunkSize) {
+                        var chunk2 = bytes2.subarray(k, Math.min(k + chunkSize, bytes2.length));
+                        binary2 += String.fromCharCode.apply(null, chunk2);
+                      }
+                      best = {dataURL: 'data:image/jpeg;base64,' + btoa(binary2), bytes: b2.size};
+                    });
+                  });
+                }
+              });
+            });
+          });
+        })(i);
+      }
+      
+      return chain.then(function() {
+        return best;
+      });
+    } else {
+      return c.convertToBlob({type: 'image/jpeg', quality: 0.92}).then(function(b) {
+        return b.arrayBuffer().then(function(ab) {
+          var bytes = new Uint8Array(ab);
+          var binary = '';
+          var chunkSize = 8192;
+          for (var j = 0; j < bytes.length; j += chunkSize) {
+            var chunk = bytes.subarray(j, Math.min(j + chunkSize, bytes.length));
+            binary += String.fromCharCode.apply(null, chunk);
+          }
+          return {dataURL: 'data:image/jpeg;base64,' + btoa(binary), bytes: b.size};
+        });
+      });
+    }
+  });
+}
+
+function makeSheet(photoDataURL, targetPx) {
+  /* Create sheet from the photo canvas */
+  var sheet = new OffscreenCanvas(1800, 1200);
+  var sx2 = sheet.getContext('2d');
+  sx2.fillStyle = '#fff';
+  sx2.fillRect(0, 0, 1800, 1200);
+  
+  /* We need to draw the photo onto sheet - recreate from dataURL */
+  return fetch(photoDataURL).then(function(r) { return r.blob(); }).then(function(blob) {
+    return createImageBitmap(blob);
+  }).then(function(photoBitmap) {
+    var pw = targetPx[0], ph = targetPx[1], gap = 24;
+    var cols = Math.floor((1800 - gap) / (pw + gap));
+    var rows = Math.floor((1200 - gap) / (ph + gap));
+    var gw = cols * (pw + gap) + gap;
+    var gh = rows * (ph + gap) + gap;
+    var startX = (1800 - gw) / 2 + gap;
+    var startY = (1200 - gh) / 2 + gap;
+    
+    for (var r2 = 0; r2 < rows; r2++) {
+      for (var c2 = 0; c2 < cols; c2++) {
+        sx2.drawImage(photoBitmap, startX + c2 * (pw + gap), startY + r2 * (ph + gap), pw, ph);
+      }
+    }
+    
+    photoBitmap.close();
+    
+    return sheet.convertToBlob({type: 'image/jpeg', quality: 0.92}).then(function(b) {
+      return b.arrayBuffer().then(function(ab) {
+        var bytes = new Uint8Array(ab);
+        var binary = '';
+        var chunkSize = 8192;
+        for (var j = 0; j < bytes.length; j += chunkSize) {
+          var chunk = bytes.subarray(j, Math.min(j + chunkSize, bytes.length));
+          binary += String.fromCharCode.apply(null, chunk);
+        }
+        return 'data:image/jpeg;base64,' + btoa(binary);
+      });
+    });
+  });
+}
+
+self.onmessage = function(e) {
+  var data = e.data;
+  
+  if (data.type === 'generate') {
+    self.postMessage({type: 'progress', percent: 5, msg: 'Generating photo...'});
+    
+    makePhoto(data.imgData, data.opts).then(function(photoResult) {
+      self.postMessage({type: 'progress', percent: 70, msg: 'Photo ready!'});
+      
+      if (data.opts.makeSheet) {
+        self.postMessage({type: 'progress', percent: 75, msg: 'Creating print sheet...'});
+        return makeSheet(photoResult.dataURL, data.opts.targetPx).then(function(sheetDataURL) {
+          self.postMessage({type: 'progress', percent: 95, msg: 'Finalizing...'});
+          self.postMessage({
+            type: 'complete',
+            photo: photoResult,
+            sheet: sheetDataURL
+          });
+        });
+      } else {
+        self.postMessage({type: 'progress', percent: 95, msg: 'Finalizing...'});
+        self.postMessage({
+          type: 'complete',
+          photo: photoResult,
+          sheet: null
+        });
+      }
+    }).catch(function(err) {
+      self.postMessage({
+        type: 'error',
+        msg: 'Generation failed: ' + (err.message || err)
+      });
+    });
+  }
+};
+`;
+
+/* Create Worker */
+var blob = new Blob([workerCode], {type: 'application/javascript'});
+var workerUrl = URL.createObjectURL(blob);
+var worker = new Worker(workerUrl);
+
 function fmtB(n){return n<1024?n+' B':(n<1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
+
 var PRESETS={in_passport:[35,45],in_pan:[25,35],us:[51,51],uk:[35,45],schengen:[35,45],canada:[50,70],china:[33,48],custom:[35,45]};
+
 var html='';
 html+='<style>';
 html+='.pp-wrap{max-width:1400px;margin:0 auto}';
@@ -39,6 +218,15 @@ html+='.pp-quick button{border:1px solid #eceaf6;background:#f7f6fc;color:#4b4b5
 html+='.pp-quick button:hover{border-color:#7c3aed;color:#7c3aed}';
 html+='.pp-soon{background:#f3f1fa;border:1px dashed #c9cddd;border-radius:10px;padding:10px 14px;font-size:12px;color:#8a8fa3;text-align:center;margin-top:14px}';
 html+='.pp-go{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:18px;font-weight:800;padding:17px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 14px 34px rgba(124,58,237,.35);margin-top:16px}';
+html+='.pp-go:disabled{opacity:.5;cursor:not-allowed}';
+html+='.pp-busy{display:none;text-align:center;padding:60px 20px}';
+html+='.pp-busy h2{font-size:28px;font-weight:900;margin-bottom:8px}';
+html+='.pp-busy .st{color:#7a7a85;font-size:15px;margin-bottom:10px;min-height:20px}';
+html+='.pp-bar{max-width:600px;margin:0 auto 18px;height:14px;background:#fff;border-radius:999px;overflow:hidden}';
+html+='.pp-bar div{height:100%;width:0;background:linear-gradient(90deg,#7c3aed,#a855f7);transition:width .3s}';
+html+='.pp-pct{font-size:36px;font-weight:900}';
+html+='.pp-cancel{margin-top:16px;background:#f4f5fa;color:#333;font-weight:700;font-size:14px;padding:12px 24px;border-radius:10px;border:none;cursor:pointer}';
+html+='.pp-cancel:hover{background:#e6e8f5}';
 html+='.pp-done{display:none;text-align:center;padding:50px 20px}';
 html+='.pp-done-ic{width:80px;height:80px;border-radius:50%;background:#eafbef;color:#16a34a;font-size:38px;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}';
 html+='.pp-dls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}';
@@ -60,144 +248,264 @@ html+='<div id="ppKbBox" style="display:none"><div class="pp-row"><input type="n
 html+='<div class="pp-chk"><input type="checkbox" id="ppSheet" checked/><label for="ppSheet">Also make 4×6 inch print sheet</label></div>';
 html+='<div class="pp-soon">✨ AI background removal - coming soon</div>';
 html+='<button class="pp-go" id="ppGo" type="button">Make My Photo →</button></aside></div></div>';
+html+='<div class="pp-busy" id="ppBusy"><h2>Making your photo...</h2><p class="st" id="ppStatus">Working...</p><div class="pp-bar"><div id="ppBarFill"></div></div><div class="pp-pct" id="ppPct">0%</div><button class="pp-cancel" id="ppCancel" type="button">✕ Cancel</button></div>';
 html+='<div class="pp-done" id="ppDone"><div class="pp-done-ic">✓</div><h1 style="font-size:28px;font-weight:900;margin-bottom:8px">Your photo is ready!</h1><p style="color:#7a7a85;font-size:15px;margin-bottom:24px" id="ppDoneInfo"></p><div class="pp-dls"><a class="pp-dl" id="ppDlPhoto" href="#">⬇ Download Photo</a><a class="pp-dl sheet" id="ppDlSheet" href="#">⬇ Download Print Sheet</a></div><button class="pp-again" id="ppAgain" type="button">Make another photo</button></div>';
 html+='<input type="file" id="ppFile" accept="image/*,.jpg,.jpeg,.png,.webp" style="display:none"/>';
 html+='</div>';
 root.innerHTML=html;
-var img=null;var frameW=300,frameH=386;var base=1,scale=1,ox=0,oy=0;
-var pick=document.getElementById('ppPick'),work=document.getElementById('ppWork'),done=document.getElementById('ppDone');
+
+var img=null;var file=null;
+var frameW=300,frameH=386;var base=1,scale=1,ox=0,oy=0;
+var cancelRequested=false;
+
+var pick=document.getElementById('ppPick'),work=document.getElementById('ppWork'),done=document.getElementById('ppDone'),busy=document.getElementById('ppBusy');
 var zone=document.getElementById('ppZone'),btn=document.getElementById('ppBtn'),inp=document.getElementById('ppFile');
 var frame=document.getElementById('ppFrame'),canvas=document.getElementById('ppCanvas'),ctx=canvas.getContext('2d');
 var elZoom=document.getElementById('ppZoom'),elPreset=document.getElementById('ppPreset'),elInfo=document.getElementById('ppInfo');
 var elKb=document.getElementById('ppKb'),elKbBox=document.getElementById('ppKbBox'),elKbVal=document.getElementById('ppKbVal');
 var elSheet=document.getElementById('ppSheet');
 var elMmW=document.getElementById('ppMmW'),elMmH=document.getElementById('ppMmH'),elCustomRow=document.getElementById('ppCustomRow');
+var goBtn=document.getElementById('ppGo');
+var cancelBtn=document.getElementById('ppCancel');
+var statusEl=document.getElementById('ppStatus');
+
+/* Worker message handler */
+worker.onmessage = function(e) {
+  var data = e.data;
+  
+  if (data.type === 'progress') {
+    document.getElementById('ppPct').textContent = Math.round(data.percent) + '%';
+    document.getElementById('ppBarFill').style.width = data.percent + '%';
+    statusEl.textContent = data.msg || 'Processing...';
+  } else if (data.type === 'complete') {
+    document.getElementById('ppPct').textContent = '100%';
+    document.getElementById('ppBarFill').style.width = '100%';
+    statusEl.textContent = 'Complete!';
+    
+    var t = targetPx();
+    
+    setTimeout(function() {
+      busy.style.display = 'none';
+      done.style.display = 'block';
+      document.getElementById('ppDoneInfo').textContent = t[0] + '×' + t[1] + ' px • ' + fmtB(data.photo.bytes);
+      
+      var dl = document.getElementById('ppDlPhoto');
+      dl.href = data.photo.dataURL;
+      dl.download = 'passport-photo-' + t[0] + 'x' + t[1] + '.jpg';
+      
+      var dlS = document.getElementById('ppDlSheet');
+      if (data.sheet) {
+        dlS.href = data.sheet;
+        dlS.download = 'print-sheet-4x6.jpg';
+        dlS.style.display = 'inline-block';
+      } else {
+        dlS.style.display = 'none';
+      }
+      
+      goBtn.disabled = false;
+    }, 300);
+  } else if (data.type === 'error') {
+    busy.style.display = 'none';
+    work.style.display = 'block';
+    goBtn.disabled = false;
+    alert('Error: ' + data.msg);
+  }
+};
+
 function mm(){
- if(elPreset.value==='custom'){return [parseFloat(elMmW.value)||35,parseFloat(elMmH.value)||45];}
- return PRESETS[elPreset.value];
+  if(elPreset.value==='custom'){return [parseFloat(elMmW.value)||35,parseFloat(elMmH.value)||45];}
+  return PRESETS[elPreset.value];
 }
+
 function targetPx(){
- var m=mm();
- return [Math.round(m[0]/25.4*300),Math.round(m[1]/25.4*300)];
+  var m=mm();
+  return [Math.round(m[0]/25.4*300),Math.round(m[1]/25.4*300)];
 }
+
 function updateInfo(){
- var m=mm();var t=targetPx();
- elInfo.textContent=m[0]+'×'+m[1]+' mm • '+t[0]+'×'+t[1]+' px @300 DPI';
+  var m=mm();var t=targetPx();
+  elInfo.textContent=m[0]+'×'+m[1]+' mm • '+t[0]+'×'+t[1]+' px @300 DPI';
 }
+
 function setupFrame(){
- var m=mm();
- frameH=Math.round(frameW*m[1]/m[0]);
- canvas.width=frameW;canvas.height=frameH;
- frame.style.width=frameW+'px';frame.style.height=frameH+'px';
- if(img){resetCrop();drawPreview();}
- updateInfo();
+  var m=mm();
+  frameH=Math.round(frameW*m[1]/m[0]);
+  canvas.width=frameW;canvas.height=frameH;
+  frame.style.width=frameW+'px';frame.style.height=frameH+'px';
+  if(img){resetCrop();drawPreview();}
+  updateInfo();
 }
+
 function resetCrop(){
- base=Math.max(frameW/img.width,frameH/img.height);
- elZoom.value=100;
- scale=base;
- ox=(frameW-img.width*scale)/2;
- oy=(frameH-img.height*scale)/2;
+  base=Math.max(frameW/img.width,frameH/img.height);
+  elZoom.value=100;
+  scale=base;
+  ox=(frameW-img.width*scale)/2;
+  oy=(frameH-img.height*scale)/2;
 }
+
 function drawPreview(){
- if(!img){return;}
- ctx.fillStyle='#e5e7eb';ctx.fillRect(0,0,frameW,frameH);
- ctx.drawImage(img,ox,oy,img.width*scale,img.height*scale);
+  if(!img){return;}
+  ctx.fillStyle='#e5e7eb';ctx.fillRect(0,0,frameW,frameH);
+  ctx.drawImage(img,ox,oy,img.width*scale,img.height*scale);
 }
+
 elPreset.onchange=function(){elCustomRow.style.display=this.value==='custom'?'flex':'none';setupFrame();};
 elMmW.oninput=setupFrame;
 elMmH.oninput=setupFrame;
+
 elZoom.oninput=function(){
- var ns=base*(this.value/100);
- var cx=(frameW/2-ox)/scale,cy=(frameH/2-oy)/scale;
- scale=ns;
- ox=frameW/2-cx*scale;
- oy=frameH/2-cy*scale;
- drawPreview();
+  var ns=base*(this.value/100);
+  var cx=(frameW/2-ox)/scale,cy=(frameH/2-oy)/scale;
+  scale=ns;
+  ox=frameW/2-cx*scale;
+  oy=frameH/2-cy*scale;
+  drawPreview();
 };
+
 elKb.onchange=function(){elKbBox.style.display=this.checked?'block':'none';};
+
 var quickBtns=document.querySelectorAll('.pp-quick button');
 for(var qi=0;qi<quickBtns.length;qi++){
- quickBtns[qi].onclick=function(){elKbVal.value=this.getAttribute('data-kb');};
+  quickBtns[qi].onclick=function(){elKbVal.value=this.getAttribute('data-kb');};
 }
+
 var dragging=false,lx=0,ly=0;
 frame.addEventListener('pointerdown',function(e){dragging=true;lx=e.clientX;ly=e.clientY;frame.setPointerCapture(e.pointerId);});
 frame.addEventListener('pointermove',function(e){
- if(!dragging){return;}
- ox+=e.clientX-lx;oy+=e.clientY-ly;lx=e.clientX;ly=e.clientY;
- drawPreview();
+  if(!dragging){return;}
+  ox+=e.clientX-lx;oy+=e.clientY-ly;lx=e.clientX;ly=e.clientY;
+  drawPreview();
 });
 frame.addEventListener('pointerup',function(){dragging=false;});
 frame.addEventListener('pointercancel',function(){dragging=false;});
+
 function addFile(f){
- if(f.type.indexOf('image/')!==0&&!/\.(jpg|jpeg|png|webp)$/i.test(f.name)){alert('Please select an image file.');return;}
- var u=URL.createObjectURL(f);
- var im=new Image();
- im.onload=function(){
-  img=im;
-  pick.style.display='none';work.style.display='block';done.style.display='none';
-  setupFrame();
-  resetCrop();
-  drawPreview();
- };
- im.src=u;
+  if(f.type.indexOf('image/')!==0&&!/\.(jpg|jpeg|png|webp)$/i.test(f.name)){alert('Please select an image file.');return;}
+  file=f;
+  var u=URL.createObjectURL(f);
+  var im=new Image();
+  im.onload=function(){
+    img=im;
+    pick.style.display='none';work.style.display='block';done.style.display='none';
+    setupFrame();
+    resetCrop();
+    drawPreview();
+  };
+  im.src=u;
 }
+
 btn.onclick=function(){inp.click();};
+
 inp.onchange=function(){if(inp.files[0]){addFile(inp.files[0]);}inp.value='';};
+
 zone.ondragover=function(e){e.preventDefault();zone.classList.add('on');};
 zone.ondragleave=function(){zone.classList.remove('on');};
 zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){addFile(e.dataTransfer.files[0]);}};
-document.getElementById('ppGo').onclick=function(){
- if(!img){return;}
- var t=targetPx();
- var f=t[0]/frameW;
- var c=document.createElement('canvas');c.width=t[0];c.height=t[1];
- var x=c.getContext('2d');
- x.fillStyle='#fff';x.fillRect(0,0,t[0],t[1]);
- x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';
- x.drawImage(img,ox*f,oy*f,img.width*scale*f,img.height*scale*f);
- function finish(dataURL,bytes){
-  work.style.display='none';done.style.display='block';
-  document.getElementById('ppDoneInfo').textContent=t[0]+'×'+t[1]+' px • '+fmtB(bytes);
-  var dl=document.getElementById('ppDlPhoto');
-  dl.href=dataURL;dl.download='passport-photo-'+t[0]+'x'+t[1]+'.jpg';
-  var dlS=document.getElementById('ppDlSheet');
-  if(elSheet.checked){
-   var sheet=document.createElement('canvas');sheet.width=1800;sheet.height=1200;
-   var sx2=sheet.getContext('2d');sx2.fillStyle='#fff';sx2.fillRect(0,0,1800,1200);
-   var pw=t[0],ph=t[1],gap=24;
-   var cols=Math.floor((1800-gap)/(pw+gap)),rows=Math.floor((1200-gap)/(ph+gap));
-   var gw=cols*(pw+gap)+gap,gh=rows*(ph+gap)+gap;
-   var startX=(1800-gw)/2+gap,startY=(1200-gh)/2+gap;
-   for(var r2=0;r2<rows;r2++){
-    for(var c2=0;c2<cols;c2++){
-     sx2.drawImage(c,startX+c2*(pw+gap),startY+r2*(ph+gap),pw,ph);
+
+goBtn.onclick=function(){
+  if(!img||!file){return;}
+  
+  work.style.display='none';
+  done.style.display='none';
+  busy.style.display='block';
+  
+  document.getElementById('ppPct').textContent='0%';
+  document.getElementById('ppBarFill').style.width='0%';
+  statusEl.textContent='Starting...';
+  cancelRequested=false;
+  goBtn.disabled=true;
+  
+  var t=targetPx();
+  var opts={
+    targetPx: t,
+    frameW: frameW,
+    ox: ox,
+    oy: oy,
+    scale: scale,
+    useKb: elKb.checked,
+    targetKb: parseFloat(elKbVal.value)||50,
+    makeSheet: elSheet.checked
+  };
+  
+  /* Read file and send to worker */
+  file.arrayBuffer().then(function(buf){
+    if(cancelRequested){
+      busy.style.display='none';
+      work.style.display='block';
+      goBtn.disabled=false;
+      return;
     }
-   }
-   var sd=sheet.toDataURL('image/jpeg',0.92);
-   dlS.href=sd;dlS.download='print-sheet-4x6.jpg';dlS.style.display='inline-block';
-  }else{
-   dlS.style.display='none';
-  }
- }
- if(elKb.checked){
-  var target=(parseFloat(elKbVal.value)||50)*1024;
-  var lo=0.05,hi=0.95,best=null;
-  for(var i=0;i<9;i++){
-   var q=(lo+hi)/2;
-   var d=c.toDataURL('image/jpeg',q);
-   var b=atob(d.split(',')[1]).length;
-   if(b<=target){best={d:d,b:b};lo=q;}else{hi=q;}
-  }
-  if(best){finish(best.d,best.b);}
-  else{var d2=c.toDataURL('image/jpeg',0.05);finish(d2,atob(d2.split(',')[1]).length);}
- }else{
-  var d3=c.toDataURL('image/jpeg',0.92);
-  finish(d3,atob(d3.split(',')[1]).length);
- }
+    
+    worker.postMessage({
+      type: 'generate',
+      imgData: {blob: new Blob([buf], {type: file.type || 'image/jpeg'})},
+      opts: opts
+    });
+  }).catch(function(err){
+    busy.style.display='none';
+    work.style.display='block';
+    goBtn.disabled=false;
+    alert('Error reading file: '+err.message);
+  });
 };
+
+cancelBtn.onclick=function(){
+  cancelRequested=true;
+  statusEl.textContent='Cancelling...';
+  
+  /* Terminate and recreate worker */
+  worker.terminate();
+  var blob = new Blob([workerCode], {type: 'application/javascript'});
+  var workerUrl = URL.createObjectURL(blob);
+  worker = new Worker(workerUrl);
+  
+  /* Reattach message handler */
+  worker.onmessage = function(e) {
+    var data = e.data;
+    if (data.type === 'progress') {
+      document.getElementById('ppPct').textContent = Math.round(data.percent) + '%';
+      document.getElementById('ppBarFill').style.width = data.percent + '%';
+      statusEl.textContent = data.msg || 'Processing...';
+    } else if (data.type === 'complete') {
+      document.getElementById('ppPct').textContent = '100%';
+      document.getElementById('ppBarFill').style.width = '100%';
+      statusEl.textContent = 'Complete!';
+      var t = targetPx();
+      setTimeout(function() {
+        busy.style.display = 'none';
+        done.style.display = 'block';
+        document.getElementById('ppDoneInfo').textContent = t[0] + '×' + t[1] + ' px • ' + fmtB(data.photo.bytes);
+        var dl = document.getElementById('ppDlPhoto');
+        dl.href = data.photo.dataURL;
+        dl.download = 'passport-photo-' + t[0] + 'x' + t[1] + '.jpg';
+        var dlS = document.getElementById('ppDlSheet');
+        if (data.sheet) {
+          dlS.href = data.sheet;
+          dlS.download = 'print-sheet-4x6.jpg';
+          dlS.style.display = 'inline-block';
+        } else {
+          dlS.style.display = 'none';
+        }
+        goBtn.disabled = false;
+      }, 300);
+    } else if (data.type === 'error') {
+      busy.style.display = 'none';
+      work.style.display = 'block';
+      goBtn.disabled = false;
+      alert('Error: ' + data.msg);
+    }
+  };
+  
+  busy.style.display='none';
+  work.style.display='block';
+  goBtn.disabled=false;
+};
+
 document.getElementById('ppAgain').onclick=function(){
- done.style.display='none';pick.style.display='block';work.style.display='none';img=null;
+  done.style.display='none';pick.style.display='block';work.style.display='none';img=null;file=null;
 };
+
 updateInfo();
+
 })();
