@@ -1,39 +1,79 @@
-/* TronoPDF - PDF to Word v3 | auto language detection (all scripts) + preview + OCR fix */
+/* TronoPDF - PDF to Word v4 | OCR Progress + Concurrent + Lazy Load */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
+
 var PDFJS_SRC='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
 var PDFJS_WORKER='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 var TESS_SRC='https://cdn.jsdelivr.net/npm/tesseract.js@5.1.0/dist/tesseract.min.js';
-function loadJS(src){return new Promise(function(res,rej){var s=document.createElement('script');s.src=src;s.onload=function(){res(true);};s.onerror=function(){rej(new Error('load fail'));};document.head.appendChild(s);});}
+
+/* Lazy load with caching */
+var loadedLibs={};
+function loadJS(src){
+  if(loadedLibs[src]){return Promise.resolve(true);}
+  return new Promise(function(res,rej){
+    var s=document.createElement('script');
+    s.src=src;
+    s.onload=function(){loadedLibs[src]=true;res(true);};
+    s.onerror=function(){rej(new Error('load fail: '+src));};
+    document.head.appendChild(s);
+  });
+}
+
+/* Tesseract worker singleton - reuse for performance */
+var tessWorker=null;
 var tessLoading=null;
-function loadTesseract(){
- if(window.Tesseract){return Promise.resolve(true);}
- if(!tessLoading){tessLoading=new Promise(function(res){loadJS(TESS_SRC,function(err){res(!err&&!!window.Tesseract);});});}
- return tessLoading;
+
+function getTesseractWorker(){
+  if(tessWorker){return Promise.resolve(tessWorker);}
+  if(tessLoading){return tessLoading;}
+  
+  tessLoading=loadJS(TESS_SRC).then(function(){
+    if(!window.Tesseract){throw new Error('Tesseract failed to load');}
+    return window.Tesseract.createWorker('eng',1,{
+      logger:function(m){
+        /* Global OCR progress handler - set by current page processor */
+        if(window.__tessLogger){window.__tessLogger(m);}
+      }
+    }).then(function(w){
+      tessWorker=w;
+      return w;
+    });
+  });
+  return tessLoading;
 }
+
 var BLOCKS={hin:[0x0900,0x097F],ben:[0x0980,0x09FF],pan:[0x0A00,0x0A7F],guj:[0x0A80,0x0AFF],ori:[0x0B00,0x0B7F],tam:[0x0B80,0x0BFF],tel:[0x0C00,0x0C7F],kan:[0x0C80,0x0CFF],mal:[0x0D00,0x0D7F],sin:[0x0D80,0x0DFF],tha:[0x0E00,0x0E7F],lao:[0x0E80,0x0EFF],mya:[0x1000,0x109F],khm:[0x1780,0x17FF],ara:[0x0600,0x06FF],heb:[0x0590,0x05FF],ell:[0x0370,0x03FF],rus:[0x0400,0x04FF],kor:[0xAC00,0xD7AF],jpn:[0x3040,0x30FF],zho:[0x4E00,0x9FFF]};
+
 function detectLang(s){
- var counts={};
- for(var i=0;i<s.length;i++){
-  var c=s.charCodeAt(i);
-  for(var k in BLOCKS){if(c>=BLOCKS[k][0]&&c<=BLOCKS[k][1]){counts[k]=(counts[k]||0)+1;}}
- }
- var best=null,bestN=0;
- for(var k2 in counts){if(counts[k2]>bestN){bestN=counts[k2];best=k2;}}
- if(!best)return 'eng';
- if(best==='zho')return 'chi_sim+eng';
- return best+'+eng';
+  var counts={};
+  for(var i=0;i<s.length;i++){
+    var c=s.charCodeAt(i);
+    for(var k in BLOCKS){if(c>=BLOCKS[k][0]&&c<=BLOCKS[k][1]){counts[k]=(counts[k]||0)+1;}}
+  }
+  var best=null,bestN=0;
+  for(var k2 in counts){if(counts[k2]>bestN){bestN=counts[k2];best=k2;}}
+  if(!best)return 'eng';
+  if(best==='zho')return 'chi_sim+eng';
+  return best+'+eng';
 }
+
 function isGarbled(s){
- var clean=s.replace(/[\s0-9.,;:!?'"()\-–—/\\|+=%#*&@<>[\]{}]/g,'');
- if(clean.length<20)return false;
- var bad=0;
- for(var i=0;i<clean.length;i++){var c=clean.charCodeAt(i);
-  if(c>=0xE000&&c<=0xF8FF)bad++;else if(c===0xFFFD)bad++;else if(c>=0x2500&&c<=0x259F)bad++;else if(c>=0x25A0&&c<=0x25FF)bad++;}
- return (bad/clean.length)>0.04;
+  var clean=s.replace(/[\s0-9.,;:!?'"()\-–—/\\|+=%#*&@<>[\]{}]/g,'');
+  if(clean.length<20)return false;
+  var bad=0;
+  for(var i=0;i<clean.length;i++){
+    var c=clean.charCodeAt(i);
+    if(c>=0xE000&&c<=0xF8FF)bad++;
+    else if(c===0xFFFD)bad++;
+    else if(c>=0x2500&&c<=0x259F)bad++;
+    else if(c>=0x25A0&&c<=0x25FF)bad++;
+  }
+  return (bad/clean.length)>0.04;
 }
+
 var LANGS=[['eng','English'],['hin','Hindi'],['urd','Urdu'],['ara','Arabic'],['ben','Bengali'],['tam','Tamil'],['tel','Telugu'],['kan','Kannada'],['mal','Malayalam'],['mar','Marathi'],['guj','Gujarati'],['pan','Punjabi'],['nep','Nepali'],['sin','Sinhala'],['tha','Thai'],['vie','Vietnamese'],['ind','Indonesian'],['zho','Chinese'],['jpn','Japanese'],['kor','Korean'],['rus','Russian'],['spa','Spanish'],['fra','French'],['deu','German'],['ita','Italian'],['por','Portuguese'],['tur','Turkish'],['fas','Persian'],['heb','Hebrew'],['ell','Greek'],['pol','Polish'],['ukr','Ukrainian'],['nld','Dutch'],['swe','Swedish']];
+
 var html='';
 html+='<style>';
 html+='.pw-wrap{max-width:1400px;margin:0 auto}';
@@ -57,6 +97,7 @@ html+='.pw-row input[type=number]{flex:1;min-width:0;padding:10px;border:1px sol
 html+='.pw-detected{background:#eafbef;border:1px solid #bbe7c6;border-radius:10px;padding:8px 12px;font-size:12px;font-weight:800;color:#166534;margin-top:8px;display:none}';
 html+='.pw-go{width:100%;background:linear-gradient(135deg,#2b7cd3,#4a9be0);color:#fff;font-size:17px;font-weight:800;padding:16px;border-radius:12px;border:none;cursor:pointer;box-shadow:0 14px 34px rgba(43,124,211,.35);margin-top:16px}';
 html+='.pw-go:active{transform:scale(.98)}';
+html+='.pw-go:disabled{opacity:.5;cursor:not-allowed}';
 html+='.pw-dlrow{display:flex;gap:8px;margin-top:10px}';
 html+='.pw-dl{flex:1;display:block;text-align:center;background:#16a34a;color:#fff;font-weight:800;font-size:15px;padding:14px;border-radius:12px;box-shadow:0 10px 24px rgba(22,163,74,.3)}';
 html+='.pw-preview{background:#fff;border:1px solid #eceaf6;border-radius:12px;padding:22px;overflow:auto;max-height:760px}';
@@ -68,13 +109,16 @@ html+='.pw-page img{max-width:100%;border-radius:6px;border:1px solid #eceaf6;ma
 html+='.pw-page .txt{font-size:12px;line-height:1.6;color:#333;white-space:pre-wrap;max-height:180px;overflow:auto;background:#fff;border:1px solid #eceaf6;border-radius:6px;padding:10px}';
 html+='.pw-busy{display:none;text-align:center;padding:60px 20px}';
 html+='.pw-busy h2{font-size:28px;font-weight:900;margin-bottom:8px}';
-html+='.pw-busy .st{color:#7a7a85;font-size:15px;margin-bottom:26px}';
+html+='.pw-busy .st{color:#7a7a85;font-size:15px;margin-bottom:10px;min-height:22px}';
+html+='.pw-busy .ocr-status{color:#2b7cd3;font-size:13px;font-weight:700;margin-bottom:16px;min-height:18px}';
 html+='.pw-bar{max-width:600px;margin:0 auto 18px;height:14px;background:#fff;border-radius:999px;overflow:hidden}';
 html+='.pw-bar div{height:100%;width:0;background:linear-gradient(90deg,#2b7cd3,#4a9be0);transition:width .3s}';
 html+='.pw-pct{font-size:36px;font-weight:900}';
 html+='.pw-toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%) translateY(20px);background:#16a34a;color:#fff;font-weight:800;padding:14px 28px;border-radius:999px;box-shadow:0 10px 30px rgba(0,0,0,.25);opacity:0;pointer-events:none;transition:all .3s;z-index:999;font-size:14px}';
 html+='.pw-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}';
 html+='.pw-toast.err{background:#dc2626}';
+html+='.pw-cancel{margin-top:16px;background:#f4f5fa;color:#333;font-weight:700;font-size:14px;padding:12px 24px;border-radius:10px;border:none;cursor:pointer}';
+html+='.pw-cancel:hover{background:#e6e8f5}';
 html+='@media(max-width:900px){.pw-grid{grid-template-columns:1fr}}';
 html+='</style>';
 html+='<div class="pw-wrap">';
@@ -90,109 +134,355 @@ html+='<button class="pw-go" id="pwGo" type="button">Convert to Word →</button
 html+='<div class="pw-dlrow"><a class="pw-dl" id="pwDl" href="#" style="display:none">⬇ Download .doc</a></div></div>';
 html+='<div class="pw-preview"><h3>Live Preview</h3><div id="pwPages"><div class="pw-empty">Your converted pages will appear here after converting.</div></div></div>';
 html+='</div></div>';
-html+='<div class="pw-busy" id="pwBusy"><h2>Converting to Word...</h2><p class="st" id="pwStatus">Working...</p><div class="pw-bar"><div id="pwBarFill"></div></div><div class="pw-pct" id="pwPct">0%</div></div>';
+html+='<div class="pw-busy" id="pwBusy"><h2>Converting to Word...</h2><p class="st" id="pwStatus">Working...</p><p class="ocr-status" id="pwOcrStatus"></p><div class="pw-bar"><div id="pwBarFill"></div></div><div class="pw-pct" id="pwPct">0%</div><button class="pw-cancel" id="pwCancel" type="button">✕ Cancel</button></div>';
 html+='<div class="pw-toast" id="pwToast"></div>';
 html+='<input type="file" id="pwFile" accept="application/pdf,.pdf" style="display:none"/>';
 html+='</div>';
 root.innerHTML=html;
+
 var langSel=document.getElementById('pwLang');
-LANGS.forEach(function(L){var o=document.createElement('option');o.value=L[0];o.textContent=L[1];langSel.appendChild(o);});
+LANGS.forEach(function(L){
+  var o=document.createElement('option');
+  o.value=L[0];
+  o.textContent=L[1];
+  langSel.appendChild(o);
+});
+
 var file=null,doc=null,totalPages=0,converted=[];
 var pick=document.getElementById('pwPick'),work=document.getElementById('pwWork'),busy=document.getElementById('pwBusy');
 var zone=document.getElementById('pwZone'),btn=document.getElementById('pwBtn'),inp=document.getElementById('pwFile');
 var pagesBox=document.getElementById('pwPages'),dlEl=document.getElementById('pwDl'),detEl=document.getElementById('pwDetected');
 var toastEl=document.getElementById('pwToast');
-function toast(m,e){toastEl.textContent=m;toastEl.classList.toggle('err',!!e);toastEl.classList.add('show');clearTimeout(toastEl.__h);toastEl.__h=setTimeout(function(){toastEl.classList.remove('show');},2200);}
-function pct(p){document.getElementById('pwPct').textContent=Math.round(p)+'%';document.getElementById('pwBarFill').style.width=p+'%';}
-function setStatus(s){document.getElementById('pwStatus').textContent=s;}
-btn.onclick=function(){inp.click();};
-function loadFile(f){
- if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){toast('Please select a PDF file',true);return;}
- file=f;pick.style.display='none';work.style.display='block';busy.style.display='none';
- loadJS(PDFJS_SRC).then(function(){
-  window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
-  return f.arrayBuffer();
- }).then(function(b){return window.pdfjsLib.getDocument({data:b}).promise;}).then(function(d){
-  doc=d;totalPages=d.numPages;
-  document.getElementById('pwTo').value=totalPages;
-  toast('✓ PDF loaded ('+totalPages+' pages)');
- }).catch(function(){pick.style.display='block';work.style.display='none';toast('Could not read PDF',true);});
+var goBtn=document.getElementById('pwGo');
+var cancelBtn=document.getElementById('pwCancel');
+var ocrStatusEl=document.getElementById('pwOcrStatus');
+
+var cancelRequested=false;
+
+function toast(m,e){
+  toastEl.textContent=m;
+  toastEl.classList.toggle('err',!!e);
+  toastEl.classList.add('show');
+  clearTimeout(toastEl.__h);
+  toastEl.__h=setTimeout(function(){toastEl.classList.remove('show');},2200);
 }
-inp.onchange=function(){if(inp.files[0]){loadFile(inp.files[0]);}inp.value='';};
+
+function pct(p){
+  document.getElementById('pwPct').textContent=Math.round(p)+'%';
+  document.getElementById('pwBarFill').style.width=p+'%';
+}
+
+function setStatus(s){
+  document.getElementById('pwStatus').textContent=s;
+}
+
+function setOcrStatus(s){
+  ocrStatusEl.textContent=s||'';
+}
+
+btn.onclick=function(){inp.click();};
+
+function loadFile(f){
+  if(f.type!=='application/pdf'&&!/\.pdf$/i.test(f.name)){
+    toast('Please select a PDF file',true);
+    return;
+  }
+  file=f;
+  pick.style.display='none';
+  work.style.display='block';
+  busy.style.display='none';
+  
+  /* Lazy load pdf.js only when needed */
+  loadJS(PDFJS_SRC).then(function(){
+    window.pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS_WORKER;
+    return f.arrayBuffer();
+  }).then(function(b){
+    return window.pdfjsLib.getDocument({data:b}).promise;
+  }).then(function(d){
+    doc=d;
+    totalPages=d.numPages;
+    document.getElementById('pwTo').value=totalPages;
+    toast('✓ PDF loaded ('+totalPages+' pages)');
+  }).catch(function(err){
+    pick.style.display='block';
+    work.style.display='none';
+    toast('Could not read PDF: '+(err.message||err),true);
+  });
+}
+
+inp.onchange=function(){
+  if(inp.files[0]){loadFile(inp.files[0]);}
+  inp.value='';
+};
+
 zone.ondragover=function(e){e.preventDefault();zone.classList.add('on');};
 zone.ondragleave=function(){zone.classList.remove('on');};
-zone.ondrop=function(e){e.preventDefault();zone.classList.remove('on');if(e.dataTransfer.files[0]){loadFile(e.dataTransfer.files[0]);}};
-function pageText(n){return doc.getPage(n).then(function(p){return p.getTextContent().then(function(tc){var s='';tc.items.forEach(function(it){s+=it.str+(it.hasEOL?'\n':' ');});return s;});});}
-function pageCanvas(n){return doc.getPage(n).then(function(p){var v1=p.getViewport({scale:1});var s=Math.min(2,1400/v1.width);var vp=p.getViewport({scale:s});var cv=document.createElement('canvas');cv.width=Math.floor(vp.width);cv.height=Math.floor(vp.height);var cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);return p.render({canvasContext:cx,viewport:vp}).promise.then(function(){return cv;});});}
-function ocrCanvas(cv,lang){return window.Tesseract.recognize(cv,lang).then(function(r){return r.data.text;});}
-document.getElementById('pwGo').onclick=function(){
- if(!file||!doc){toast('Select a PDF first',true);return;}
- var mode=document.getElementById('pwMode').value;
- var langChoice=langSel.value;
- var from=Math.max(1,parseInt(document.getElementById('pwFrom').value)||1);
- var to=Math.min(totalPages,parseInt(document.getElementById('pwTo').value)||totalPages);
- if(from>to){toast('Invalid range',true);return;}
- work.style.display='none';busy.style.display='block';
- converted=[];pagesBox.innerHTML='';dlEl.style.display='none';detEl.style.display='none';
- pct(5);setStatus('Reading pages...');
- var total=to-from+1;var chain=Promise.resolve();
- var detectedShown=false;
- for(var i=from;i<=to;i++){
-  (function(num,idx){
-   chain=chain.then(function(){
-    setStatus('Processing page '+num+'...');
-    return pageCanvas(num).then(function(cv){
-     var img=cv.toDataURL('image/jpeg',0.92);
-     var textP=(mode==='image')?Promise.resolve(''):pageText(num);
-     return textP.then(function(txt){
+zone.ondrop=function(e){
+  e.preventDefault();
+  zone.classList.remove('on');
+  if(e.dataTransfer.files[0]){loadFile(e.dataTransfer.files[0]);}
+};
+
+function pageText(n){
+  return doc.getPage(n).then(function(p){
+    return p.getTextContent().then(function(tc){
+      var s='';
+      tc.items.forEach(function(it){s+=it.str+(it.hasEOL?'\n':' ');});
+      return s;
+    });
+  });
+}
+
+function pageCanvas(n){
+  return doc.getPage(n).then(function(p){
+    var v1=p.getViewport({scale:1});
+    var s=Math.min(2,1400/v1.width);
+    var vp=p.getViewport({scale:s});
+    var cv=document.createElement('canvas');
+    cv.width=Math.floor(vp.width);
+    cv.height=Math.floor(vp.height);
+    var cx=cv.getContext('2d');
+    cx.fillStyle='#fff';
+    cx.fillRect(0,0,cv.width,cv.height);
+    return p.render({canvasContext:cx,viewport:vp}).promise.then(function(){return cv;});
+  });
+}
+
+/* OCR with detailed progress via Tesseract logger */
+function ocrPage(cv,lang,pageNum,totalPages){
+  return getTesseractWorker().then(function(worker){
+    return worker.reinitialize(lang).then(function(){
+      return worker.recognize(cv);
+    }).then(function(r){
+      return r.data.text;
+    });
+  });
+}
+
+/* Process single page with OCR progress tracking */
+function processPage(num,mode,langChoice,pageIdx,total,detectedShown){
+  if(cancelRequested){return Promise.reject(new Error('Cancelled'));}
+  
+  setStatus('Processing page '+num+' of '+totalPages+'...');
+  setOcrStatus('');
+  
+  return pageCanvas(num).then(function(cv){
+    if(cancelRequested){throw new Error('Cancelled');}
+    
+    var img=cv.toDataURL('image/jpeg',0.92);
+    var textP=(mode==='image')?Promise.resolve(''):pageText(num);
+    
+    return textP.then(function(txt){
+      if(cancelRequested){throw new Error('Cancelled');}
+      
       var needOcr=(mode!=='image')&&(txt.replace(/\s/g,'').length<20||isGarbled(txt));
       var lang=(langChoice==='auto')?detectLang(txt):langChoice;
-      if(langChoice==='auto'&&!detectedShown&&txt.replace(/\s/g,'').length>0){
-       detEl.textContent='🌍 Detected language: '+lang;
-       detEl.style.display='block';detectedShown=true;
+      
+      if(langChoice==='auto'&&!detectedShown.flag&&txt.replace(/\s/g,'').length>0){
+        detEl.textContent='🌍 Detected language: '+lang;
+        detEl.style.display='block';
+        detectedShown.flag=true;
       }
-      var tp=needOcr?loadTesseract().then(function(ok){if(!ok)return txt;return ocrCanvas(cv,lang);}):Promise.resolve(txt);
-      return tp.then(function(finalText){
-       converted.push({num:num,text:(mode==='image')?'':finalText,image:(mode==='text')?'':img});
-       pct(5+((idx+1)/total)*90);
+      
+      if(!needOcr){
+        return {num:num,text:(mode==='image')?'':txt,image:(mode==='text')?'':img};
+      }
+      
+      /* OCR needed - show progress */
+      setOcrStatus('🔍 OCR on page '+num+' ('+lang+')...');
+      
+      /* Set up Tesseract logger for this page */
+      var lastProgress=0;
+      window.__tessLogger=function(m){
+        if(m.status==='recognizing text'){
+          var p=Math.round((m.progress||0)*100);
+          if(p!==lastProgress){
+            lastProgress=p;
+            setOcrStatus('🔍 OCR page '+num+': '+p+'%');
+          }
+        }else if(m.status==='loading language traineddata'){
+          var lp=Math.round((m.progress||0)*100);
+          setOcrStatus('📥 Loading '+lang+' data: '+lp+'%');
+        }else if(m.status){
+          setOcrStatus('🔍 '+m.status+'...');
+        }
+      };
+      
+      return ocrPage(cv,lang,num,totalPages).then(function(finalText){
+        window.__tessLogger=null;
+        setOcrStatus('');
+        return {num:num,text:(mode==='image')?'':finalText,image:(mode==='text')?'':img};
       });
-     });
     });
-   });
-  })(i,i-from);
- }
- chain.then(function(){
-  pct(100);setStatus('Done!');
-  renderPreview();buildDownload();
-  setTimeout(function(){busy.style.display='none';work.style.display='block';toast('✓ Word document ready!');},300);
- }).catch(function(e){busy.style.display='none';work.style.display='block';toast('Conversion failed: '+((e&&e.message)||e),true);});
+  });
+}
+
+/* Process pages with controlled concurrency (2 at a time) */
+function processPagesConcurrent(pageNums,mode,langChoice){
+  var results=new Array(pageNums.length);
+  var completed=0;
+  var total=pageNums.length;
+  var detectedShown={flag:false};
+  var CONCURRENT=2; /* Process 2 pages at a time */
+  
+  return new Promise(function(resolve,reject){
+    var nextIdx=0;
+    var running=0;
+    var failed=false;
+    
+    function runNext(){
+      if(failed||cancelRequested){return;}
+      if(nextIdx>=pageNums.length&&running===0){
+        resolve(results);
+        return;
+      }
+      
+      while(running<CONCURRENT&&nextIdx<pageNums.length){
+        var idx=nextIdx++;
+        var num=pageNums[idx];
+        running++;
+        
+        processPage(num,mode,langChoice,idx,total,detectedShown)
+          .then(function(result){
+            if(failed){return;}
+            results[idx]=result;
+            completed++;
+            var overallPercent=5+(completed/total)*90;
+            pct(overallPercent);
+            setStatus('Completed '+completed+' of '+total+' pages');
+            running--;
+            runNext();
+          })
+          .catch(function(err){
+            if(failed){return;}
+            failed=true;
+            reject(err);
+          });
+      }
+    }
+    
+    runNext();
+  });
+}
+
+goBtn.onclick=function(){
+  if(!file||!doc){
+    toast('Select a PDF first',true);
+    return;
+  }
+  
+  var mode=document.getElementById('pwMode').value;
+  var langChoice=langSel.value;
+  var from=Math.max(1,parseInt(document.getElementById('pwFrom').value)||1);
+  var to=Math.min(totalPages,parseInt(document.getElementById('pwTo').value)||totalPages);
+  
+  if(from>to){
+    toast('Invalid range',true);
+    return;
+  }
+  
+  work.style.display='none';
+  busy.style.display='block';
+  converted=[];
+  pagesBox.innerHTML='';
+  dlEl.style.display='none';
+  detEl.style.display='none';
+  cancelRequested=false;
+  goBtn.disabled=true;
+  
+  pct(5);
+  setStatus('Preparing...');
+  setOcrStatus('');
+  
+  var pageNums=[];
+  for(var i=from;i<=to;i++){pageNums.push(i);}
+  
+  processPagesConcurrent(pageNums,mode,langChoice)
+    .then(function(results){
+      if(cancelRequested){
+        busy.style.display='none';
+        work.style.display='block';
+        toast('Conversion cancelled',true);
+        goBtn.disabled=false;
+        return;
+      }
+      
+      converted=results.filter(function(r){return r;});
+      pct(100);
+      setStatus('Done!');
+      setOcrStatus('');
+      
+      renderPreview();
+      buildDownload();
+      
+      setTimeout(function(){
+        busy.style.display='none';
+        work.style.display='block';
+        toast('✓ Word document ready! ('+converted.length+' pages)');
+        goBtn.disabled=false;
+      },300);
+    })
+    .catch(function(e){
+      busy.style.display='none';
+      work.style.display='block';
+      goBtn.disabled=false;
+      
+      if(e&&e.message==='Cancelled'){
+        toast('Conversion cancelled',true);
+      }else{
+        toast('Conversion failed: '+((e&&e.message)||e),true);
+      }
+    });
 };
+
+cancelBtn.onclick=function(){
+  cancelRequested=true;
+  setOcrStatus('Cancelling...');
+  setStatus('Cancelling...');
+};
+
 function renderPreview(){
- pagesBox.innerHTML='';
- converted.forEach(function(p){
-  var d=document.createElement('div');d.className='pw-page';
-  d.innerHTML='<h4>Page '+p.num+'</h4>';
-  if(p.image){var im=document.createElement('img');im.src=p.image;d.appendChild(im);}
-  if(p.text){var t=document.createElement('div');t.className='txt';t.textContent=p.text;d.appendChild(t);}
-  pagesBox.appendChild(d);
- });
+  pagesBox.innerHTML='';
+  converted.forEach(function(p){
+    var d=document.createElement('div');
+    d.className='pw-page';
+    d.innerHTML='<h4>Page '+p.num+'</h4>';
+    if(p.image){
+      var im=document.createElement('img');
+      im.src=p.image;
+      d.appendChild(im);
+    }
+    if(p.text){
+      var t=document.createElement('div');
+      t.className='txt';
+      t.textContent=p.text;
+      d.appendChild(t);
+    }
+    pagesBox.appendChild(d);
+  });
 }
+
 function buildDocHTML(){
- var h='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Converted PDF</title><style>body{font-family:Calibri,Arial,sans-serif;font-size:12pt;margin:1in}p{margin:0 0 10pt}img{max-width:100%;height:auto}@page{size:A4;margin:1in}</style></head><body>';
- converted.forEach(function(p,i){
-  if(i>0)h+='<br clear="all" style="page-break-before:always;mso-break-type:section-break">';
-  h+='<div>';
-  if(p.text){var esc=p.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');h+='<p>'+esc+'</p>';}
-  if(p.image){h+='<p><img src="'+p.image+'"/></p>';}
-  h+='</div>';
- });
- h+='</body></html>';
- return h;
+  var h='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Converted PDF</title><style>body{font-family:Calibri,Arial,sans-serif;font-size:12pt;margin:1in}p{margin:0 0 10pt}img{max-width:100%;height:auto}@page{size:A4;margin:1in}</style></head><body>';
+  converted.forEach(function(p,i){
+    if(i>0)h+='<br clear="all" style="page-break-before:always;mso-break-type:section-break">';
+    h+='<div>';
+    if(p.text){
+      var esc=p.text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+      h+='<p>'+esc+'</p>';
+    }
+    if(p.image){h+='<p><img src="'+p.image+'"/></p>';}
+    h+='</div>';
+  });
+  h+='</body></html>';
+  return h;
 }
+
 function buildDownload(){
- var blob=new Blob(['\ufeff'+buildDocHTML()],{type:'application/msword'});
- dlEl.href=URL.createObjectURL(blob);
- dlEl.download=file.name.replace(/\.pdf$/i,'')+'.doc';
- dlEl.style.display='block';
+  var blob=new Blob(['\ufeff'+buildDocHTML()],{type:'application/msword'});
+  dlEl.href=URL.createObjectURL(blob);
+  dlEl.download=file.name.replace(/\.pdf$/i,'')+'.doc';
+  dlEl.style.display='block';
 }
+
 })();
