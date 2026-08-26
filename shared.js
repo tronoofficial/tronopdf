@@ -499,3 +499,57 @@ if(document.readyState==='loading'){
   renderHowToButton();
 }
 })();
+/* =====================================================
+   TASK 6: TRONOPDF NEW BRANDING - "The Crowned Page"
+   - Naya header logo (crowned page)
+   - Naya favicon (auto-inject)
+   - Wordmark upgrade (Trono dark + PDF gradient)
+   - Tagline: Rule Your PDFs
+   ===================================================== */
+(function(){
+  var LOGO_SVG =
+    '<svg class="lsvg" viewBox="0 0 48 48" aria-label="TronoPDF">' +
+    '<defs><linearGradient id="lgT" x1="0" y1="0" x2="1" y2="1">' +
+    '<stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#a855f7"/>' +
+    '</linearGradient></defs>' +
+    '<rect width="48" height="48" rx="12" fill="url(#lgT)"/>' +
+    '<path d="M15 16 L19.5 20.5 L24 13 L28.5 20.5 L33 16 L33 32 L27 38 L17.5 38 Q15 38 15 35.5 Z" fill="#fff"/>' +
+    '<path d="M33 32 L27 38 L27 32 Z" fill="#ddd6fe"/>' +
+    '<circle cx="15" cy="13.5" r="2.3" fill="#fcd34d"/>' +
+    '<circle cx="24" cy="10.5" r="2.3" fill="#fcd34d"/>' +
+    '<circle cx="33" cy="13.5" r="2.3" fill="#fcd34d"/>' +
+    '</svg>';
+
+  function applyBrand(){
+    /* 1) Header logo replace */
+    var old = document.querySelector('.logo .lsvg') || document.querySelector('.lsvg');
+    if (old) old.outerHTML = LOGO_SVG;
+
+    /* 2) Wordmark: Trono (dark) + PDF (gradient) */
+    var st = document.createElement('style');
+    st.textContent = '.lword{font-weight:900;letter-spacing:-.5px;color:#1e1e2e}' +
+      '.lword b{background:linear-gradient(135deg,#7c3aed,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}';
+    document.head.appendChild(st);
+
+    /* 3) Favicon auto-inject (sab pages pe) */
+    var favSvg = LOGO_SVG.replace(' class="lsvg"','').replace(' aria-label="TronoPDF"','');
+    var fav = document.createElement('link');
+    fav.rel = 'icon';
+    fav.type = 'image/svg+xml';
+    fav.href = 'data:image/svg+xml,' + encodeURIComponent(favSvg);
+    document.head.appendChild(fav);
+
+    /* 4) Footer tagline */
+    var fp = document.querySelector('.fcol p');
+    if (fp && fp.innerHTML.indexOf('Rule Your PDFs') === -1) {
+      fp.innerHTML = '<strong style="color:#7c3aed">Rule Your PDFs.</strong> ' + fp.innerHTML;
+    }
+
+    /* 5) Drawer header crown */
+    var dh = document.querySelector('.drawer-header h3');
+    if (dh) dh.innerHTML = 'TronoPDF 👑 <span style="display:block;font-size:11px;color:#8a8a99;font-weight:600">Rule Your PDFs</span>';
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyBrand);
+  else applyBrand();
+})();
