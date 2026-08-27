@@ -581,3 +581,44 @@ if(document.readyState==='loading'){
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
 })();
+/* ===== V1 PRO LOGO - USE EVERYWHERE (drawer + footer) ===== */
+(function(){
+  function apply(){
+    var src=document.querySelector('.logo .lsvg');
+    if(!src)return;
+
+    function logo(size){
+      var c=src.cloneNode(true);
+      c.removeAttribute('aria-label');
+      c.style.width=size+'px';c.style.height=size+'px';
+      return c;
+    }
+
+    /* 1) Mobile drawer header */
+    var dh=document.querySelector('.drawer-header h3');
+    if(dh && !dh.getAttribute('data-branded')){
+      dh.setAttribute('data-branded','1');
+      dh.innerHTML='';
+      dh.appendChild(logo(30));
+      var w=document.createElement('span');
+      w.style.cssText='display:flex;flex-direction:column;margin-left:10px';
+      w.innerHTML='<strong style="font-size:16px;color:#1e1e2e">Trono<b style="background:linear-gradient(135deg,#7c3aed,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent">PDF</b></strong><small style="color:#8a8a99;font-weight:600;font-size:11px">Rule Your PDFs</small>';
+      dh.appendChild(w);
+      dh.style.display='flex';dh.style.alignItems='center';dh.style.gap='0';
+    }
+
+    /* 2) Footer brand */
+    var fh=document.querySelector('.fcol h4');
+    if(fh && !fh.getAttribute('data-branded')){
+      fh.setAttribute('data-branded','1');
+      fh.innerHTML='';
+      fh.appendChild(logo(26));
+      var t=document.createElement('span');
+      t.style.cssText='margin-left:10px';
+      t.innerHTML='Trono<b style="background:linear-gradient(135deg,#7c3aed,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent">PDF</b>';
+      fh.appendChild(t);
+      fh.style.display='flex';fh.style.alignItems='center';
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+})();
