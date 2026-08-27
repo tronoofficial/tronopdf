@@ -936,3 +936,54 @@ if(document.readyState==='loading'){
   window.addEventListener('load',function(){setTimeout(apply,120);});
   document.addEventListener('DOMContentLoaded',function(){setTimeout(apply,120);});
 })();
+/* ===== TASK 12: SEO (canonical + schema JSON-LD + meta) ===== */
+(function(){
+  var origin=location.origin, path=location.pathname;
+
+  /* Canonical (duplicate content se bachao) */
+  document.querySelectorAll('link[rel="canonical"]').forEach(function(l){l.remove();});
+  var can=document.createElement('link'); can.rel='canonical'; can.href=origin+path; document.head.appendChild(can);
+
+  /* Meta description (agar nahi hai) */
+  if(!document.querySelector('meta[name="description"]')){
+    var md=document.createElement('meta'); md.name='description';
+    md.content='TronoPDF - free, fast & private online PDF tools. Merge, split, compress, convert, sign & edit PDFs. Rule Your PDFs!';
+    document.head.appendChild(md);
+  }
+
+  /* Detect tool */
+  var file=path.split('/').pop().replace('.html','').replace('/','');
+  var isHome=(!file||file==='index');
+
+  /* JSON-LD Schema */
+  var ld={"@context":"https://schema.org","@graph":[]};
+  ld["@graph"].push({
+    "@type":"WebSite","@id":origin+"/#website","url":origin+"/",
+    "name":"TronoPDF","description":"Every PDF tool you need - free, fast and private.",
+    "publisher":{"@type":"Organization","name":"TronoPDF","logo":{"@type":"ImageObject","url":origin+"/icon.svg"}}
+  });
+
+  if(!isHome){
+    ld["@graph"].push({
+      "@type":"SoftwareApplication","@id":origin+path+"#app",
+      "name":document.title.split('-')[0].trim()||document.title,
+      "url":origin+path,
+      "applicationCategory":"UtilitiesApplication",
+      "operatingSystem":"Any (Web)",
+      "description":"Free online tool - "+(document.title.split('-')[0]||"")+". No signup, no watermark, 100% private.",
+      "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+    });
+    ld["@graph"].push({
+      "@type":"BreadcrumbList",
+      "itemListElement":[
+        {"@type":"ListItem","position":1,"name":"Home","item":origin+"/"},
+        {"@type":"ListItem","position":2,"name":document.title.split('-')[0].trim(),"item":origin+path}
+      ]
+    });
+  }
+
+  var s=document.createElement('script');
+  s.type='application/ld+json';
+  s.textContent=JSON.stringify(ld);
+  document.head.appendChild(s);
+})();
