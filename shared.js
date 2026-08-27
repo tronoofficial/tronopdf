@@ -987,3 +987,57 @@ if(document.readyState==='loading'){
   s.textContent=JSON.stringify(ld);
   document.head.appendChild(s);
 })();
+/* ===== TASK 13: USER RATING / FEEDBACK WIDGET ===== */
+(function(){
+  var path=location.pathname;
+  var tool=path.split('/').pop().replace('.html','').replace('/','');
+  if(!tool||tool==='index')return;
+  var skip=['about','contact','privacy','terms','disclaimer','all-tools'];
+  if(skip.indexOf(tool)>-1)return;
+
+  var KEY='tronopdf-rating-'+tool;
+
+  var st=document.createElement('style');
+  st.textContent='.fb-wrap{max-width:1200px;margin:30px auto;padding:0 20px}.fb-box{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:#fff;border:1px solid #eceaf6;border-radius:14px;padding:14px 18px}.fb-q{font-weight:700;color:#4b4b5a;font-size:14px}.fb-star{border:none;background:none;font-size:22px;color:#d5d5e0;cursor:pointer;transition:transform .15s,color .15s;padding:2px}.fb-star:hover{transform:scale(1.25)}.fb-star.on{color:#f59e0b}.fb-thanks{font-weight:700;color:#16a34a;font-size:14px}html[data-theme="dark"] .fb-box{background:#1b1b2b;border-color:#2a2a40}html[data-theme="dark"] .fb-q{color:#e8e8f0}';
+  document.head.appendChild(st);
+
+  var wrap=document.createElement('div');
+  wrap.className='fb-wrap';
+  wrap.innerHTML='<div class="fb-box">'+
+    '<span class="fb-q">Kya ye tool aapke kaam aaya? Rate karo:</span>'+
+    '<div class="fb-stars">'+
+      '<button class="fb-star" data-v="1">★</button>'+
+      '<button class="fb-star" data-v="2">★</button>'+
+      '<button class="fb-star" data-v="3">★</button>'+
+      '<button class="fb-star" data-v="4">★</button>'+
+      '<button class="fb-star" data-v="5">★</button>'+
+    '</div>'+
+    '<span class="fb-thanks" style="display:none">🙏 Dhanyawad! Aapka feedback save ho gaya.</span>'+
+    '</div>';
+
+  var footer=document.querySelector('footer')||document.getElementById('siteFooter');
+  if(footer)footer.parentNode.insertBefore(wrap,footer);
+  else document.body.appendChild(wrap);
+
+  var stars=wrap.querySelectorAll('.fb-star');
+  function paint(n){stars.forEach(function(b){b.classList.toggle('on',(+b.dataset.v)<=n);});}
+
+  stars.forEach(function(b){
+    b.addEventListener('mouseenter',function(){paint(+b.dataset.v);});
+    b.addEventListener('click',function(){
+      var v=+b.dataset.v;
+      try{localStorage.setItem(KEY,String(v));}catch(e){}
+      if(window.trackEvent)trackEvent('tool_rating',{tool:tool,rating:v});
+      wrap.querySelector('.fb-stars').style.display='none';
+      wrap.querySelector('.fb-q').style.display='none';
+      wrap.querySelector('.fb-thanks').style.display='inline';
+    });
+  });
+  wrap.querySelector('.fb-stars').addEventListener('mouseleave',function(){
+    var s=0;try{s=+localStorage.getItem(KEY)||0;}catch(e){}
+    paint(s);
+  });
+
+  var saved=0;try{saved=+localStorage.getItem(KEY)||0;}catch(e){}
+  if(saved)paint(saved);
+})();
