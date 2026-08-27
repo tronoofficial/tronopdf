@@ -987,7 +987,7 @@ if(document.readyState==='loading'){
   s.textContent=JSON.stringify(ld);
   document.head.appendChild(s);
 })();
-/* ===== TASK 13: USER RATING / FEEDBACK WIDGET ===== */
+/* ===== TASK 13: USER RATING / FEEDBACK WIDGET (English) ===== */
 (function(){
   var path=location.pathname;
   var tool=path.split('/').pop().replace('.html','').replace('/','');
@@ -1004,7 +1004,7 @@ if(document.readyState==='loading'){
   var wrap=document.createElement('div');
   wrap.className='fb-wrap';
   wrap.innerHTML='<div class="fb-box">'+
-    '<span class="fb-q">Kya ye tool aapke kaam aaya? Rate karo:</span>'+
+    '<span class="fb-q">Did this tool help you? Rate it:</span>'+
     '<div class="fb-stars">'+
       '<button class="fb-star" data-v="1">★</button>'+
       '<button class="fb-star" data-v="2">★</button>'+
@@ -1012,7 +1012,7 @@ if(document.readyState==='loading'){
       '<button class="fb-star" data-v="4">★</button>'+
       '<button class="fb-star" data-v="5">★</button>'+
     '</div>'+
-    '<span class="fb-thanks" style="display:none">🙏 Dhanyawad! Aapka feedback save ho gaya.</span>'+
+    '<span class="fb-thanks" style="display:none">🙏 Thank you! Your feedback has been saved.</span>'+
     '</div>';
 
   var footer=document.querySelector('footer')||document.getElementById('siteFooter');
