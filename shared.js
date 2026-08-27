@@ -622,3 +622,63 @@ if(document.readyState==='loading'){
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
 })();
+/* ===== BRANDING EVERYWHERE (favicon+apple+theme+OG+twitter) ===== */
+(function(){
+  var LOGO = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">' +
+    '<defs>' +
+    '<linearGradient id="bgT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d28d9"/><stop offset=".5" stop-color="#7c3aed"/><stop offset="1" stop-color="#a855f7"/></linearGradient>' +
+    '<linearGradient id="pgT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ede9fe"/></linearGradient>' +
+    '<radialGradient id="gdT" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#fef9c3"/><stop offset=".5" stop-color="#fcd34d"/><stop offset="1" stop-color="#f59e0b"/></radialGradient>' +
+    '<linearGradient id="fdT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4b5fd"/><stop offset="1" stop-color="#ddd6fe"/></linearGradient>' +
+    '</defs>' +
+    '<rect width="48" height="48" rx="12" fill="url(#bgT)"/>' +
+    '<ellipse cx="24" cy="20" rx="16" ry="12" fill="#ffffff" opacity=".08"/>' +
+    '<path d="M14.5 15.5 L19.5 20 L24 11.5 L28.5 20 L33.5 15.5 L33.5 31.5 L27.5 37.5 L17 37.5 Q14.5 37.5 14.5 35 Z" fill="url(#pgT)"/>' +
+    '<path d="M33.5 31.5 L27.5 37.5 L27.5 31.5 Z" fill="url(#fdT)"/>' +
+    '<circle cx="14.5" cy="12.8" r="2.4" fill="url(#gdT)"/>' +
+    '<circle cx="24" cy="8.8" r="2.6" fill="url(#gdT)"/>' +
+    '<circle cx="33.5" cy="12.8" r="2.4" fill="url(#gdT)"/>' +
+    '<circle cx="13.8" cy="12" r=".7" fill="#fffbeb" opacity=".9"/>' +
+    '<circle cx="23.2" cy="7.9" r=".8" fill="#fffbeb" opacity=".9"/>' +
+    '<circle cx="32.8" cy="12" r=".7" fill="#fffbeb" opacity=".9"/>' +
+    '</svg>';
+  var dataUri = 'data:image/svg+xml,' + encodeURIComponent(LOGO);
+
+  function setMeta(attr, val, isName){
+    var sel = (isName?'meta[name="':'meta[property="') + attr + '"]';
+    var m = document.querySelector(sel);
+    if(!m){ m=document.createElement('meta'); if(isName)m.name=attr; else m.setAttribute('property',attr); document.head.appendChild(m); }
+    m.content = val;
+  }
+
+  function apply(){
+    /* 1) SAB purane icon links hatao */
+    document.querySelectorAll('link[rel~="icon"],link[rel="shortcut icon"],link[rel="apple-touch-icon"]').forEach(function(l){ l.remove(); });
+
+    /* 2) Naya favicon (browser tab) */
+    var fav=document.createElement('link'); fav.rel='icon'; fav.type='image/svg+xml'; fav.href=dataUri; document.head.appendChild(fav);
+    var fav2=document.createElement('link'); fav2.rel='shortcut icon'; fav2.href=dataUri; document.head.appendChild(fav2);
+
+    /* 3) Apple touch icon (iOS home screen) */
+    var apple=document.createElement('link'); apple.rel='apple-touch-icon'; apple.href=dataUri; document.head.appendChild(apple);
+
+    /* 4) Theme color (mobile address bar) */
+    setMeta('theme-color','#7c3aed',true);
+
+    /* 5) OG tags (social share) */
+    setMeta('og:title', document.title, false);
+    setMeta('og:description','Every PDF tool you need - free, fast and private. Rule Your PDFs.', false);
+    setMeta('og:type','website', false);
+    setMeta('og:url', location.href, false);
+    setMeta('og:site_name','TronoPDF', false);
+    setMeta('og:image', dataUri, false);
+
+    /* 6) Twitter card */
+    setMeta('twitter:card','summary',true);
+    setMeta('twitter:title', document.title, true);
+    setMeta('twitter:description','Rule Your PDFs - free, fast, private PDF tools.',true);
+    setMeta('twitter:image', dataUri, true);
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
+})();
