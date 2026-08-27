@@ -841,3 +841,50 @@ if(document.readyState==='loading'){
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addToggles);
   else addToggles();
 })();
+/* ===== TASK 11 v3: SMART AUTO-DARK (fixes light boxes everywhere) ===== */
+(function(){
+  function lum(c){
+    if(!c) return null;
+    var m=c.match(/[\d.]+/g);
+    if(!m || m.length<3) return null;
+    var r=+m[0], g=+m[1], b=+m[2];
+    var a=(m.length>3?+m[3]:1);
+    if(a<0.15) return null; /* transparent */
+    return (0.299*r + 0.587*g + 0.114*b);
+  }
+
+  function autoDark(){
+    var skip=/^(IMG|VIDEO|CANVAS|SVG|IFRAME|INPUT|SELECT|TEXTAREA|BUTTON|A)$/;
+    var all=document.querySelectorAll('body *');
+    for(var i=0;i<all.length;i++){
+      var el=all[i];
+      if(skip.test(el.tagName)) continue;
+      var L=lum(getComputedStyle(el).backgroundColor);
+      if(L!==null && L>150){
+        el.style.setProperty('background-color','#1b1b2b','important');
+        el.setAttribute('data-dk','1');
+      }
+    }
+  }
+
+  function clearDark(){
+    var fixed=document.querySelectorAll('[data-dk]');
+    for(var i=0;i<fixed.length;i++){
+      fixed[i].style.removeProperty('background-color');
+      fixed[i].removeAttribute('data-dk');
+    }
+  }
+
+  function apply(){
+    if(document.documentElement.getAttribute('data-theme')==='dark') autoDark();
+    else clearDark();
+  }
+
+  /* Jab bhi theme change ho, auto-fix */
+  var mo=new MutationObserver(apply);
+  mo.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+  window.addEventListener('load', function(){ setTimeout(apply,100); });
+  if(document.readyState==='complete') setTimeout(apply,100);
+  document.addEventListener('DOMContentLoaded', function(){ setTimeout(apply,100); });
+})();
