@@ -1041,3 +1041,59 @@ if(document.readyState==='loading'){
   var saved=0;try{saved=+localStorage.getItem(KEY)||0;}catch(e){}
   if(saved)paint(saved);
 })();
+/* ===== TASK 15: PRO FOOTER (iLovePDF-style) ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent='.tf{background:#1e1e26;color:#c9c9d4;padding:56px 24px 0}'+
+  '.tf-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr 1fr;gap:36px}'+
+  '.tf h4{color:#fff;font-size:12px;font-weight:800;letter-spacing:1px;text-transform:uppercase;margin-bottom:16px}'+
+  '.tf a{display:block;color:#a5a5b5;font-size:13.5px;text-decoration:none;margin-bottom:10px}'+
+  '.tf a:hover{color:#fff}'+
+  '.tf-brand p{font-size:13.5px;line-height:1.6;color:#a5a5b5}'+
+  '.tf-tag{color:#fcd34d;font-weight:700;margin-top:8px}'+
+  '.tf-logo{display:flex;align-items:center;gap:10px;margin-bottom:14px}'+
+  '.tf-logo .lsvg{width:36px;height:36px}'+
+  '.tf-logo b{color:#fff;font-size:18px;font-weight:900}'+
+  '.tf-badges{display:flex;flex-direction:column;gap:10px}'+
+  '.tf-badge{border:1.5px solid #3a3a46;border-radius:10px;padding:10px 14px;color:#fff;font-weight:700;font-size:13px;background:transparent;cursor:pointer;text-align:left}'+
+  '.tf-badge:hover{border-color:#7c3aed}'+
+  '.tf-bottom{max-width:1200px;margin:40px auto 0;border-top:1px solid #2e2e38;padding:20px 0;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-size:13px;color:#8a8a99}'+
+  '@media(max-width:900px){.tf-grid{grid-template-columns:1fr 1fr}}'+
+  '@media(max-width:560px){.tf-grid{grid-template-columns:1fr}}';
+  document.head.appendChild(st);
+
+  function build(){
+    var f=document.getElementById('siteFooter'); if(!f)return;
+    f.style.cssText='background:#1e1e26;padding:0';
+    var src=document.querySelector('.logo .lsvg')||document.querySelector('.lsvg');
+    var logo=src?src.cloneNode(true):'';
+    f.innerHTML='<div class="tf"><div class="tf-grid">'+
+      '<div class="tf-col tf-brand"><div class="tf-logo">'+logo+'<b>Trono<span style="color:#a855f7">PDF</span></b></div>'+
+      '<p>Every PDF tool you need - free, fast and private. Files never leave your device.</p>'+
+      '<p class="tf-tag">Rule Your PDFs 👑</p></div>'+
+      '<div class="tf-col"><h4>Product</h4><a href="/">Home</a><a href="/all-tools.html">All Tools</a><a href="/about.html">About Us</a><a href="/contact.html">Contact Us</a></div>'+
+      '<div class="tf-col"><h4>Popular Tools</h4><a href="/merge-pdf.html">Merge PDF</a><a href="/split-pdf.html">Split PDF</a><a href="/compress-pdf.html">Compress PDF</a><a href="/jpg-to-pdf.html">JPG to PDF</a><a href="/pdf-to-jpg.html">PDF to JPG</a><a href="/pdf-to-word.html">PDF to Word</a></div>'+
+      '<div class="tf-col"><h4>Image Tools</h4><a href="/image-compressor.html">Image Compressor</a><a href="/image-resizer.html">Image Resizer</a><a href="/image-converter.html">Image Converter</a><a href="/passport-photo.html">Passport Photo</a><a href="/signature-resize.html">Signature Resize</a><a href="/blur-photo.html">Blur Photo</a></div>'+
+      '<div class="tf-col"><h4>Legal</h4><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms & Conditions</a><a href="/disclaimer.html">Disclaimer</a></div>'+
+      '<div class="tf-col tf-badges"><button class="tf-badge" id="tfInstall">📱 Install App</button><div class="tf-badge">🌐 English</div><div class="tf-badge">💯 100% Free</div></div>'+
+      '</div>'+
+      '<div class="tf-bottom"><span>© 2026 TronoPDF ® - Your PDF Editor</span><span>Made with ❤️ for everyone</span></div>'+
+      '</div>';
+
+    var ib=f.querySelector('#tfInstall');
+    if(ib)ib.onclick=function(){
+      if(window.__tronopdfInstallPrompt){ window.__tronopdfInstallPrompt.prompt(); }
+      else{
+        var t=document.createElement('div');
+        t.textContent='💡 Browser menu (⋮) → "Install app" / "Add to Home screen" click karo';
+        t.style.cssText='position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#1e1e2e;color:#fff;padding:12px 24px;border-radius:999px;font-size:14px;font-weight:600;z-index:9999;box-shadow:0 10px 30px rgba(0,0,0,.3)';
+        document.body.appendChild(t); setTimeout(function(){t.remove();},2600);
+      }
+    };
+  }
+
+  window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); window.__tronopdfInstallPrompt=e; });
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);
+  else build();
+})();
