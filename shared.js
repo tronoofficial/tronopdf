@@ -682,33 +682,11 @@ if(document.readyState==='loading'){
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
 })();
-/* ===== TASK 10: PWA (manifest + install + offline) ===== */
+/* ===== TASK 10 v2: PWA (real manifest + SW) ===== */
 (function(){
-  var ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><defs><linearGradient id="bgT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d28d9"/><stop offset=".5" stop-color="#7c3aed"/><stop offset="1" stop-color="#a855f7"/></linearGradient><linearGradient id="pgT" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ede9fe"/></linearGradient><radialGradient id="gdT" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="#fef9c3"/><stop offset=".5" stop-color="#fcd34d"/><stop offset="1" stop-color="#f59e0b"/></radialGradient><linearGradient id="fdT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4b5fd"/><stop offset="1" stop-color="#ddd6fe"/></linearGradient></defs><rect width="48" height="48" rx="12" fill="url(#bgT)"/><ellipse cx="24" cy="20" rx="16" ry="12" fill="#ffffff" opacity=".08"/><path d="M14.5 15.5 L19.5 20 L24 11.5 L28.5 20 L33.5 15.5 L33.5 31.5 L27.5 37.5 L17 37.5 Q14.5 37.5 14.5 35 Z" fill="url(#pgT)"/><path d="M33.5 31.5 L27.5 37.5 L27.5 31.5 Z" fill="url(#fdT)"/><circle cx="14.5" cy="12.8" r="2.4" fill="url(#gdT)"/><circle cx="24" cy="8.8" r="2.6" fill="url(#gdT)"/><circle cx="33.5" cy="12.8" r="2.4" fill="url(#gdT)"/><circle cx="13.8" cy="12" r=".7" fill="#fffbeb" opacity=".9"/><circle cx="23.2" cy="7.9" r=".8" fill="#fffbeb" opacity=".9"/><circle cx="32.8" cy="12" r=".7" fill="#fffbeb" opacity=".9"/></svg>';
-  var iconUri = 'data:image/svg+xml,' + encodeURIComponent(ICON);
-
-  var manifest = {
-    name: 'TronoPDF - Rule Your PDFs',
-    short_name: 'TronoPDF',
-    description: 'Every PDF tool you need - free, fast and private.',
-    start_url: '/',
-    scope: '/',
-    display: 'standalone',
-    background_color: '#f7f6fc',
-    theme_color: '#7c3aed',
-    icons: [
-      { src: iconUri, sizes: 'any', type: 'image/svg+xml', purpose: 'any' },
-      { src: iconUri, sizes: '192x192 512x512', type: 'image/svg+xml', purpose: 'maskable' }
-    ]
-  };
-
-  var blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
-  var link = document.createElement('link');
-  link.rel = 'manifest';
-  link.href = URL.createObjectURL(blob);
-  document.head.appendChild(link);
-
-  if ('serviceWorker' in navigator) {
+  document.querySelectorAll('link[rel="manifest"]').forEach(function(l){ l.remove(); });
+  var m=document.createElement('link'); m.rel='manifest'; m.href='/manifest.json'; document.head.appendChild(m);
+  if('serviceWorker' in navigator){
     window.addEventListener('load', function(){
       navigator.serviceWorker.register('/sw.js').catch(function(){});
     });
