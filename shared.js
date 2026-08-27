@@ -763,3 +763,81 @@ if(document.readyState==='loading'){
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addToggles);
   else addToggles();
 })();
+/* ===== TASK 11 v2: DARK MODE FINAL (mega-menu + logo fix) ===== */
+(function(){
+  var KEY='tronopdf-theme';
+
+  /* Purana dark CSS + purane toggle hatao (override) */
+  var old=document.getElementById('darkThemeCss'); if(old)old.remove();
+  document.querySelectorAll('.theme-toggle').forEach(function(b){b.remove();});
+
+  var DARK_CSS = '' +
+  'html[data-theme="dark"]{color-scheme:dark}' +
+  'html[data-theme="dark"] body{background:#0f0f17!important;color:#e8e8f0!important}' +
+  'html[data-theme="dark"] h1,html[data-theme="dark"] h2,html[data-theme="dark"] h3,html[data-theme="dark"] h4{color:#f4f4fa!important}' +
+  'html[data-theme="dark"] p{color:#b9b9cc!important}' +
+  'html[data-theme="dark"] a{color:#c9b8ff}' +
+  'html[data-theme="dark"] [class*="hero"]{background:linear-gradient(180deg,#171725,#0f0f17)!important}' +
+  /* Header + LOGO fix */
+  'html[data-theme="dark"] .hwrap{background:rgba(15,15,23,.97)!important;border-color:#26263a!important}' +
+  'html[data-theme="dark"] .lword{color:#f4f4fa!important}' +
+  'html[data-theme="dark"] .hlink{color:#e8e8f0!important}' +
+  'html[data-theme="dark"] .mnav .ni{color:#e8e8f0!important}' +
+  'html[data-theme="dark"] .mnav .ni:hover,html[data-theme="dark"] .mnav .ni.active{background:#232336!important;color:#c9b8ff!important}' +
+  /* MEGA MENU / DROPDOWN fix */
+  'html[data-theme="dark"] .panel,html[data-theme="dark"] .pinner,html[data-theme="dark"] .pcol{background:#171725!important;border-color:#26263a!important;box-shadow:0 20px 50px rgba(0,0,0,.55)!important}' +
+  'html[data-theme="dark"] .pcol h5{color:#9a9ab5!important}' +
+  'html[data-theme="dark"] .pcol a{color:#d8d8e8!important}' +
+  'html[data-theme="dark"] .pcol a:hover{color:#c9b8ff!important}' +
+  /* Cards / sections */
+  'html[data-theme="dark"] [class*="card"]{background:#1b1b2b!important;border-color:#2a2a40!important}' +
+  'html[data-theme="dark"] [class*="side"],html[data-theme="dark"] [class*="work"],html[data-theme="dark"] [class*="wrap"]{background:#12121d!important}' +
+  'html[data-theme="dark"] input,html[data-theme="dark"] select,html[data-theme="dark"] textarea{background:#1e1e30!important;color:#e8e8f0!important;border-color:#32324a!important}' +
+  'html[data-theme="dark"] table,html[data-theme="dark"] th,html[data-theme="dark"] td{border-color:#32324a!important}' +
+  'html[data-theme="dark"] th{background:#26263a!important;color:#fff!important}' +
+  'html[data-theme="dark"] [class*="drawer"]{background:#151522!important}' +
+  'html[data-theme="dark"] [class*="modal"],html[data-theme="dark"] [class*="overlay"]{background:#171725!important}' +
+  'html[data-theme="dark"] [class*="tab"],html[data-theme="dark"] [class*="chip"],html[data-theme="dark"] [class*="preset"]{background:#232336!important;color:#c9c9dd!important;border-color:#32324a!important}' +
+  'html[data-theme="dark"] [class*="toast"]{background:#232336!important;color:#e8e8f0!important}' +
+  'html[data-theme="dark"] [class*="info"],html[data-theme="dark"] [class*="note"],html[data-theme="dark"] [class*="tip"]{background:#1e1e30!important;color:#c9c9dd!important;border-color:#32324a!important}' +
+  'html[data-theme="dark"] ::-webkit-scrollbar{width:10px}html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#32324a}html[data-theme="dark"] ::-webkit-scrollbar-track{background:#12121d}' +
+  'body{transition:background .3s,color .3s}';
+
+  var st=document.createElement('style');
+  st.id='darkThemeCss';
+  st.textContent=DARK_CSS;
+  document.head.appendChild(st);
+
+  function getTheme(){ try{ return localStorage.getItem(KEY)||'light'; }catch(e){ return 'light'; } }
+  function setTheme(t){
+    document.documentElement.setAttribute('data-theme',t);
+    try{ localStorage.setItem(KEY,t); }catch(e){}
+    var meta=document.querySelector('meta[name="theme-color"]');
+    if(meta) meta.content=(t==='dark')?'#0f0f17':'#7c3aed';
+    updateIcons(t);
+  }
+  function updateIcons(t){
+    document.querySelectorAll('.theme-toggle').forEach(function(b){
+      b.textContent=(t==='dark')?'☀️':'🌙';
+      b.title=(t==='dark')?'Light mode':'Dark mode';
+    });
+  }
+  function addToggles(){
+    var mk=function(){
+      var b=document.createElement('button');
+      b.className='theme-toggle';b.type='button';
+      b.style.cssText='border:none;background:transparent;font-size:18px;cursor:pointer;padding:6px 8px;border-radius:8px;line-height:1';
+      b.onclick=function(){ setTheme(getTheme()==='dark'?'light':'dark'); };
+      return b;
+    };
+    var hr=document.querySelector('.hright');
+    if(hr && !hr.querySelector('.theme-toggle')) hr.insertBefore(mk(), hr.firstChild);
+    var dh=document.querySelector('.drawer-header');
+    if(dh && !dh.querySelector('.theme-toggle')) dh.insertBefore(mk(), dh.querySelector('.drawer-close'));
+    updateIcons(getTheme());
+  }
+
+  setTheme(getTheme());
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addToggles);
+  else addToggles();
+})();
