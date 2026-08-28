@@ -876,3 +876,69 @@ if(document.readyState==='loading'){
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);
   else build();
 })();
+/* ===== TASK 18: LANGUAGE SELECTOR (26 languages) ===== */
+(function(){
+  var LANGS=[['en','English'],['es','Español'],['fr','Français'],['de','Deutsch'],['it','Italiano'],['pt','Português'],['ja','日本語'],['ru','Русский'],['ko','한국어'],['zh-CN','中文 (简体)'],['zh-TW','中文 (繁體)'],['ar','العربية'],['bg','Български'],['ca','Català'],['nl','Nederlands'],['el','Ελληνικά'],['hi','हिन्दी'],['id','Bahasa Indonesia'],['ms','Bahasa Melayu'],['pl','Polski'],['sv','Svenska'],['th','ภาษาไทย'],['tr','Türkçe'],['uk','Українська'],['vi','Tiếng Việt'],['sw','Kiswahili']];
+
+  var st=document.createElement('style');
+  st.textContent='#google_translate_element{display:none}.skiptranslate,.goog-te-banner-frame,.goog-tooltip,#goog-gt-tt{display:none!important}body{top:0!important}'+
+  '.lang-btn{display:inline-flex;align-items:center;gap:8px;background:transparent;border:1px solid #3a3a46;color:#c9c9dd;border-radius:10px;padding:9px 14px;font-size:13px;font-weight:700;cursor:pointer}'+
+  '.lang-btn:hover{border-color:#7c3aed;color:#fff}'+
+  '.lang-panel{position:fixed;bottom:80px;left:24px;background:#fff;border-radius:14px;box-shadow:0 20px 60px rgba(0,0,0,.3);padding:16px;display:none;grid-template-columns:repeat(3,1fr);gap:2px 16px;max-width:600px;z-index:99999;max-height:60vh;overflow:auto}'+
+  '.lang-panel.open{display:grid}'+
+  '.lang-opt{background:none;border:none;text-align:left;padding:8px 10px;font-size:13.5px;color:#1e1e2e;cursor:pointer;border-radius:8px;font-weight:600}'+
+  '.lang-opt:hover{background:#f3f0ff;color:#7c3aed}'+
+  '@media(max-width:640px){.lang-panel{left:12px;right:12px;grid-template-columns:1fr 1fr}}';
+  document.head.appendChild(st);
+
+  var gt=document.createElement('div'); gt.id='google_translate_element'; document.body.appendChild(gt);
+  var pending=null;
+
+  window.googleTranslateElementInit=function(){
+    new google.translate.TranslateElement({pageLanguage:'en',includedLanguages:LANGS.map(function(l){return l[0];}).join(','),layout:google.translate.TranslateElement.InlineLayout.SIMPLE,autoDisplay:false},'google_translate_element');
+    waitSelect();
+  };
+  var g=document.createElement('script');
+  g.src='https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+  document.head.appendChild(g);
+
+  function waitSelect(){
+    var t=0;
+    (function w(){
+      var sel=document.querySelector('.goog-te-combo');
+      if(sel){ if(pending){sel.value=pending;sel.dispatchEvent(new Event('change'));} return; }
+      if(t>50)return; t++; setTimeout(w,200);
+    })();
+  }
+  function applyCode(code){
+    var sel=document.querySelector('.goog-te-combo');
+    if(sel){ sel.value=code; sel.dispatchEvent(new Event('change')); }
+    else pending=code;
+  }
+
+  function buildUI(){
+    var btn=document.createElement('button'); btn.type='button'; btn.className='lang-btn';
+    var cur='English';
+    try{ cur=localStorage.getItem('tronopdf-lang-name')||'English'; }catch(e){}
+    btn.innerHTML='🌐 <span>'+cur+'</span> ▾';
+    var panel=document.createElement('div'); panel.className='lang-panel';
+    var h='';
+    LANGS.forEach(function(l){ h+='<button class="lang-opt" data-code="'+l[0]+'">'+l[1]+'</button>'; });
+    panel.innerHTML=h;
+    var fb=document.querySelector('.pf-bottom');
+    if(fb) fb.insertBefore(btn, fb.firstChild); else document.body.appendChild(btn);
+    document.body.appendChild(panel);
+    btn.addEventListener('click',function(e){ e.stopPropagation(); panel.classList.toggle('open'); });
+    document.addEventListener('click',function(e){ if(!panel.contains(e.target)&&!btn.contains(e.target)) panel.classList.remove('open'); });
+    panel.querySelectorAll('.lang-opt').forEach(function(o){
+      o.addEventListener('click',function(){
+        var code=o.getAttribute('data-code'), name=o.textContent;
+        btn.querySelector('span').textContent=name;
+        try{ localStorage.setItem('tronopdf-lang-name',name); }catch(e){}
+        applyCode(code);
+        panel.classList.remove('open');
+      });
+    });
+  }
+  window.addEventListener('load', function(){ setTimeout(buildUI, 200); });
+})();
