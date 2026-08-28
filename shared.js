@@ -355,10 +355,10 @@ var GUIDES={
 'pdf-to-word':{title:'How to Convert PDF to Word',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Scanned PDFs will use OCR'},{icon:'process',text:'Wait for conversion (10-30 seconds)',tip:'Complex layouts may take longer'},{icon:'download',text:'Download your DOCX file',tip:'Edit in Microsoft Word or Google Docs'}]},
 'jpg-to-pdf':{title:'How to Convert JPG to PDF',steps:[{icon:'upload',text:'Upload one or more images',tip:'Supports JPG, PNG, WEBP'},{icon:'settings',text:'Choose page size and orientation',tip:'A4 is standard for documents'},{icon:'download',text:'Click "Convert" and download PDF',tip:'All images combined into one PDF'}]},
 'pdf-to-jpg':{title:'How to Convert PDF to JPG',steps:[{icon:'upload',text:'Upload your PDF file',tip:'All pages will be converted'},{icon:'quality',text:'Select image quality (Low/Medium/High)',tip:'High quality = larger file size'},{icon:'download',text:'Download all images as ZIP',tip:'Each page becomes separate JPG'}]},
-'sign-pdf':{title:'How to Sign PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document you want to sign'},{icon:'draw',text:'Draw your signature or upload image',tip:'Use mouse or touch screen'},{icon:'place',text:'Click on PDF to place signature',tip:'You can move and resize it'},{icon:'download',text:'Download signed PDF',tip:'Signature is permanently embedded'}]},
+'sign-pdf':{title:'How to Sign PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document you want to sign'},{icon:'draw',text:'Draw your signature or uploading image',tip:'Use mouse or touch screen'},{icon:'place',text:'Click on PDF to place signature',tip:'You can move and resize it'},{icon:'download',text:'Download signed PDF',tip:'Signature is permanently embedded'}]},
 'protect-pdf':{title:'How to Protect PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'File you want to password protect'},{icon:'password',text:'Enter strong password (8+ characters)',tip:'Use letters, numbers, symbols'},{icon:'download',text:'Download protected PDF',tip:'Password required to open file'}]},
 'unlock-pdf':{title:'How to Unlock PDF',steps:[{icon:'upload',text:'Upload password-protected PDF',tip:'You must know the password'},{icon:'password',text:'Enter the PDF password',tip:'Case-sensitive password'},{icon:'download',text:'Download unlocked PDF',tip:'No password needed to open'}]},
-'watermark-pdf':{title:'How to Add Watermark',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document to watermark'},{icon:'text',text:'Type watermark text or upload image',tip:'Example: "CONFIDENTIAL", "DRAFT"'},{icon:'settings',text:'Adjust position, size, and opacity',tip:'Lower opacity = less intrusive'},{icon:'download',text:'Download watermarked PDF',tip:'Watermark on all pages'}]},
+'watermark-pdf':{title:'How to Add Watermark',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document to watermark'},{icon:'text',text:'Type watermark text or uploading image',tip:'Example: "CONFIDENTIAL", "DRAFT"'},{icon:'settings',text:'Adjust position, size, and opacity',tip:'Lower opacity = less intrusive'},{icon:'download',text:'Download watermarked PDF',tip:'Watermark on all pages'}]},
 'edit-pdf':{title:'How to Edit PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document you want to edit'},{icon:'select',text:'Click on text or images to edit',tip:'Not all PDFs are editable'},{icon:'edit',text:'Make your changes',tip:'Add text, delete, or modify'},{icon:'download',text:'Download edited PDF',tip:'Changes are permanent'}]},
 'rotate-pdf':{title:'How to Rotate PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document with rotated pages'},{icon:'rotate',text:'Click pages to rotate (90° each click)',tip:'Or use "Rotate All" button'},{icon:'download',text:'Download rotated PDF',tip:'Pages now in correct orientation'}]},
 'organize-pdf':{title:'How to Organize PDF',steps:[{icon:'upload',text:'Upload your PDF file',tip:'Document to reorganize'},{icon:'reorder',text:'Drag pages to reorder',tip:'Click X to delete pages'},{icon:'download',text:'Download organized PDF',tip:'Pages in new order'}]},
@@ -487,10 +487,6 @@ function closeGuide(){
   }
 }
 
-/* ===== FOOTER ===== */
-var f=document.getElementById('siteFooter');
-if(f){f.innerHTML='<div class="container"><div class="fgrid"><div class="fcol"><h4>TronoPDF 👑</h4><p>Every PDF tool you need - free, fast and private. Files never leave your device. Powered by open-source libraries (pdf-lib, pdf.js).</p></div><div class="fcol"><h4>Product</h4><a href="/">Home</a><a href="/all-tools.html">All Tools</a><a href="/about.html">About</a><a href="/contact.html">Contact</a></div><div class="fcol"><h4>Popular Tools</h4><a href="/merge-pdf">Merge PDF</a><a href="/split-pdf">Split PDF</a><a href="/compress-pdf">Compress PDF</a><a href="/jpg-to-pdf">JPG to PDF</a><a href="/pdf-to-jpg">PDF to JPG</a><a href="/image-compressor">Image Compressor</a><a href="/signature-resize">Signature Resize</a><a href="/image-converter">Image Converter</a><a href="/blur-photo">Blur Photo</a><a href="/html-to-pdf">HTML to PDF</a></div><div class="fcol"><h4>Legal</h4><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms</a><a href="/disclaimer.html">Disclaimer</a></div></div><div class="fbottom">© TronoPDF - All Rights Reserved.</div></div>';}
-
 /* ===== INIT ===== */
 if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded',function(){renderRelatedTools();renderHowToButton();});
@@ -499,60 +495,7 @@ if(document.readyState==='loading'){
   renderHowToButton();
 }
 })();
-/* =====================================================
-   TASK 6: TRONOPDF NEW BRANDING - "The Crowned Page"
-   - Naya header logo (crowned page)
-   - Naya favicon (auto-inject)
-   - Wordmark upgrade (Trono dark + PDF gradient)
-   - Tagline: Rule Your PDFs
-   ===================================================== */
-(function(){
-  var LOGO_SVG =
-    '<svg class="lsvg" viewBox="0 0 48 48" aria-label="TronoPDF">' +
-    '<defs><linearGradient id="lgT" x1="0" y1="0" x2="1" y2="1">' +
-    '<stop offset="0" stop-color="#7c3aed"/><stop offset="1" stop-color="#a855f7"/>' +
-    '</linearGradient></defs>' +
-    '<rect width="48" height="48" rx="12" fill="url(#lgT)"/>' +
-    '<path d="M15 16 L19.5 20.5 L24 13 L28.5 20.5 L33 16 L33 32 L27 38 L17.5 38 Q15 38 15 35.5 Z" fill="#fff"/>' +
-    '<path d="M33 32 L27 38 L27 32 Z" fill="#ddd6fe"/>' +
-    '<circle cx="15" cy="13.5" r="2.3" fill="#fcd34d"/>' +
-    '<circle cx="24" cy="10.5" r="2.3" fill="#fcd34d"/>' +
-    '<circle cx="33" cy="13.5" r="2.3" fill="#fcd34d"/>' +
-    '</svg>';
 
-  function applyBrand(){
-    /* 1) Header logo replace */
-    var old = document.querySelector('.logo .lsvg') || document.querySelector('.lsvg');
-    if (old) old.outerHTML = LOGO_SVG;
-
-    /* 2) Wordmark: Trono (dark) + PDF (gradient) */
-    var st = document.createElement('style');
-    st.textContent = '.lword{font-weight:900;letter-spacing:-.5px;color:#1e1e2e}' +
-      '.lword b{background:linear-gradient(135deg,#7c3aed,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent}';
-    document.head.appendChild(st);
-
-    /* 3) Favicon auto-inject (sab pages pe) */
-    var favSvg = LOGO_SVG.replace(' class="lsvg"','').replace(' aria-label="TronoPDF"','');
-    var fav = document.createElement('link');
-    fav.rel = 'icon';
-    fav.type = 'image/svg+xml';
-    fav.href = 'data:image/svg+xml,' + encodeURIComponent(favSvg);
-    document.head.appendChild(fav);
-
-    /* 4) Footer tagline */
-    var fp = document.querySelector('.fcol p');
-    if (fp && fp.innerHTML.indexOf('Rule Your PDFs') === -1) {
-      fp.innerHTML = '<strong style="color:#7c3aed">Rule Your PDFs.</strong> ' + fp.innerHTML;
-    }
-
-    /* 5) Drawer header crown */
-    var dh = document.querySelector('.drawer-header h3');
-    if (dh) dh.innerHTML = 'TronoPDF 👑 <span style="display:block;font-size:11px;color:#8a8a99;font-weight:600">Rule Your PDFs</span>';
-  }
-
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', applyBrand);
-  else applyBrand();
-})();
 /* ===== LOGO v1 PRO (refined Crowned Page) ===== */
 (function(){
   var V1PRO = '<svg class="lsvg" viewBox="0 0 48 48" aria-label="TronoPDF">' +
@@ -581,47 +524,7 @@ if(document.readyState==='loading'){
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
 })();
-/* ===== V1 PRO LOGO - USE EVERYWHERE (drawer + footer) ===== */
-(function(){
-  function apply(){
-    var src=document.querySelector('.logo .lsvg');
-    if(!src)return;
 
-    function logo(size){
-      var c=src.cloneNode(true);
-      c.removeAttribute('aria-label');
-      c.style.width=size+'px';c.style.height=size+'px';
-      return c;
-    }
-
-    /* 1) Mobile drawer header */
-    var dh=document.querySelector('.drawer-header h3');
-    if(dh && !dh.getAttribute('data-branded')){
-      dh.setAttribute('data-branded','1');
-      dh.innerHTML='';
-      dh.appendChild(logo(30));
-      var w=document.createElement('span');
-      w.style.cssText='display:flex;flex-direction:column;margin-left:10px';
-      w.innerHTML='<strong style="font-size:16px;color:#1e1e2e">Trono<b style="background:linear-gradient(135deg,#7c3aed,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent">PDF</b></strong><small style="color:#8a8a99;font-weight:600;font-size:11px">Rule Your PDFs</small>';
-      dh.appendChild(w);
-      dh.style.display='flex';dh.style.alignItems='center';dh.style.gap='0';
-    }
-
-    /* 2) Footer brand */
-    var fh=document.querySelector('.fcol h4');
-    if(fh && !fh.getAttribute('data-branded')){
-      fh.setAttribute('data-branded','1');
-      fh.innerHTML='';
-      fh.appendChild(logo(26));
-      var t=document.createElement('span');
-      t.style.cssText='margin-left:10px';
-      t.innerHTML='Trono<b style="background:linear-gradient(135deg,#7c3aed,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent">PDF</b>';
-      fh.appendChild(t);
-      fh.style.display='flex';fh.style.alignItems='center';
-    }
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
-})();
 /* ===== BRANDING EVERYWHERE (favicon+apple+theme+OG+twitter) ===== */
 (function(){
   var LOGO = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">' +
@@ -652,28 +555,17 @@ if(document.readyState==='loading'){
   }
 
   function apply(){
-    /* 1) SAB purane icon links hatao */
     document.querySelectorAll('link[rel~="icon"],link[rel="shortcut icon"],link[rel="apple-touch-icon"]').forEach(function(l){ l.remove(); });
-
-    /* 2) Naya favicon (browser tab) */
     var fav=document.createElement('link'); fav.rel='icon'; fav.type='image/svg+xml'; fav.href=dataUri; document.head.appendChild(fav);
     var fav2=document.createElement('link'); fav2.rel='shortcut icon'; fav2.href=dataUri; document.head.appendChild(fav2);
-
-    /* 3) Apple touch icon (iOS home screen) */
     var apple=document.createElement('link'); apple.rel='apple-touch-icon'; apple.href=dataUri; document.head.appendChild(apple);
-
-    /* 4) Theme color (mobile address bar) */
     setMeta('theme-color','#7c3aed',true);
-
-    /* 5) OG tags (social share) */
     setMeta('og:title', document.title, false);
     setMeta('og:description','Every PDF tool you need - free, fast and private. Rule Your PDFs.', false);
     setMeta('og:type','website', false);
     setMeta('og:url', location.href, false);
     setMeta('og:site_name','TronoPDF', false);
     setMeta('og:image', dataUri, false);
-
-    /* 6) Twitter card */
     setMeta('twitter:card','summary',true);
     setMeta('twitter:title', document.title, true);
     setMeta('twitter:description','Rule Your PDFs - free, fast, private PDF tools.',true);
@@ -682,6 +574,7 @@ if(document.readyState==='loading'){
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',apply);else apply();
 })();
+
 /* ===== TASK 10 v2: PWA (real manifest + SW) ===== */
 (function(){
   document.querySelectorAll('link[rel="manifest"]').forEach(function(l){ l.remove(); });
@@ -692,84 +585,10 @@ if(document.readyState==='loading'){
     });
   }
 })();
-/* ===== TASK 11: DARK MODE (user choice, default light) ===== */
-(function(){
-  var KEY='tronopdf-theme';
 
-  var DARK_CSS = '' +
-  'html[data-theme="dark"]{color-scheme:dark}' +
-  'html[data-theme="dark"] body{background:#0f0f17!important;color:#e8e8f0!important}' +
-  'html[data-theme="dark"] h1,html[data-theme="dark"] h2,html[data-theme="dark"] h3,html[data-theme="dark"] h4,html[data-theme="dark"] h5{color:#f4f4fa!important}' +
-  'html[data-theme="dark"] p{color:#b9b9cc!important}' +
-  'html[data-theme="dark"] a{color:#c9b8ff}' +
-  'html[data-theme="dark"] [class*="hero"]{background:linear-gradient(180deg,#171725,#0f0f17)!important}' +
-  'html[data-theme="dark"] .hwrap{background:rgba(15,15,23,.95)!important;border-color:#26263a!important}' +
-  'html[data-theme="dark"] [class*="card"]{background:#1b1b2b!important;border-color:#2a2a40!important}' +
-  'html[data-theme="dark"] [class*="side"],html[data-theme="dark"] [class*="work"],html[data-theme="dark"] [class*="wrap"]{background:#12121d!important}' +
-  'html[data-theme="dark"] input,html[data-theme="dark"] select,html[data-theme="dark"] textarea{background:#1e1e30!important;color:#e8e8f0!important;border-color:#32324a!important}' +
-  'html[data-theme="dark"] table,html[data-theme="dark"] th,html[data-theme="dark"] td{border-color:#32324a!important}' +
-  'html[data-theme="dark"] th{background:#26263a!important;color:#fff!important}' +
-  'html[data-theme="dark"] [class*="drawer"]{background:#151522!important}' +
-  'html[data-theme="dark"] [class*="modal"],html[data-theme="dark"] [class*="overlay"]{background:#171725!important}' +
-  'html[data-theme="dark"] [class*="btn"]:not([class*="go"]):not([class*="big"]){background:#232336!important;color:#e8e8f0!important;border-color:#32324a!important}' +
-  'html[data-theme="dark"] [class*="tab"],html[data-theme="dark"] [class*="chip"],html[data-theme="dark"] [class*="preset"]{background:#232336!important;color:#c9c9dd!important;border-color:#32324a!important}' +
-  'html[data-theme="dark"] [class*="toast"]{background:#232336!important;color:#e8e8f0!important}' +
-  'html[data-theme="dark"] [class*="info"],html[data-theme="dark"] [class*="note"],html[data-theme="dark"] [class*="tip"]{background:#1e1e30!important;color:#c9c9dd!important;border-color:#32324a!important}' +
-  'html[data-theme="dark"] ::-webkit-scrollbar{width:10px}html[data-theme="dark"] ::-webkit-scrollbar-thumb{background:#32324a}html[data-theme="dark"] ::-webkit-scrollbar-track{background:#12121d}' +
-  'body{transition:background .3s,color .3s}';
-
-  /* CSS inject */
-  var st=document.createElement('style');
-  st.id='darkThemeCss';
-  st.textContent=DARK_CSS;
-  document.head.appendChild(st);
-
-  /* Saved theme apply (default light) */
-  function getTheme(){ try{ return localStorage.getItem(KEY)||'light'; }catch(e){ return 'light'; } }
-  function setTheme(t){
-    document.documentElement.setAttribute('data-theme',t);
-    try{ localStorage.setItem(KEY,t); }catch(e){}
-    var meta=document.querySelector('meta[name="theme-color"]');
-    if(meta) meta.content = (t==='dark') ? '#0f0f17' : '#7c3aed';
-    updateIcons(t);
-  }
-  function updateIcons(t){
-    document.querySelectorAll('.theme-toggle').forEach(function(b){
-      b.textContent = (t==='dark') ? '☀️' : '🌙';
-      b.title = (t==='dark') ? 'Light mode' : 'Dark mode';
-    });
-  }
-
-  /* Toggle button banaye (header + drawer) */
-  function addToggles(){
-    var mk=function(){
-      var b=document.createElement('button');
-      b.className='theme-toggle';
-      b.type='button';
-      b.style.cssText='border:none;background:transparent;font-size:18px;cursor:pointer;padding:6px 8px;border-radius:8px;line-height:1';
-      b.onclick=function(){ setTheme(getTheme()==='dark'?'light':'dark'); };
-      return b;
-    };
-    var hr=document.querySelector('.hright');
-    if(hr && !hr.querySelector('.theme-toggle')) hr.insertBefore(mk(), hr.firstChild);
-    var dh=document.querySelector('.drawer-header');
-    if(dh && !dh.querySelector('.theme-toggle')) dh.insertBefore(mk(), dh.querySelector('.drawer-close'));
-    updateIcons(getTheme());
-  }
-
-  /* Apply saved theme ASAP */
-  setTheme(getTheme());
-
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addToggles);
-  else addToggles();
-})();
 /* ===== TASK 11 v2: DARK MODE FINAL (mega-menu + logo fix) ===== */
 (function(){
   var KEY='tronopdf-theme';
-
-  /* Purana dark CSS + purane toggle hatao (override) */
-  var old=document.getElementById('darkThemeCss'); if(old)old.remove();
-  document.querySelectorAll('.theme-toggle').forEach(function(b){b.remove();});
 
   var DARK_CSS = '' +
   'html[data-theme="dark"]{color-scheme:dark}' +
@@ -778,18 +597,15 @@ if(document.readyState==='loading'){
   'html[data-theme="dark"] p{color:#b9b9cc!important}' +
   'html[data-theme="dark"] a{color:#c9b8ff}' +
   'html[data-theme="dark"] [class*="hero"]{background:linear-gradient(180deg,#171725,#0f0f17)!important}' +
-  /* Header + LOGO fix */
   'html[data-theme="dark"] .hwrap{background:rgba(15,15,23,.97)!important;border-color:#26263a!important}' +
   'html[data-theme="dark"] .lword{color:#f4f4fa!important}' +
   'html[data-theme="dark"] .hlink{color:#e8e8f0!important}' +
   'html[data-theme="dark"] .mnav .ni{color:#e8e8f0!important}' +
   'html[data-theme="dark"] .mnav .ni:hover,html[data-theme="dark"] .mnav .ni.active{background:#232336!important;color:#c9b8ff!important}' +
-  /* MEGA MENU / DROPDOWN fix */
   'html[data-theme="dark"] .panel,html[data-theme="dark"] .pinner,html[data-theme="dark"] .pcol{background:#171725!important;border-color:#26263a!important;box-shadow:0 20px 50px rgba(0,0,0,.55)!important}' +
   'html[data-theme="dark"] .pcol h5{color:#9a9ab5!important}' +
   'html[data-theme="dark"] .pcol a{color:#d8d8e8!important}' +
   'html[data-theme="dark"] .pcol a:hover{color:#c9b8ff!important}' +
-  /* Cards / sections */
   'html[data-theme="dark"] [class*="card"]{background:#1b1b2b!important;border-color:#2a2a40!important}' +
   'html[data-theme="dark"] [class*="side"],html[data-theme="dark"] [class*="work"],html[data-theme="dark"] [class*="wrap"]{background:#12121d!important}' +
   'html[data-theme="dark"] input,html[data-theme="dark"] select,html[data-theme="dark"] textarea{background:#1e1e30!important;color:#e8e8f0!important;border-color:#32324a!important}' +
@@ -841,53 +657,7 @@ if(document.readyState==='loading'){
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addToggles);
   else addToggles();
 })();
-/* ===== TASK 11 v3: SMART AUTO-DARK (fixes light boxes everywhere) ===== */
-(function(){
-  function lum(c){
-    if(!c) return null;
-    var m=c.match(/[\d.]+/g);
-    if(!m || m.length<3) return null;
-    var r=+m[0], g=+m[1], b=+m[2];
-    var a=(m.length>3?+m[3]:1);
-    if(a<0.15) return null; /* transparent */
-    return (0.299*r + 0.587*g + 0.114*b);
-  }
 
-  function autoDark(){
-    var skip=/^(IMG|VIDEO|CANVAS|SVG|IFRAME|INPUT|SELECT|TEXTAREA|BUTTON|A)$/;
-    var all=document.querySelectorAll('body *');
-    for(var i=0;i<all.length;i++){
-      var el=all[i];
-      if(skip.test(el.tagName)) continue;
-      var L=lum(getComputedStyle(el).backgroundColor);
-      if(L!==null && L>150){
-        el.style.setProperty('background-color','#1b1b2b','important');
-        el.setAttribute('data-dk','1');
-      }
-    }
-  }
-
-  function clearDark(){
-    var fixed=document.querySelectorAll('[data-dk]');
-    for(var i=0;i<fixed.length;i++){
-      fixed[i].style.removeProperty('background-color');
-      fixed[i].removeAttribute('data-dk');
-    }
-  }
-
-  function apply(){
-    if(document.documentElement.getAttribute('data-theme')==='dark') autoDark();
-    else clearDark();
-  }
-
-  /* Jab bhi theme change ho, auto-fix */
-  var mo=new MutationObserver(apply);
-  mo.observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-
-  window.addEventListener('load', function(){ setTimeout(apply,100); });
-  if(document.readyState==='complete') setTimeout(apply,100);
-  document.addEventListener('DOMContentLoaded', function(){ setTimeout(apply,100); });
-})();
 /* ===== TASK 11 v4: AUTO-DARK FINAL (solid + gradient + pseudo) ===== */
 (function(){
   var st=document.createElement('style');
@@ -936,26 +706,23 @@ if(document.readyState==='loading'){
   window.addEventListener('load',function(){setTimeout(apply,120);});
   document.addEventListener('DOMContentLoaded',function(){setTimeout(apply,120);});
 })();
+
 /* ===== TASK 12: SEO (canonical + schema JSON-LD + meta) ===== */
 (function(){
   var origin=location.origin, path=location.pathname;
 
-  /* Canonical (duplicate content se bachao) */
   document.querySelectorAll('link[rel="canonical"]').forEach(function(l){l.remove();});
   var can=document.createElement('link'); can.rel='canonical'; can.href=origin+path; document.head.appendChild(can);
 
-  /* Meta description (agar nahi hai) */
   if(!document.querySelector('meta[name="description"]')){
     var md=document.createElement('meta'); md.name='description';
     md.content='TronoPDF - free, fast & private online PDF tools. Merge, split, compress, convert, sign & edit PDFs. Rule Your PDFs!';
     document.head.appendChild(md);
   }
 
-  /* Detect tool */
   var file=path.split('/').pop().replace('.html','').replace('/','');
   var isHome=(!file||file==='index');
 
-  /* JSON-LD Schema */
   var ld={"@context":"https://schema.org","@graph":[]};
   ld["@graph"].push({
     "@type":"WebSite","@id":origin+"/#website","url":origin+"/",
@@ -987,6 +754,7 @@ if(document.readyState==='loading'){
   s.textContent=JSON.stringify(ld);
   document.head.appendChild(s);
 })();
+
 /* ===== TASK 13: USER RATING / FEEDBACK WIDGET (English) ===== */
 (function(){
   var path=location.pathname;
@@ -1041,6 +809,7 @@ if(document.readyState==='loading'){
   var saved=0;try{saved=+localStorage.getItem(KEY)||0;}catch(e){}
   if(saved)paint(saved);
 })();
+
 /* ===== TASK 16: HAMBURGER + HEADER FIX (3-line menu) ===== */
 (function(){
   var st=document.createElement('style');
@@ -1056,57 +825,9 @@ if(document.readyState==='loading'){
   'html[data-theme="dark"] .hamburger{background:#232336}html[data-theme="dark"] .hamburger span{background:#e8e8f0!important}';
   document.head.appendChild(st);
 })();
-/* ===== TASK 17: PREMIUM FOOTER v2 ===== */
-(function(){
-  var st=document.createElement('style');
-  st.textContent=
-  '.pf{background:linear-gradient(180deg,#14141f,#0d0d15);color:#9a9ab0;padding:70px 24px 0;position:relative;overflow:hidden}' +
-  '.pf-top{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7c3aed,#a855f7,#fcd34d)}' +
-  '.pf-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr;gap:40px}' +
-  '.pf-brand .pf-logo{display:flex;align-items:center;gap:10px;margin-bottom:16px}' +
-  '.pf-brand .lsvg{width:38px;height:38px}' +
-  '.pf-brand b{color:#fff;font-size:19px;font-weight:900}' +
-  '.pf-brand p{font-size:13.5px;line-height:1.7;color:#8a8aa0;margin-bottom:18px}' +
-  '.pf-badges{display:flex;flex-wrap:wrap;gap:8px}' +
-  '.pf-badges span{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);color:#c9b8ff;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:999px}' +
-  '.pf-col h4{font-size:12px;letter-spacing:1.5px;color:#fff;text-transform:uppercase;margin-bottom:18px;font-weight:800}' +
-  '.pf-col a{display:block;color:#9a9ab0;font-size:14px;margin-bottom:12px;text-decoration:none;transition:all .2s}' +
-  '.pf-col a:hover{color:#c9b8ff;transform:translateX(4px)}' +
-  '.pf-status{display:inline-flex;align-items:center;gap:7px;margin-top:8px;font-size:12px;color:#4ade80;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);padding:6px 12px;border-radius:999px}' +
-  '.pf-status i{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pfPulse 2s infinite}' +
-  '@keyframes pfPulse{0%,100%{opacity:1}50%{opacity:.4}}' +
-  '.pf-bottom{max-width:1200px;margin:50px auto 0;border-top:1px solid rgba(255,255,255,.08);padding:22px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:13px;color:#6a6a80}' +
-  '.pf-top-btn{width:42px;height:42px;border-radius:12px;border:1px solid rgba(124,58,237,.4);background:rgba(124,58,237,.15);color:#c9b8ff;font-size:18px;cursor:pointer;transition:all .2s}' +
-  '.pf-top-btn:hover{background:#7c3aed;color:#fff;transform:translateY(-3px)}' +
-  '@media(max-width:1000px){.pf-grid{grid-template-columns:1fr 1fr}}' +
-  '@media(max-width:560px){.pf-grid{grid-template-columns:1fr}}';
-  document.head.appendChild(st);
 
-  function build(){
-    var f=document.getElementById('siteFooter'); if(!f)return;
-    f.style.cssText='background:#0d0d15;padding:0';
-    var src=document.querySelector('.logo .lsvg')||document.querySelector('.lsvg');
-    var logo=src?src.cloneNode(true):'';
-    f.innerHTML='<div class="pf"><div class="pf-top"></div><div class="pf-grid">'+
-    '<div class="pf-brand"><div class="pf-logo">'+logo+'<b>Trono<span style="color:#a855f7">PDF</span></b></div>'+
-    '<p>Every PDF tool you need - free, fast and private. Files never leave your device. Powered by open-source libraries (pdf-lib, pdf.js).</p>'+
-    '<div class="pf-badges"><span>🔒 100% Private</span><span>⚡ No Uploads</span><span>💯 Free Forever</span></div></div>'+
-    '<div class="pf-col"><h4>Product</h4><a href="/">Home</a><a href="/all-tools.html">All Tools</a><a href="/about.html">About Us</a><a href="/contact.html">Contact</a></div>'+
-    '<div class="pf-col"><h4>Popular Tools</h4><a href="/merge-pdf.html">Merge PDF</a><a href="/split-pdf.html">Split PDF</a><a href="/compress-pdf.html">Compress PDF</a><a href="/jpg-to-pdf.html">JPG to PDF</a><a href="/pdf-to-word.html">PDF to Word</a><a href="/pdf-to-jpg.html">PDF to JPG</a></div>'+
-    '<div class="pf-col"><h4>Image Tools</h4><a href="/image-compressor.html">Image Compressor</a><a href="/image-resizer.html">Image Resizer</a><a href="/passport-photo.html">Passport Photo</a><a href="/signature-resize.html">Signature Resize</a><a href="/blur-photo.html">Blur Photo</a><a href="/image-converter.html">Image Converter</a></div>'+
-    '<div class="pf-col"><h4>Legal</h4><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms & Conditions</a><a href="/disclaimer.html">Disclaimer</a><span class="pf-status"><i></i>All systems operational</span></div>'+
-    '</div>'+
-    '<div class="pf-bottom"><span>© 2026 TronoPDF — All Rights Reserved.</span><span>Made with 💜 for everyone • Rule Your PDFs 👑</span><button class="pf-top-btn" title="Back to top">↑</button></div>'+
-    '</div>';
-    var tb=f.querySelector('.pf-top-btn');
-    if(tb)tb.onclick=function(){window.scrollTo({top:0,behavior:'smooth'});};
-  }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);
-  else build();
-})();
 /* ===== TASK 17 v2: PREMIUM FOOTER FINAL (logo fixed) ===== */
 (function(){
-  var old=document.getElementById('pfCss'); if(old)old.remove();
   var st=document.createElement('style'); st.id='pfCss';
   st.textContent=
   '.pf{background:linear-gradient(180deg,#14141f,#0d0d15);color:#9a9ab0;padding:70px 24px 0;position:relative;overflow:hidden}' +
@@ -1137,7 +858,7 @@ if(document.readyState==='loading'){
     var f=document.getElementById('siteFooter'); if(!f)return;
     f.style.cssText='background:#0d0d15;padding:0';
     var src=document.querySelector('.logo .lsvg')||document.querySelector('.lsvg');
-    var logo=src?src.outerHTML:FALLBACK;   /* ✅ outerHTML = asli SVG */
+    var logo=src?src.outerHTML:FALLBACK;
     f.innerHTML='<div class="pf"><div class="pf-top"></div><div class="pf-grid">'+
     '<div class="pf-brand"><div class="pf-logo">'+logo+'<b>Trono<span style="color:#a855f7">PDF</span></b></div>'+
     '<p>Every PDF tool you need - free, fast and private. Files never leave your device. Powered by open-source libraries (pdf-lib, pdf.js).</p>'+
