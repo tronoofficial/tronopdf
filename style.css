@@ -52,7 +52,7 @@ header{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);border-bottom
 .drawer{position:fixed;top:0;right:-340px;width:320px;max-width:85vw;height:100%;background:#fff;z-index:1001;transition:.35s cubic-bezier(.4,0,.2,1);overflow-y:auto;box-shadow:-10px 0 40px rgba(0,0,0,.15)}
 .drawer.active{right:0}
 .drawer-header{padding:20px 24px;border-bottom:1px solid #eceaf6;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:10}
-.drawer-header h3{font-size:18px;font-weight:900;background:linear-gradient(135deg,#7c3aed,#f59e0b);-webkit-background-clip:text;background-clip:text;color:transparent}
+.drawer-header h3{font-size:18px;font-weight:900;background:linear-gradient(135deg,#7c3aed,#a855f7);-webkit-background-clip:text;background-clip:text;color:transparent}
 .drawer-close{width:36px;height:36px;border:none;background:#f3f0ff;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:20px;color:#7c3aed;transition:.2s}
 .drawer-close:hover{background:#e9d5ff;transform:rotate(90deg)}
 .drawer-body{padding:16px 20px}
