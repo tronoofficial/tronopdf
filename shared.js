@@ -1041,3 +1041,18 @@ if(document.readyState==='loading'){
   var saved=0;try{saved=+localStorage.getItem(KEY)||0;}catch(e){}
   if(saved)paint(saved);
 })();
+/* ===== TASK 16: HAMBURGER + HEADER FIX (3-line menu) ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent=
+  '.hamburger{display:none;flex-direction:column;justify-content:center;align-items:center;gap:5px;width:44px;height:44px;background:#f3f0ff;border:none;border-radius:12px;cursor:pointer;padding:0}' +
+  '.hamburger span{display:block!important;width:22px!important;height:3px!important;background:#1e1e2e!important;border-radius:3px;transition:all .3s ease;margin:0!important}' +
+  '.hamburger:hover{background:#e9e2fd}' +
+  '.hamburger.active span:nth-child(1){transform:translateY(8px) rotate(45deg)}' +
+  '.hamburger.active span:nth-child(2){opacity:0;transform:scaleX(0)}' +
+  '.hamburger.active span:nth-child(3){transform:translateY(-8px) rotate(-45deg)}' +
+  '@media(max-width:900px){.hamburger{display:flex!important}.mnav{display:none!important}}' +
+  '@media(min-width:901px){.hamburger{display:none!important}}' +
+  'html[data-theme="dark"] .hamburger{background:#232336}html[data-theme="dark"] .hamburger span{background:#e8e8f0!important}';
+  document.head.appendChild(st);
+})();
