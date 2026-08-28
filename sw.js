@@ -1,9 +1,10 @@
-/* TronoPDF Service Worker - offline + fast cache */
-var CACHE = 'tronopdf-v1';
+/* TronoPDF Service Worker v2 - offline + smart cache */
+var CACHE = 'tronopdf-v2';
+var PRECACHE = ['/', '/shared.js', '/style.css', '/manifest.json', '/icon.svg'];
 
 self.addEventListener('install', function(e){
   e.waitUntil(
-    caches.open(CACHE).then(function(c){ return c.addAll(['/','/shared.js']); }).catch(function(){})
+    caches.open(CACHE).then(function(c){ return c.addAll(PRECACHE); }).catch(function(){})
     .then(function(){ return self.skipWaiting(); })
   );
 });
@@ -16,7 +17,6 @@ self.addEventListener('activate', function(e){
   );
 });
 
-/* Network-first (fresh content), cache fallback (offline) */
 self.addEventListener('fetch', function(e){
   var req = e.request;
   if (req.method !== 'GET') return;
