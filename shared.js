@@ -1104,3 +1104,54 @@ if(document.readyState==='loading'){
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);
   else build();
 })();
+/* ===== TASK 17 v2: PREMIUM FOOTER FINAL (logo fixed) ===== */
+(function(){
+  var old=document.getElementById('pfCss'); if(old)old.remove();
+  var st=document.createElement('style'); st.id='pfCss';
+  st.textContent=
+  '.pf{background:linear-gradient(180deg,#14141f,#0d0d15);color:#9a9ab0;padding:70px 24px 0;position:relative;overflow:hidden}' +
+  '.pf-top{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#7c3aed,#a855f7,#fcd34d)}' +
+  '.pf-grid{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr 1fr;gap:40px}' +
+  '.pf-brand .pf-logo{display:flex;align-items:center;gap:10px;margin-bottom:16px}' +
+  '.pf-brand .lsvg{width:38px;height:38px}' +
+  '.pf-brand b{color:#fff;font-size:19px;font-weight:900}' +
+  '.pf-brand p{font-size:13.5px;line-height:1.7;color:#8a8aa0;margin-bottom:18px}' +
+  '.pf-badges{display:flex;flex-wrap:wrap;gap:8px}' +
+  '.pf-badges span{background:rgba(124,58,237,.12);border:1px solid rgba(124,58,237,.3);color:#c9b8ff;font-size:11.5px;font-weight:700;padding:6px 12px;border-radius:999px}' +
+  '.pf-col h4{font-size:12px;letter-spacing:1.5px;color:#fff;text-transform:uppercase;margin-bottom:18px;font-weight:800}' +
+  '.pf-col a{display:block;color:#9a9ab0;font-size:14px;margin-bottom:12px;text-decoration:none;transition:all .2s}' +
+  '.pf-col a:hover{color:#c9b8ff;transform:translateX(4px)}' +
+  '.pf-status{display:inline-flex;align-items:center;gap:7px;margin-top:8px;font-size:12px;color:#4ade80;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);padding:6px 12px;border-radius:999px}' +
+  '.pf-status i{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pfPulse 2s infinite}' +
+  '@keyframes pfPulse{0%,100%{opacity:1}50%{opacity:.4}}' +
+  '.pf-bottom{max-width:1200px;margin:50px auto 0;border-top:1px solid rgba(255,255,255,.08);padding:22px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:13px;color:#6a6a80}' +
+  '.pf-top-btn{width:42px;height:42px;border-radius:12px;border:1px solid rgba(124,58,237,.4);background:rgba(124,58,237,.15);color:#c9b8ff;font-size:18px;cursor:pointer;transition:all .2s}' +
+  '.pf-top-btn:hover{background:#7c3aed;color:#fff;transform:translateY(-3px)}' +
+  '@media(max-width:1000px){.pf-grid{grid-template-columns:1fr 1fr}}' +
+  '@media(max-width:560px){.pf-grid{grid-template-columns:1fr}}';
+  document.head.appendChild(st);
+
+  var FALLBACK='<svg class="lsvg" viewBox="0 0 48 48"><defs><linearGradient id="fbg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d28d9"/><stop offset="1" stop-color="#a855f7"/></linearGradient></defs><rect width="48" height="48" rx="12" fill="url(#fbg)"/><path d="M14.5 15.5 L19.5 20 L24 11.5 L28.5 20 L33.5 15.5 L33.5 31.5 L27.5 37.5 L17 37.5 Q14.5 37.5 14.5 35 Z" fill="#fff"/><path d="M33.5 31.5 L27.5 37.5 L27.5 31.5 Z" fill="#ddd6fe"/><circle cx="14.5" cy="12.8" r="2.4" fill="#fcd34d"/><circle cx="24" cy="8.8" r="2.6" fill="#fcd34d"/><circle cx="33.5" cy="12.8" r="2.4" fill="#fcd34d"/></svg>';
+
+  function build(){
+    var f=document.getElementById('siteFooter'); if(!f)return;
+    f.style.cssText='background:#0d0d15;padding:0';
+    var src=document.querySelector('.logo .lsvg')||document.querySelector('.lsvg');
+    var logo=src?src.outerHTML:FALLBACK;   /* ✅ outerHTML = asli SVG */
+    f.innerHTML='<div class="pf"><div class="pf-top"></div><div class="pf-grid">'+
+    '<div class="pf-brand"><div class="pf-logo">'+logo+'<b>Trono<span style="color:#a855f7">PDF</span></b></div>'+
+    '<p>Every PDF tool you need - free, fast and private. Files never leave your device. Powered by open-source libraries (pdf-lib, pdf.js).</p>'+
+    '<div class="pf-badges"><span>🔒 100% Private</span><span>⚡ No Uploads</span><span>💯 Free Forever</span></div></div>'+
+    '<div class="pf-col"><h4>Product</h4><a href="/">Home</a><a href="/all-tools.html">All Tools</a><a href="/about.html">About Us</a><a href="/contact.html">Contact</a></div>'+
+    '<div class="pf-col"><h4>Popular Tools</h4><a href="/merge-pdf.html">Merge PDF</a><a href="/split-pdf.html">Split PDF</a><a href="/compress-pdf.html">Compress PDF</a><a href="/jpg-to-pdf.html">JPG to PDF</a><a href="/pdf-to-word.html">PDF to Word</a><a href="/pdf-to-jpg.html">PDF to JPG</a></div>'+
+    '<div class="pf-col"><h4>Image Tools</h4><a href="/image-compressor.html">Image Compressor</a><a href="/image-resizer.html">Image Resizer</a><a href="/passport-photo.html">Passport Photo</a><a href="/signature-resize.html">Signature Resize</a><a href="/blur-photo.html">Blur Photo</a><a href="/image-converter.html">Image Converter</a></div>'+
+    '<div class="pf-col"><h4>Legal</h4><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms & Conditions</a><a href="/disclaimer.html">Disclaimer</a><span class="pf-status"><i></i>All systems operational</span></div>'+
+    '</div>'+
+    '<div class="pf-bottom"><span>© 2026 TronoPDF — All Rights Reserved.</span><span>Made with 💜 for everyone • Rule Your PDFs 👑</span><button class="pf-top-btn" title="Back to top">↑</button></div>'+
+    '</div>';
+    var tb=f.querySelector('.pf-top-btn');
+    if(tb)tb.onclick=function(){window.scrollTo({top:0,behavior:'smooth'});};
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);
+  else build();
+})();
