@@ -978,3 +978,35 @@ if(document.readyState==='loading'){
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);
   else build();
 })();
+/* ===== TASK 20: FOOTER BLOG + FAQ LINKS PATCH ===== */
+(function(){
+  function patchFooterLinks(){
+    var cols=document.querySelectorAll('.pf-col');
+    if(!cols || !cols.length) return;
+    var productCol=null;
+    cols.forEach(function(c){
+      var h=c.querySelector('h4');
+      if(h && h.textContent.trim().toLowerCase()==='product') productCol=c;
+    });
+    if(!productCol) return;
+    if(!productCol.querySelector('a[href="/blog.html"]')){
+      var blog=document.createElement('a');
+      blog.href='/blog.html';
+      blog.textContent='Blog';
+      var about=productCol.querySelector('a[href="/about.html"]');
+      if(about) productCol.insertBefore(blog, about);
+      else productCol.appendChild(blog);
+    }
+    if(!productCol.querySelector('a[href="/faq.html"]')){
+      var faq=document.createElement('a');
+      faq.href='/faq.html';
+      faq.textContent='FAQ';
+      var contact=productCol.querySelector('a[href="/contact.html"]');
+      if(contact) productCol.insertBefore(faq, contact);
+      else productCol.appendChild(faq);
+    }
+  }
+  window.addEventListener('load', function(){
+    setTimeout(patchFooterLinks, 500);
+  });
+})();
