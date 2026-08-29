@@ -760,7 +760,7 @@ if(document.readyState==='loading'){
   var path=location.pathname;
   var tool=path.split('/').pop().replace('.html','').replace('/','');
   if(!tool||tool==='index')return;
-  var skip=['about','contact','privacy','terms','disclaimer','all-tools'];
+  var skip=['about','contact','privacy','terms','disclaimer','all-tools','faq','status'];
   if(skip.indexOf(tool)>-1)return;
 
   var KEY='tronopdf-rating-'+tool;
@@ -826,8 +826,9 @@ if(document.readyState==='loading'){
   document.head.appendChild(st);
 })();
 
-/* ===== TASK 17 v2: PREMIUM FOOTER FINAL (logo fixed) ===== */
+/* ===== TASK 17 v2: PREMIUM FOOTER FINAL (logo fixed + clickable status) ===== */
 (function(){
+  var old=document.getElementById('pfCss'); if(old)old.remove();
   var st=document.createElement('style'); st.id='pfCss';
   st.textContent=
   '.pf{background:linear-gradient(180deg,#14141f,#0d0d15);color:#9a9ab0;padding:70px 24px 0;position:relative;overflow:hidden}' +
@@ -842,8 +843,9 @@ if(document.readyState==='loading'){
   '.pf-col h4{font-size:12px;letter-spacing:1.5px;color:#fff;text-transform:uppercase;margin-bottom:18px;font-weight:800}' +
   '.pf-col a{display:block;color:#9a9ab0;font-size:14px;margin-bottom:12px;text-decoration:none;transition:all .2s}' +
   '.pf-col a:hover{color:#c9b8ff;transform:translateX(4px)}' +
-  '.pf-status{display:inline-flex;align-items:center;gap:7px;margin-top:8px;font-size:12px;color:#4ade80;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);padding:6px 12px;border-radius:999px}' +
-  '.pf-status i{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pfPulse 2s infinite}' +
+  '.pf-status{display:inline-flex;align-items:center;gap:7px;margin-top:8px;font-size:12px;color:#4ade80;background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.25);padding:6px 12px;border-radius:999px;text-decoration:none;transition:all .2s;cursor:pointer}' +
+  '.pf-status:hover{background:rgba(74,222,128,.15)!important;border-color:rgba(74,222,128,.5)!important;transform:translateX(2px)}' +
+  '.pf-status i{width:7px;height:7px;background:#4ade80;border-radius:50%;animation:pfPulse 2s infinite;display:inline-block}' +
   '@keyframes pfPulse{0%,100%{opacity:1}50%{opacity:.4}}' +
   '.pf-bottom{max-width:1200px;margin:50px auto 0;border-top:1px solid rgba(255,255,255,.08);padding:22px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:13px;color:#6a6a80}' +
   '.pf-top-btn{width:42px;height:42px;border-radius:12px;border:1px solid rgba(124,58,237,.4);background:rgba(124,58,237,.15);color:#c9b8ff;font-size:18px;cursor:pointer;transition:all .2s}' +
@@ -866,7 +868,7 @@ if(document.readyState==='loading'){
     '<div class="pf-col"><h4>Product</h4><a href="/">Home</a><a href="/all-tools.html">All Tools</a><a href="/about.html">About Us</a><a href="/contact.html">Contact</a></div>'+
     '<div class="pf-col"><h4>Popular Tools</h4><a href="/merge-pdf.html">Merge PDF</a><a href="/split-pdf.html">Split PDF</a><a href="/compress-pdf.html">Compress PDF</a><a href="/jpg-to-pdf.html">JPG to PDF</a><a href="/pdf-to-word.html">PDF to Word</a><a href="/pdf-to-jpg.html">PDF to JPG</a></div>'+
     '<div class="pf-col"><h4>Image Tools</h4><a href="/image-compressor.html">Image Compressor</a><a href="/image-resizer.html">Image Resizer</a><a href="/passport-photo.html">Passport Photo</a><a href="/signature-resize.html">Signature Resize</a><a href="/blur-photo.html">Blur Photo</a><a href="/image-converter.html">Image Converter</a></div>'+
-    '<div class="pf-col"><h4>Legal</h4><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms & Conditions</a><a href="/disclaimer.html">Disclaimer</a><span class="pf-status"><i></i>All systems operational</span></div>'+
+    '<div class="pf-col"><h4>Legal</h4><a href="/privacy.html">Privacy Policy</a><a href="/terms.html">Terms & Conditions</a><a href="/disclaimer.html">Disclaimer</a><a class="pf-status" href="/status.html"><i></i>All systems operational</a></div>'+
     '</div>'+
     '<div class="pf-bottom"><span>© 2026 TronoPDF — All Rights Reserved.</span><span>Made with 💜 for everyone • Rule Your PDFs 👑</span><button class="pf-top-btn" title="Back to top">↑</button></div>'+
     '</div>';
@@ -876,6 +878,7 @@ if(document.readyState==='loading'){
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);
   else build();
 })();
+
 /* ===== TASK 18: LANGUAGE SELECTOR (26 languages) ===== */
 (function(){
   var LANGS=[['en','English'],['es','Español'],['fr','Français'],['de','Deutsch'],['it','Italiano'],['pt','Português'],['ja','日本語'],['ru','Русский'],['ko','한국어'],['zh-CN','中文 (简体)'],['zh-TW','中文 (繁體)'],['ar','العربية'],['bg','Български'],['ca','Català'],['nl','Nederlands'],['el','Ελληνικά'],['hi','हिन्दी'],['id','Bahasa Indonesia'],['ms','Bahasa Melayu'],['pl','Polski'],['sv','Svenska'],['th','ภาษาไทย'],['tr','Türkçe'],['uk','Українська'],['vi','Tiếng Việt'],['sw','Kiswahili']];
@@ -942,6 +945,7 @@ if(document.readyState==='loading'){
   }
   window.addEventListener('load', function(){ setTimeout(buildUI, 200); });
 })();
+
 /* ===== TASK 19: COOKIE CONSENT BANNER (GDPR) ===== */
 (function(){
   var KEY='tronopdf-cookie-consent';
