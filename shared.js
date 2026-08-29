@@ -942,3 +942,35 @@ if(document.readyState==='loading'){
   }
   window.addEventListener('load', function(){ setTimeout(buildUI, 200); });
 })();
+/* ===== TASK 19: COOKIE CONSENT BANNER (GDPR) ===== */
+(function(){
+  var KEY='tronopdf-cookie-consent';
+  function get(){ try{ return localStorage.getItem(KEY); }catch(e){ return null; } }
+  function set(v){ try{ localStorage.setItem(KEY,v); }catch(e){} }
+  if(get()) return;
+
+  var st=document.createElement('style');
+  st.textContent='.cc-banner{position:fixed;left:0;right:0;bottom:0;z-index:99998;background:#14141f;color:#e8e8f0;padding:18px 20px;display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;box-shadow:0 -10px 40px rgba(0,0,0,.4);transform:translateY(100%);transition:transform .4s ease;border-top:1px solid #2a2a40}'+
+  '.cc-banner.show{transform:translateY(0)}'+
+  '.cc-text{font-size:13.5px;color:#c9c9dd;max-width:640px}'+
+  '.cc-text a{color:#c9b8ff;font-weight:700;text-decoration:underline}'+
+  '.cc-actions{display:flex;gap:10px}'+
+  '.cc-accept{background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;font-weight:800;font-size:13.5px;padding:11px 22px;border-radius:10px;cursor:pointer}'+
+  '.cc-accept:hover{transform:translateY(-1px)}'+
+  '.cc-decline{background:transparent;color:#c9c9dd;border:1px solid #3a3a46;font-weight:700;font-size:13.5px;padding:11px 22px;border-radius:10px;cursor:pointer}'+
+  '.cc-decline:hover{border-color:#7c3aed;color:#fff}';
+  document.head.appendChild(st);
+
+  function build(){
+    var b=document.createElement('div');
+    b.className='cc-banner';
+    b.innerHTML='<div class="cc-text">🍪 We use cookies & local storage to improve your experience and analyze traffic. No personal data is sold. Read our <a href="/privacy.html">Privacy Policy</a>.</div>'+
+    '<div class="cc-actions"><button class="cc-accept" id="ccAccept">Accept</button><button class="cc-decline" id="ccDecline">Decline</button></div>';
+    document.body.appendChild(b);
+    setTimeout(function(){ b.classList.add('show'); }, 600);
+    document.getElementById('ccAccept').onclick=function(){ set('accepted'); b.classList.remove('show'); setTimeout(function(){b.remove();},400); };
+    document.getElementById('ccDecline').onclick=function(){ set('declined'); b.classList.remove('show'); setTimeout(function(){b.remove();},400); };
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);
+  else build();
+})();
