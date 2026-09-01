@@ -1,47 +1,53 @@
-/* TronoPDF - Image Compressor v4 | Web Worker + Cancel + Progress */
+/* TronoPDF - Image Compressor v5 | Smart Fallback + Global + Memory-Safe */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
 
-/* Web Worker for image compression */
-var workerCode = `
-function bytesOf(d) {
-  return atob(d.split(',')[1]).length;
-}
+/* Check OffscreenCanvas support */
+var hasOffscreen = typeof OffscreenCanvas !== 'undefined';
 
-function drawToCanvas(img, maxD) {
+/* Web Worker for image compression (only if OffscreenCanvas supported) */
+var workerCode = `
+var hasOffscreen = typeof OffscreenCanvas !== 'undefined';
+
+function drawToCanvas(img, maxD, isPng) {
   var sc = Math.min(1, maxD / Math.max(img.width, img.height));
   var w = Math.max(1, Math.round(img.width * sc));
-  var h = Math.max(1, Math.round(img.height * sc));
-  var c = new OffscreenCanvas(w, h);
-  var x = c.getContext('2d');
-  x.fillStyle = '#fff';
-  x.fillRect(0, 0, w, h);
+  var h = Math.max(1, Math.round(img.height * h));
+  
+  var c, x;
+  if (hasOffscreen) {
+    c = new OffscreenCanvas(w, h);
+    x = c.getContext('2d');
+  } else {
+    c = document.createElement('canvas');
+    c.width = w;
+    c.height = h;
+    x = c.getContext('2d');
+  }
+  
+  if (!isPng) {
+    x.fillStyle = '#fff';
+    x.fillRect(0, 0, w, h);
+  }
   x.drawImage(img, 0, 0, w, h);
   return c;
 }
 
 function compressOne(img, opts, progressCb) {
-  var base = drawToCanvas(img, 4096);
+  var isPng = opts.format === 'png';
+  var base = drawToCanvas(img, 4096, isPng);
+  var mimeType = isPng ? 'image/png' : 'image/jpeg';
   
   if (opts.mode === 'quality') {
-    var blob = base.convertToBlob({type: 'image/jpeg', quality: opts.q});
+    var blob = base.convertToBlob({type: mimeType, quality: opts.q});
     return blob.then(function(b) {
-      return new Promise(function(resolve) {
-        var reader = new FileReaderSync();
-        var dataURL = reader.readAsDataURL(b);
-        resolve({dataURL: dataURL, bytes: b.size});
-      });
-    }).catch(function() {
-      /* Fallback: use canvas toDataURL if FileReaderSync not available */
-      return base.convertToBlob({type: 'image/jpeg', quality: opts.q}).then(function(b) {
-        return b.arrayBuffer().then(function(ab) {
-          var bytes = new Uint8Array(ab);
-          var binary = '';
-          for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-          var dataURL = 'data:image/jpeg;base64,' + btoa(binary);
-          return {dataURL: dataURL, bytes: b.size};
-        });
+      return b.arrayBuffer().then(function(ab) {
+        var bytes = new Uint8Array(ab);
+        var binary = '';
+        for (var i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        var dataURL = 'data:' + mimeType + ';base64,' + btoa(binary);
+        return {dataURL: dataURL, bytes: b.size};
       });
     });
   }
@@ -51,10 +57,13 @@ function compressOne(img, opts, progressCb) {
   var attempt = 0;
   
   function tryAt(w, h) {
-    var c2 = new OffscreenCanvas(w, h);
+    var c2 = hasOffscreen ? new OffscreenCanvas(w, h) : document.createElement('canvas');
+    if (!hasOffscreen) { c2.width = w; c2.height = h; }
     var x = c2.getContext('2d');
-    x.fillStyle = '#fff';
-    x.fillRect(0, 0, w, h);
+    if (!isPng) {
+      x.fillStyle = '#fff';
+      x.fillRect(0, 0, w, h);
+    }
     x.drawImage(base, 0, 0, w, h);
     
     var lo = 0.02, hi = 0.95, best = null;
@@ -64,12 +73,12 @@ function compressOne(img, opts, progressCb) {
       (function(idx) {
         chain = chain.then(function() {
           var q = (lo + hi) / 2;
-          return c2.convertToBlob({type: 'image/jpeg', quality: q}).then(function(b) {
+          return c2.convertToBlob({type: mimeType, quality: q}).then(function(b) {
             return b.arrayBuffer().then(function(ab) {
               var bytes = new Uint8Array(ab);
               var binary = '';
               for (var j = 0; j < bytes.length; j++) binary += String.fromCharCode(bytes[j]);
-              var dataURL = 'data:image/jpeg;base64,' + btoa(binary);
+              var dataURL = 'data:' + mimeType + ';base64,' + btoa(binary);
               var size = b.size;
               
               if (!smallest || size < smallest.bytes) {
@@ -123,7 +132,8 @@ self.onmessage = function(e) {
         });
         
         return createImageBitmap(imgData.blob).then(function(bitmap) {
-          return compressOne(bitmap, opts, function(p) {
+          var format = imgData.name.toLowerCase().endsWith('.png') ? 'png' : 'jpeg';
+          return compressOne(bitmap, Object.assign({}, opts, {format: format}), function(p) {
             var overallPercent = ((idx + p) / total) * 90;
             self.postMessage({
               type: 'progress',
@@ -137,7 +147,7 @@ self.onmessage = function(e) {
           results.push({index: idx, result: result, error: false});
           bitmap.close();
         }).catch(function(err) {
-          results.push({index: idx, result: null, error: true});
+          results.push({index: idx, result: null, error: true, errorMsg: err.message || 'Processing failed'});
         });
       });
     });
@@ -153,10 +163,111 @@ self.onmessage = function(e) {
 };
 `;
 
-/* Create Worker */
-var blob = new Blob([workerCode], {type: 'application/javascript'});
-var workerUrl = URL.createObjectURL(blob);
-var worker = new Worker(workerUrl);
+/* Main thread fallback compression (for browsers without OffscreenCanvas) */
+function compressMainThread(imgData, opts, progressCb) {
+  return new Promise(function(resolve, reject) {
+    var img = new Image();
+    img.onload = function() {
+      var isPng = imgData.name.toLowerCase().endsWith('.png');
+      var mimeType = isPng ? 'image/png' : 'image/jpeg';
+      var maxD = 4096;
+      var sc = Math.min(1, maxD / Math.max(img.width, img.height));
+      var w = Math.max(1, Math.round(img.width * sc));
+      var h = Math.max(1, Math.round(img.height * sc));
+      
+      var c = document.createElement('canvas');
+      c.width = w;
+      c.height = h;
+      var x = c.getContext('2d');
+      
+      if (!isPng) {
+        x.fillStyle = '#fff';
+        x.fillRect(0, 0, w, h);
+      }
+      x.drawImage(img, 0, 0, w, h);
+      
+      if (opts.mode === 'quality') {
+        c.toBlob(function(blob) {
+          if (!blob) { reject(new Error('Blob creation failed')); return; }
+          var reader = new FileReader();
+          reader.onload = function() {
+            resolve({dataURL: reader.result, bytes: blob.size});
+          };
+          reader.onerror = function() { reject(new Error('Reader error')); };
+          reader.readAsDataURL(blob);
+        }, mimeType, opts.q);
+      } else {
+        /* Target mode */
+        var smallest = null;
+        var attempt = 0;
+        
+        function tryAt(w, h) {
+          var c2 = document.createElement('canvas');
+          c2.width = w;
+          c2.height = h;
+          var x2 = c2.getContext('2d');
+          if (!isPng) {
+            x2.fillStyle = '#fff';
+            x2.fillRect(0, 0, w, h);
+          }
+          x2.drawImage(c, 0, 0, w, h);
+          
+          var lo = 0.02, hi = 0.95, best = null;
+          var i = 0;
+          
+          function nextIter() {
+            if (i >= 9) {
+              if (best) { resolve(best); return; }
+              if (w > 120 && attempt < 8) {
+                attempt++;
+                tryAt(Math.round(w * 0.8), Math.round(h * 0.8));
+              } else {
+                resolve(smallest);
+              }
+              return;
+            }
+            
+            var q = (lo + hi) / 2;
+            c2.toBlob(function(blob) {
+              if (!blob) { i++; nextIter(); return; }
+              var reader = new FileReader();
+              reader.onload = function() {
+                var size = blob.size;
+                if (!smallest || size < smallest.bytes) {
+                  smallest = {dataURL: reader.result, bytes: size};
+                }
+                if (size <= opts.target) {
+                  best = {dataURL: reader.result, bytes: size};
+                  lo = q;
+                } else {
+                  hi = q;
+                }
+                if (progressCb) progressCb((i + 1) / 9);
+                i++;
+                nextIter();
+              };
+              reader.readAsDataURL(blob);
+            }, mimeType, q);
+          }
+          
+          nextIter();
+        }
+        
+        tryAt(w, h);
+      }
+    };
+    img.onerror = function() { reject(new Error('Image load failed')); };
+    img.src = URL.createObjectURL(imgData.blob);
+  });
+}
+
+/* Create Worker if supported */
+var worker = null;
+if (hasOffscreen) {
+  var blob = new Blob([workerCode], {type: 'application/javascript'});
+  var workerUrl = URL.createObjectURL(blob);
+  worker = new Worker(workerUrl);
+}
 
 function fmtB(n){return n<1024?n+' B':(n<1048576)?(n/1024).toFixed(1)+' KB':(n/1048576).toFixed(2)+' MB';}
 
@@ -213,7 +324,7 @@ html+='.ic-cancel:hover{background:#e6e8f5}';
 html+='@media(max-width:900px){.ic-main{flex-direction:column}.ic-side{width:auto;border-left:none;border-top:1px solid #eceaf6}}';
 html+='</style>';
 html+='<div class="ic-wrap">';
-html+='<div id="icPick"><div class="ic-hero"><h1>Image Compressor</h1><p>Compress JPG & PNG to an exact KB size. Perfect for SSC, Bank, UPSC and job application forms. Free & private.</p>';
+html+='<div id="icPick"><div class="ic-hero"><h1>Image Compressor</h1><p>Compress JPG & PNG to an exact KB size. Perfect for job applications, exams, visas and online forms worldwide. Free & private.</p>';
 html+='<div class="ic-zone" id="icZone"><button class="ic-big" id="icBtn" type="button">Select images</button><p class="ic-drop-hint">or drop images here</p></div></div></div>';
 html+='<div class="ic-work" id="icWork"><div class="ic-main"><div class="ic-list"><div class="ic-note">💡 Each image has its own Download button - files save directly to your phone or PC. No ZIP needed!</div><div class="ic-grid" id="icGrid"></div></div>';
 html+='<aside class="ic-side"><h2>Compression settings</h2>';
@@ -239,37 +350,40 @@ var statusEl=document.getElementById('icStatus');
 var elTarget=document.getElementById('icTarget'),elUnit=document.getElementById('icUnit'),elQ=document.getElementById('icQ');
 
 /* Worker message handler */
-worker.onmessage = function(e) {
-  var data = e.data;
-  
-  if (data.type === 'progress') {
-    document.getElementById('icPct').textContent = Math.round(data.percent) + '%';
-    document.getElementById('icBarFill').style.width = data.percent + '%';
-    statusEl.textContent = data.msg || 'Processing...';
-  } else if (data.type === 'complete') {
-    document.getElementById('icPct').textContent = '100%';
-    document.getElementById('icBarFill').style.width = '100%';
-    statusEl.textContent = 'Complete!';
+if (worker) {
+  worker.onmessage = function(e) {
+    var data = e.data;
     
-    /* Apply results to files */
-    data.results.forEach(function(r) {
-      if (r.index < files.length) {
-        if (r.error) {
-          files[r.index].error = true;
-        } else {
-          files[r.index].result = r.result;
+    if (data.type === 'progress') {
+      document.getElementById('icPct').textContent = Math.round(data.percent) + '%';
+      document.getElementById('icBarFill').style.width = data.percent + '%';
+      statusEl.textContent = data.msg || 'Processing...';
+    } else if (data.type === 'complete') {
+      document.getElementById('icPct').textContent = '100%';
+      document.getElementById('icBarFill').style.width = '100%';
+      statusEl.textContent = 'Complete!';
+      
+      /* Apply results to files */
+      data.results.forEach(function(r) {
+        if (r.index < files.length) {
+          if (r.error) {
+            files[r.index].error = true;
+            files[r.index].errorMsg = r.errorMsg || 'Processing failed';
+          } else {
+            files[r.index].result = r.result;
+          }
         }
-      }
-    });
-    
-    setTimeout(function() {
-      busy.style.display = 'none';
-      work.style.display = 'block';
-      go.disabled = false;
-      render();
-    }, 300);
-  }
-};
+      });
+      
+      setTimeout(function() {
+        busy.style.display = 'none';
+        work.style.display = 'block';
+        go.disabled = false;
+        render();
+      }, 300);
+    }
+  };
+}
 
 document.getElementById('icTabTarget').onclick=function(){
   mode='target';
@@ -315,10 +429,11 @@ function render(){
     c.className='ic-card';
     var body='<img src="'+(it.result?it.result.dataURL:it.url)+'" alt=""><div class="ic-nm">'+it.f.name+'</div>';
     if(it.error){
-      body+='<div class="ic-sizes" style="color:#dc2626;font-weight:700">Could not compress this image</div>';
+      body+='<div class="ic-sizes" style="color:#dc2626;font-weight:700">'+(it.errorMsg||'Could not compress this image')+'</div>';
     }else if(it.result){
       var saved=Math.max(0,(1-it.result.bytes/it.f.size)*100);
-      body+='<div class="ic-badge">↓ '+saved.toFixed(0)+'%</div><div class="ic-sizes"><span class="ic-old">'+fmtB(it.f.size)+'</span><span>→</span><span class="ic-new">'+fmtB(it.result.bytes)+'</span></div><a class="ic-dl" href="'+it.result.dataURL+'" download="compressed-'+it.f.name.replace(/\.[^.]+$/,'')+'.jpg">⬇ Download</a>';
+      var ext = it.f.name.toLowerCase().endsWith('.png') ? '.png' : '.jpg';
+      body+='<div class="ic-badge">↓ '+saved.toFixed(0)+'%</div><div class="ic-sizes"><span class="ic-old">'+fmtB(it.f.size)+'</span><span>→</span><span class="ic-new">'+fmtB(it.result.bytes)+'</span></div><a class="ic-dl" href="'+it.result.dataURL+'" download="compressed-'+it.f.name.replace(/\.[^.]+$/,'')+ext+'">⬇ Download</a>';
     }else{
       body+='<div class="ic-sizes">'+fmtB(it.f.size)+'</div><div style="text-align:center;color:#9a9aa5;font-size:12px">Waiting to compress...</div>';
     }
@@ -347,7 +462,7 @@ go.onclick=function(){
     opts={mode:'quality',q:elQ.value/100};
   }
   
-  files.forEach(function(it){it.result=null;it.error=false;});
+  files.forEach(function(it){it.result=null;it.error=false;it.errorMsg=null;});
   
   work.style.display='none';
   busy.style.display='block';
@@ -357,7 +472,7 @@ go.onclick=function(){
   cancelRequested=false;
   go.disabled=true;
   
-  /* Read all files and send to worker */
+  /* Read all files */
   var readPromises = files.map(function(it) {
     return it.f.arrayBuffer().then(function(buf) {
       return {blob: new Blob([buf], {type: it.f.type || 'image/jpeg'}), name: it.f.name};
@@ -372,11 +487,65 @@ go.onclick=function(){
       return;
     }
     
-    worker.postMessage({
-      type: 'compress',
-      images: imageData,
-      options: opts
-    });
+    if (worker) {
+      /* Use worker */
+      worker.postMessage({
+        type: 'compress',
+        images: imageData,
+        options: opts
+      });
+    } else {
+      /* Fallback: main thread compression */
+      var total = imageData.length;
+      var results = [];
+      var chain = Promise.resolve();
+      
+      imageData.forEach(function(imgData, idx) {
+        chain = chain.then(function() {
+          if (cancelRequested) return;
+          
+          document.getElementById('icPct').textContent = Math.round((idx / total) * 90) + '%';
+          document.getElementById('icBarFill').style.width = ((idx / total) * 90) + '%';
+          statusEl.textContent = 'Compressing image ' + (idx + 1) + ' of ' + total;
+          
+          return compressMainThread(imgData, opts, function(p) {
+            var overallPercent = ((idx + p) / total) * 90;
+            document.getElementById('icPct').textContent = Math.round(overallPercent) + '%';
+            document.getElementById('icBarFill').style.width = overallPercent + '%';
+          }).then(function(result) {
+            results.push({index: idx, result: result, error: false});
+          }).catch(function(err) {
+            results.push({index: idx, result: null, error: true, errorMsg: err.message || 'Processing failed'});
+          });
+        });
+      });
+      
+      chain.then(function() {
+        if (cancelRequested) return;
+        
+        document.getElementById('icPct').textContent = '100%';
+        document.getElementById('icBarFill').style.width = '100%';
+        statusEl.textContent = 'Complete!';
+        
+        results.forEach(function(r) {
+          if (r.index < files.length) {
+            if (r.error) {
+              files[r.index].error = true;
+              files[r.index].errorMsg = r.errorMsg || 'Processing failed';
+            } else {
+              files[r.index].result = r.result;
+            }
+          }
+        });
+        
+        setTimeout(function() {
+          busy.style.display = 'none';
+          work.style.display = 'block';
+          go.disabled = false;
+          render();
+        }, 300);
+      });
+    }
   }).catch(function(err) {
     busy.style.display='none';
     work.style.display='block';
@@ -389,37 +558,43 @@ cancelBtn.onclick=function(){
   cancelRequested=true;
   statusEl.textContent='Cancelling...';
   
-  /* Terminate and recreate worker */
-  worker.terminate();
-  var blob = new Blob([workerCode], {type: 'application/javascript'});
-  var workerUrl = URL.createObjectURL(blob);
-  worker = new Worker(workerUrl);
-  
-  /* Reattach message handler */
-  worker.onmessage = function(e) {
-    var data = e.data;
-    if (data.type === 'progress') {
-      document.getElementById('icPct').textContent = Math.round(data.percent) + '%';
-      document.getElementById('icBarFill').style.width = data.percent + '%';
-      statusEl.textContent = data.msg || 'Processing...';
-    } else if (data.type === 'complete') {
-      document.getElementById('icPct').textContent = '100%';
-      document.getElementById('icBarFill').style.width = '100%';
-      statusEl.textContent = 'Complete!';
-      data.results.forEach(function(r) {
-        if (r.index < files.length) {
-          if (r.error) files[r.index].error = true;
-          else files[r.index].result = r.result;
-        }
-      });
-      setTimeout(function() {
-        busy.style.display = 'none';
-        work.style.display = 'block';
-        go.disabled = false;
-        render();
-      }, 300);
-    }
-  };
+  if (worker) {
+    /* Terminate and recreate worker */
+    worker.terminate();
+    var blob = new Blob([workerCode], {type: 'application/javascript'});
+    var workerUrl = URL.createObjectURL(blob);
+    worker = new Worker(workerUrl);
+    
+    /* Reattach message handler */
+    worker.onmessage = function(e) {
+      var data = e.data;
+      if (data.type === 'progress') {
+        document.getElementById('icPct').textContent = Math.round(data.percent) + '%';
+        document.getElementById('icBarFill').style.width = data.percent + '%';
+        statusEl.textContent = data.msg || 'Processing...';
+      } else if (data.type === 'complete') {
+        document.getElementById('icPct').textContent = '100%';
+        document.getElementById('icBarFill').style.width = '100%';
+        statusEl.textContent = 'Complete!';
+        data.results.forEach(function(r) {
+          if (r.index < files.length) {
+            if (r.error) {
+              files[r.index].error = true;
+              files[r.index].errorMsg = r.errorMsg || 'Processing failed';
+            } else {
+              files[r.index].result = r.result;
+            }
+          }
+        });
+        setTimeout(function() {
+          busy.style.display = 'none';
+          work.style.display = 'block';
+          go.disabled = false;
+          render();
+        }, 300);
+      }
+    };
+  }
   
   busy.style.display='none';
   work.style.display='block';
