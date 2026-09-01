@@ -316,7 +316,7 @@ function getCurrentTool(){
   return file;
 }
 
-/* ===== RENDER RELATED TOOLS ===== */
+/* ===== RENDER RELATED TOOLS (with workflow hints) ===== */
 function renderRelatedTools(){
   var current=getCurrentTool();
   if(!current||!TOOLS[current])return;
@@ -324,9 +324,30 @@ function renderRelatedTools(){
   var related=tool.related||[];
   if(related.length===0)return;
 
+  var workflows={
+    'compress-pdf':{title:'Common Workflow',desc:'Merge PDFs → Compress → Add page numbers → Protect'},
+    'merge-pdf':{title:'Next Steps',desc:'After merging: Compress to reduce size, then protect with password'},
+    'split-pdf':{title:'What\'s Next?',desc:'Split pages → Compress individually → Merge selected pages'},
+    'jpg-to-pdf':{title:'Complete Workflow',desc:'Convert images → Compress PDF → Add watermark → Protect'},
+    'pdf-to-word':{title:'Edit & Share',desc:'Convert to Word → Edit content → Convert back to PDF → Sign'},
+    'sign-pdf':{title:'Security Steps',desc:'Sign document → Add watermark → Password protect → Share'},
+    'protect-pdf':{title:'Full Security',desc:'Protect with password → Add watermark → Redact sensitive info'},
+    'ocr-pdf':{title:'After OCR',desc:'Extract text → Translate → Summarize → Convert to Word'}
+  };
+
+  var workflow=workflows[current];
+
   var html='<div class="rt-section">';
-  html+='<h2 class="rt-title">🔗 Related Tools</h2>';
-  html+='<p class="rt-subtitle">You might also need these tools</p>';
+  html+='<h2 class="rt-title">🔗 Related Tools You Might Need</h2>';
+  html+='<p class="rt-subtitle">Complete your document workflow with these tools</p>';
+  
+  if(workflow){
+    html+='<div class="rt-workflow">';
+    html+='<div class="rt-wf-title">'+workflow.title+'</div>';
+    html+='<div class="rt-wf-desc">'+workflow.desc+'</div>';
+    html+='</div>';
+  }
+  
   html+='<div class="rt-grid">';
   related.forEach(function(key){
     var t=TOOLS[key];
@@ -339,7 +360,7 @@ function renderRelatedTools(){
   html+='</div></div>';
 
   var style=document.createElement('style');
-  style.textContent='.rt-section{max-width:1200px;margin:40px auto;padding:0 20px}.rt-title{font-size:26px;font-weight:900;color:#1e1e2e;margin-bottom:6px}.rt-subtitle{font-size:14px;color:#8a8a99;margin-bottom:20px}.rt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}.rt-card{display:flex;align-items:center;gap:14px;padding:16px 18px;background:#fff;border:1px solid #eceaf6;border-radius:14px;text-decoration:none;color:inherit;transition:all .25s ease}.rt-card:hover{border-color:#7c3aed;box-shadow:0 8px 24px rgba(124,58,237,.12);transform:translateY(-3px)}.rt-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}.rt-info{flex:1;min-width:0}.rt-name{font-size:14px;font-weight:800;color:#1e1e2e;margin-bottom:2px}.rt-desc{font-size:12px;color:#8a8a99;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rt-arrow{font-size:16px;color:#c4c4d4;transition:transform .2s}.rt-card:hover .rt-arrow{transform:translateX(4px);color:#7c3aed}@media(max-width:600px){.rt-grid{grid-template-columns:1fr}.rt-section{padding:0 16px;margin:30px auto}}';
+  style.textContent='.rt-section{max-width:1200px;margin:40px auto;padding:0 20px}.rt-title{font-size:26px;font-weight:900;color:#1e1e2e;margin-bottom:6px}.rt-subtitle{font-size:14px;color:#8a8a99;margin-bottom:20px}.rt-workflow{background:linear-gradient(135deg,#f3f0ff,#ede9fe);border:1px solid #e9d5ff;border-radius:14px;padding:20px;margin-bottom:24px}.rt-wf-title{font-size:16px;font-weight:800;color:#7c3aed;margin-bottom:8px}.rt-wf-desc{font-size:14px;color:#4b5563;line-height:1.6}.rt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}.rt-card{display:flex;align-items:center;gap:14px;padding:16px 18px;background:#fff;border:1px solid #eceaf6;border-radius:14px;text-decoration:none;color:inherit;transition:all .25s ease}.rt-card:hover{border-color:#7c3aed;box-shadow:0 8px 24px rgba(124,58,237,.12);transform:translateY(-3px)}.rt-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}.rt-info{flex:1;min-width:0}.rt-name{font-size:14px;font-weight:800;color:#1e1e2e;margin-bottom:2px}.rt-desc{font-size:12px;color:#8a8a99;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.rt-arrow{font-size:16px;color:#c4c4d4;transition:transform .2s}.rt-card:hover .rt-arrow{transform:translateX(4px);color:#7c3aed}html[data-theme="dark"] .rt-workflow{background:linear-gradient(135deg,#1e1e30,#232336);border-color:#32324a}html[data-theme="dark"] .rt-wf-title{color:#c9b8ff}html[data-theme="dark"] .rt-wf-desc{color:#b9b9cc}@media(max-width:600px){.rt-grid{grid-template-columns:1fr}.rt-section{padding:0 16px;margin:30px auto}}';
   document.head.appendChild(style);
 
   var footer=document.querySelector('footer')||document.getElementById('siteFooter');
@@ -561,14 +582,14 @@ if(document.readyState==='loading'){
     var apple=document.createElement('link'); apple.rel='apple-touch-icon'; apple.href=dataUri; document.head.appendChild(apple);
     setMeta('theme-color','#7c3aed',true);
     setMeta('og:title', document.title, false);
-    setMeta('og:description','Every PDF tool you need - free, fast and private. Rule Your PDFs.', false);
+    setMeta('og:description','Fast, private PDF tools that work in your browser. No signup, no uploads.', false);
     setMeta('og:type','website', false);
     setMeta('og:url', location.href, false);
     setMeta('og:site_name','TronoPDF', false);
     setMeta('og:image', dataUri, false);
     setMeta('twitter:card','summary',true);
     setMeta('twitter:title', document.title, true);
-    setMeta('twitter:description','Rule Your PDFs - free, fast, private PDF tools.',true);
+    setMeta('twitter:description','Fast, private PDF tools. Rule Your PDFs.',true);
     setMeta('twitter:image', dataUri, true);
   }
 
@@ -707,46 +728,100 @@ if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded',function(){setTimeout(apply,120);});
 })();
 
-/* ===== TASK 12: SEO (canonical + schema JSON-LD + meta) ===== */
+/* ===== TASK 12: SEO ENHANCED (canonical + HowTo schema + meta + breadcrumbs) ===== */
 (function(){
   var origin=location.origin, path=location.pathname;
 
   document.querySelectorAll('link[rel="canonical"]').forEach(function(l){l.remove();});
   var can=document.createElement('link'); can.rel='canonical'; can.href=origin+path; document.head.appendChild(can);
 
-  if(!document.querySelector('meta[name="description"]')){
-    var md=document.createElement('meta'); md.name='description';
-    md.content='TronoPDF - free, fast & private online PDF tools. Merge, split, compress, convert, sign & edit PDFs. Rule Your PDFs!';
-    document.head.appendChild(md);
-  }
-
   var file=path.split('/').pop().replace('.html','').replace('/','');
   var isHome=(!file||file==='index');
+
+  /* Page-specific SEO descriptions for high-traffic tools */
+  var DESC={
+    'compress-pdf':'Compress PDF online to reduce file size. Browser-based, no uploads. Perfect for email, forms and applications.',
+    'merge-pdf':'Merge multiple PDF files into one document. Combine PDFs in any order. Fast, private and free.',
+    'split-pdf':'Split PDF into multiple files or extract specific pages. Browser-based processing, no uploads required.',
+    'pdf-to-word':'Convert PDF to Word (DOCX) online. Editable text with preserved formatting. Free and private.',
+    'jpg-to-pdf':'Convert JPG images to PDF. Combine multiple photos into one PDF document. A4 and custom sizes.',
+    'pdf-to-jpg':'Convert PDF pages to JPG images. High quality export for presentations and social media.',
+    'sign-pdf':'Add digital signatures to PDF documents. Draw, type or upload signature. Legally binding.',
+    'protect-pdf':'Password protect PDF files. Encrypt documents to prevent unauthorized access.',
+    'ocr-pdf':'OCR PDF to make scanned documents searchable. Extract text from images with AI.',
+    'edit-pdf':'Edit PDF online. Add text, images, shapes and annotations. Browser-based editing.',
+    'unlock-pdf':'Remove password protection from PDF files you own. Quick and secure.',
+    'rotate-pdf':'Rotate PDF pages to correct orientation. Fix sideways scans easily.',
+    'watermark-pdf':'Add text or image watermarks to PDF. Protect documents and add branding.',
+    'image-compressor':'Compress images to exact KB size. Perfect for SSC, UPSC, banking and job forms.',
+    'passport-photo':'Create passport-size photos online. Correct dimensions for India, US, UK and more.',
+    'pdf-to-excel':'Convert PDF tables to Excel spreadsheets. Extract data for analysis.',
+    'pdf-to-powerpoint':'Convert PDF pages into editable PowerPoint slides for presentations.',
+    'word-to-pdf':'Convert Word documents to PDF with preserved formatting. Professional output.',
+    'excel-to-pdf':'Convert Excel spreadsheets to PDF format for easy sharing and printing.',
+    'redact-pdf':'Permanently remove sensitive information from PDF. True redaction, not just covering.',
+    'compare-pdf':'Compare two PDF documents side-by-side. See differences highlighted automatically.',
+    'pdf-forms':'Fill and create PDF forms online. Fillable and flat forms supported.',
+    'translate-pdf':'Translate PDF documents into 50+ languages. Preserve fonts and layout.',
+    'ai-summarizer':'Summarize long PDF documents using AI. Get key points in seconds.',
+    'scan-to-pdf':'Scan documents to PDF using your phone camera. Multiple pages in one file.'
+  };
+
+  if(!document.querySelector('meta[name="description"]')){
+    var md=document.createElement('meta'); md.name='description';
+    md.content=DESC[file]||'TronoPDF - Fast, private online PDF tools. Merge, split, compress, convert, sign & edit PDFs. No signup required.';
+    document.head.appendChild(md);
+  }
 
   var ld={"@context":"https://schema.org","@graph":[]};
   ld["@graph"].push({
     "@type":"WebSite","@id":origin+"/#website","url":origin+"/",
-    "name":"TronoPDF","description":"Every PDF tool you need - free, fast and private.",
+    "name":"TronoPDF","description":"Fast, private PDF tools that work in your browser.",
     "publisher":{"@type":"Organization","name":"TronoPDF","logo":{"@type":"ImageObject","url":origin+"/icon.svg"}}
   });
 
   if(!isHome){
+    var toolName=document.title.split('-')[0].trim()||document.title;
+    var toolDesc=DESC[file]||("Free online tool - "+toolName+". No signup, no watermark, private processing.");
+    
     ld["@graph"].push({
       "@type":"SoftwareApplication","@id":origin+path+"#app",
-      "name":document.title.split('-')[0].trim()||document.title,
+      "name":toolName,
       "url":origin+path,
       "applicationCategory":"UtilitiesApplication",
       "operatingSystem":"Any (Web)",
-      "description":"Free online tool - "+(document.title.split('-')[0]||"")+". No signup, no watermark, 100% private.",
-      "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+      "description":toolDesc,
+      "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
+      "featureList":["Browser-based processing","No file uploads","No signup required","Free to use","Privacy-focused"]
     });
+    
     ld["@graph"].push({
       "@type":"BreadcrumbList",
       "itemListElement":[
         {"@type":"ListItem","position":1,"name":"Home","item":origin+"/"},
-        {"@type":"ListItem","position":2,"name":document.title.split('-')[0].trim(),"item":origin+path}
+        {"@type":"ListItem","position":2,"name":"PDF Tools","item":origin+"/all-tools.html"},
+        {"@type":"ListItem","position":3,"name":toolName,"item":origin+path}
       ]
     });
+
+    /* Add HowTo schema from GUIDES database if available */
+    if(typeof GUIDES !== 'undefined' && GUIDES[file]){
+      var guide=GUIDES[file];
+      ld["@graph"].push({
+        "@type":"HowTo",
+        "name":"How to "+toolName,
+        "description":toolDesc,
+        "totalTime":"PT2M",
+        "step":guide.steps.map(function(s,i){
+          return {
+            "@type":"HowToStep",
+            "position":i+1,
+            "name":"Step "+(i+1),
+            "text":s.text+(s.tip?" - "+s.tip:"")
+          };
+        })
+      });
+    }
   }
 
   var s=document.createElement('script');
@@ -863,8 +938,8 @@ if(document.readyState==='loading'){
     var logo=src?src.outerHTML:FALLBACK;
     f.innerHTML='<div class="pf"><div class="pf-top"></div><div class="pf-grid">'+
     '<div class="pf-brand"><div class="pf-logo">'+logo+'<b>Trono<span style="color:#a855f7">PDF</span></b></div>'+
-    '<p>Every PDF tool you need - free, fast and private. Files never leave your device. Powered by open-source libraries (pdf-lib, pdf.js).</p>'+
-    '<div class="pf-badges"><span>🔒 100% Private</span><span>⚡ No Uploads</span><span>💯 Free Forever</span></div></div>'+
+    '<p>Fast, private PDF tools that work in your browser. Browser-based processing keeps your files on your device. Powered by open-source libraries (pdf-lib, pdf.js).</p>'+
+    '<div class="pf-badges"><span>🔒 100% Private</span><span>⚡ No Uploads</span><span>💯 Free to Use</span></div></div>'+
     '<div class="pf-col"><h4>Product</h4><a href="/">Home</a><a href="/all-tools.html">All Tools</a><a href="/about.html">About Us</a><a href="/contact.html">Contact</a></div>'+
     '<div class="pf-col"><h4>Popular Tools</h4><a href="/merge-pdf.html">Merge PDF</a><a href="/split-pdf.html">Split PDF</a><a href="/compress-pdf.html">Compress PDF</a><a href="/jpg-to-pdf.html">JPG to PDF</a><a href="/pdf-to-word.html">PDF to Word</a><a href="/pdf-to-jpg.html">PDF to JPG</a></div>'+
     '<div class="pf-col"><h4>Image Tools</h4><a href="/image-compressor.html">Image Compressor</a><a href="/image-resizer.html">Image Resizer</a><a href="/passport-photo.html">Passport Photo</a><a href="/signature-resize.html">Signature Resize</a><a href="/blur-photo.html">Blur Photo</a><a href="/image-converter.html">Image Converter</a></div>'+
