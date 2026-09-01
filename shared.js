@@ -1085,3 +1085,36 @@ if(document.readyState==='loading'){
     setTimeout(patchFooterLinks, 500);
   });
 })();
+/* ===== TASK 21: TOOL-FIRST LAYOUT FIX + COMPACT RELATED TOOLS ===== */
+(function(){
+  function fixLayout(){
+    var header=document.getElementById('siteHeader');
+    var main=document.querySelector('main.page-wrap');
+    if(!header||!main)return;
+    /* Tool ko header ke turant baad le jao (iLovePDF jaisa) */
+    if(main.previousElementSibling!==header){header.after(main);}
+    /* Loading skeleton ko tool ke turant baad rakho */
+    var skeleton=document.querySelector('[id$="Skeleton"]');
+    if(skeleton&&skeleton.previousElementSibling!==main){main.after(skeleton);}
+  }
+  if(document.getElementById('siteHeader')&&document.querySelector('main.page-wrap')){fixLayout();}
+  else{document.addEventListener('DOMContentLoaded',fixLayout);}
+})();
+
+/* ===== Compact Related Tools (chhote, professional, mobile-friendly) ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent=
+  '.rt-section{max-width:1200px;margin:28px auto!important;padding:0 16px!important}'+
+  '.rt-title{font-size:20px!important;font-weight:900!important;margin-bottom:4px!important}'+
+  '.rt-subtitle{font-size:13px!important;margin-bottom:14px!important}'+
+  '.rt-grid{grid-template-columns:repeat(auto-fill,minmax(170px,1fr))!important;gap:10px!important}'+
+  '.rt-card{padding:10px 12px!important;gap:10px!important;border-radius:12px!important}'+
+  '.rt-icon{width:34px!important;height:34px!important;min-width:34px!important;font-size:16px!important;border-radius:9px!important}'+
+  '.rt-name{font-size:13px!important;font-weight:800!important}'+
+  '.rt-desc{font-size:11px!important}'+
+  '.rt-arrow{display:none!important}'+
+  '@media(max-width:600px){.rt-grid{grid-template-columns:1fr 1fr!important}}'+
+  '@media(max-width:380px){.rt-grid{grid-template-columns:1fr!important}}';
+  document.head.appendChild(st);
+})();
