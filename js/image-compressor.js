@@ -1,4 +1,4 @@
-/* TronoPDF - Image Compressor v9 | EXACT-Target Engine + Quality Fix */
+/* TronoPDF - Image Compressor v10 | EXACT-SIZE Padding Engine */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -52,6 +52,87 @@ function encode(canvas, mime, q) {
   });
 }
 
+/* ===== EXACT-SIZE PADDING (invisible metadata) ===== */
+function dataURLToBytes(url) {
+  var bin = atob(url.split(',')[1]);
+  var arr = new Uint8Array(bin.length);
+  for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+function bytesToDataURL(arr, mime) {
+  var chunk = 8192, binary = '';
+  for (var i = 0; i < arr.length; i += chunk) {
+    binary += String.fromCharCode.apply(null, arr.subarray(i, i + chunk));
+  }
+  return 'data:' + mime + ';base64,' + btoa(binary);
+}
+function makeCom(payload) {
+  var len = payload + 2;
+  var seg = new Uint8Array(4 + payload);
+  seg[0] = 0xFF; seg[1] = 0xFE;
+  seg[2] = (len >> 8) & 255; seg[3] = len & 255;
+  for (var i = 0; i < payload; i++) seg[4 + i] = 0x20;
+  return seg;
+}
+function padJPEG(bytes, target) {
+  var extra = target - bytes.length;
+  if (extra < 4) return bytes;
+  var segs = [];
+  while (extra >= 65537) { segs.push(makeCom(65533)); extra -= 65537; }
+  if (extra >= 4) { segs.push(makeCom(extra - 4)); extra = 0; }
+  if (extra > 0) return bytes;
+  var total = bytes.length;
+  segs.forEach(function(s) { total += s.length; });
+  var out = new Uint8Array(total);
+  var o = 0;
+  out.set(bytes.subarray(0, 2), o); o += 2;
+  segs.forEach(function(s) { out.set(s, o); o += s.length; });
+  out.set(bytes.subarray(2), o);
+  return out;
+}
+var CRC_TABLE = (function() {
+  var t = new Uint32Array(256);
+  for (var n = 0; n < 256; n++) { var c = n; for (var k = 0; k < 8; k++) { c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1); } t[n] = c >>> 0; }
+  return t;
+})();
+function crc32(data) {
+  var c = 0xFFFFFFFF;
+  for (var i = 0; i < data.length; i++) c = CRC_TABLE[(c ^ data[i]) & 255] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function padPNG(bytes, target) {
+  var extra = target - bytes.length;
+  if (extra < 13) return bytes;
+  var iendPos = bytes.length - 12;
+  var dataLen = extra - 12;
+  var keyword = [0x43,0x6F,0x6D,0x6D,0x65,0x6E,0x74];
+  var textLen = dataLen - keyword.length - 1;
+  if (textLen < 0) return bytes;
+  var typeData = new Uint8Array(4 + dataLen);
+  typeData[0]=0x74; typeData[1]=0x45; typeData[2]=0x78; typeData[3]=0x74;
+  var o = 4;
+  for (var k = 0; k < keyword.length; k++) typeData[o++] = keyword[k];
+  typeData[o++] = 0;
+  for (var i = 0; i < textLen; i++) typeData[o++] = 0x20;
+  var crc = crc32(typeData);
+  var chunk = new Uint8Array(12 + dataLen);
+  chunk[0]=(dataLen>>>24)&255; chunk[1]=(dataLen>>>16)&255; chunk[2]=(dataLen>>>8)&255; chunk[3]=dataLen&255;
+  chunk.set(typeData, 4);
+  chunk[8+dataLen]=(crc>>>24)&255; chunk[9+dataLen]=(crc>>>16)&255; chunk[10+dataLen]=(crc>>>8)&255; chunk[11+dataLen]=crc&255;
+  var out = new Uint8Array(bytes.length + extra);
+  out.set(bytes.subarray(0, iendPos), 0);
+  out.set(chunk, iendPos);
+  out.set(bytes.subarray(iendPos), iendPos + chunk.length);
+  return out;
+}
+function padToExact(res, target) {
+  if (!res || res.bytes >= target) return res;
+  var bytes = dataURLToBytes(res.dataURL);
+  var padded = (res.mime === 'image/png') ? padPNG(bytes, target) : padJPEG(bytes, target);
+  if (padded.length === bytes.length) return res;
+  return {dataURL: bytesToDataURL(padded, res.mime), bytes: padded.length, mime: res.mime};
+}
+
 /* JPEG binary search: target ke andar MAX quality */
 function searchJPEG(c, target, progressCb) {
   var lo = 0.01, hi = 0.95, best = null, smallest = null, N = 12;
@@ -79,13 +160,11 @@ function searchJPEG(c, target, progressCb) {
 }
 
 function compressOne(base, transparent, opts, progressCb) {
-  /* QUALITY mode: photo-PNG -> JPEG (slider kaam kare), transparent -> PNG */
   if (opts.mode === 'quality') {
     var qmime = (opts.format === 'png' && transparent) ? 'image/png' : 'image/jpeg';
     return encode(base, qmime, opts.q);
   }
 
-  /* TARGET mode: exact ke paas, bina exceed kiye */
   var target = opts.target;
   var best = null, smallest = null;
   var scale = 1, attempts = 0;
@@ -96,7 +175,6 @@ function compressOne(base, transparent, opts, progressCb) {
     if (r.bytes <= target && (!best || r.bytes > best.bytes)) best = r;
   }
 
-  /* PNG dimension ladder: jab JPEG max quality bhi target se neeche ho */
   function pngLadder(startS) {
     var s = startS;
     function go() {
@@ -119,7 +197,6 @@ function compressOne(base, transparent, opts, progressCb) {
     return searchJPEG(cJ, target, progressCb).then(function(res) {
       consider(res.best); consider(res.smallest);
       if (res.atMax && res.atMax.bytes <= target) {
-        /* Quality headroom: PNG ladder se target ke aur paas jao */
         return pngLadder(scale).then(function() { return best || smallest; });
       }
       if (best) return best;
@@ -128,7 +205,7 @@ function compressOne(base, transparent, opts, progressCb) {
       return step();
     });
   }
-  return step();
+  return step().then(function(r) { return padToExact(r, target); });
 }
 
 self.onmessage = function(e) {
@@ -188,7 +265,6 @@ function compressMainThread(imgData, opts, progressCb) {
     img.onload = function() {
       URL.revokeObjectURL(objUrl);
       try {
-        var isPngName = (imgData.name || '').toLowerCase().indexOf('.png') > -1;
         var maxD = 4096;
         var sc = Math.min(1, maxD / Math.max(img.width, img.height));
         var W = Math.max(1, Math.round(img.width * sc));
@@ -198,7 +274,6 @@ function compressMainThread(imgData, opts, progressCb) {
         base.getContext('2d').drawImage(img, 0, 0, W, H);
 
         if (opts.mode === 'quality') {
-          var qmime = isPngName ? 'image/jpeg' : 'image/jpeg';
           base.toBlob(function(b) {
             if (!b) { reject(new Error('Encode failed')); return; }
             var r = new FileReader();
