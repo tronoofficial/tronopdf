@@ -3,30 +3,30 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>OCR PDF Online Free - PDF to Text in 90+ Languages | TronoPDF</title>
-<meta content="OCR PDF online free in 90+ languages. Convert scanned or digital PDF to exact selectable text - English, Hindi, Urdu, Arabic, Chinese and more. Auto-detects broken text with OCR fallback. 100% private, no upload." name="description"/>
-<meta content="ocr pdf, pdf to text, extract text from pdf, ocr online, hindi ocr, english ocr, multilingual ocr, scanned pdf to text, pdf text extraction, ocr pdf online free, pdf ocr tool" name="keywords"/>
+<title>OCR PDF Online - PDF to Text in Multiple Languages | TronoPDF</title>
+<meta content="OCR PDF online with support for many languages including English, Hindi, Urdu, Arabic, Chinese and more. Auto-detects broken text with OCR fallback using Tesseract.js. Private browser-based processing." name="description"/>
+<meta content="ocr pdf, pdf to text, extract text from pdf, ocr online, hindi ocr, english ocr, multilingual ocr, scanned pdf to text, pdf text extraction, ocr pdf online" name="keywords"/>
 <link rel="canonical" href="https://tronopdf.com/ocr-pdf"/>
 <meta name="robots" content="index, follow"/>
-<meta property="og:title" content="OCR PDF Online Free - 90+ Languages | TronoPDF"/>
-<meta property="og:description" content="Convert PDF to exact text in 90+ languages. Auto-detects broken text & uses OCR fallback. Free, private, no upload."/>
+<meta property="og:title" content="OCR PDF Online - Multiple Languages | TronoPDF"/>
+<meta property="og:description" content="Convert PDF to exact text in many languages. Auto-detects broken text & uses OCR fallback. Private browser-based processing."/>
 <meta property="og:type" content="website"/>
 <meta property="og:url" content="https://tronopdf.com/ocr-pdf"/>
 <meta property="og:site_name" content="TronoPDF"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<meta name="twitter:title" content="OCR PDF Online Free - TronoPDF"/>
-<meta name="twitter:description" content="OCR PDF to exact text in 90+ languages online free."/>
+<meta name="twitter:title" content="OCR PDF Online - TronoPDF"/>
+<meta name="twitter:description" content="OCR PDF to exact text in multiple languages online."/>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "SoftwareApplication",
   "name": "OCR PDF - TronoPDF",
-  "description": "OCR PDF online free in 90+ languages with exact text extraction, garbled-text auto-detection and OCR fallback.",
+  "description": "OCR PDF online with support for many languages. Features exact text extraction, garbled-text auto-detection and OCR fallback using Tesseract.js.",
   "url": "https://tronopdf.com/ocr-pdf",
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.9", "ratingCount": "2567"}
+  "featureList": ["Multiple Language Support via Tesseract.js", "Auto-Detect Script", "Garbled Text Fix", "Copy or Download", "Browser-based Processing", "No File Uploads"]
 }
 </script>
 <script type="application/ld+json">
@@ -35,9 +35,10 @@
   "@type": "FAQPage",
   "mainEntity": [
     {"@type": "Question", "name": "Why was my extracted text garbled?", "acceptedAnswer": {"@type": "Answer", "text": "Some PDFs (especially scanned or government forms) use broken font encodings. This tool auto-detects broken text and automatically switches to OCR using Tesseract.js to give you correct characters in the detected language."}},
-    {"@type": "Question", "name": "How many languages are supported?", "acceptedAnswer": {"@type": "Answer", "text": "Over 90 languages including English, Hindi, Urdu, Arabic, Bengali, Tamil, Telugu, Marathi, Gujarati, Chinese, Japanese, Korean, Spanish, French, German, Russian and many more. The tool auto-detects the script of your document."}},
+    {"@type": "Question", "name": "How many languages are supported?", "acceptedAnswer": {"@type": "Answer", "text": "The tool supports many languages via Tesseract.js including English, Hindi, Urdu, Arabic, Bengali, Tamil, Telugu, Marathi, Gujarati, Chinese, Japanese, Korean, Spanish, French, German, Russian and many more. The tool auto-detects the script of your document. Exact language availability depends on Tesseract.js language packs."}},
     {"@type": "Question", "name": "What is the default language?", "acceptedAnswer": {"@type": "Answer", "text": "Auto-detect is selected by default, which automatically identifies the script of your document (Devanagari for Hindi, Arabic script for Urdu/Arabic, etc.) and uses the right OCR language."}},
-    {"@type": "Question", "name": "Is OCR safe and private?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Everything runs in your browser using Tesseract.js - your document never leaves your device. No uploads, no servers, completely private for sensitive documents."}}
+    {"@type": "Question", "name": "Is OCR safe and private?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Everything runs in your browser using Tesseract.js - your document never leaves your device. No uploads, no servers, private processing for sensitive documents."}},
+    {"@type": "Question", "name": "Are there any limitations?", "acceptedAnswer": {"@type": "Answer", "text": "OCR processing depends on your device's CPU, RAM, and browser. Very large PDFs or high page counts may take longer. Tesseract.js language models are downloaded on demand and cached for future use. Complex layouts or poor scan quality may affect accuracy."}}
   ]
 }
 </script>
@@ -60,11 +61,17 @@
 .op-static .feat{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:20px}
 .op-static .feat h4{font-size:15px;font-weight:800;margin:0 0 6px;color:#1f2937}
 .op-static .feat p{font-size:13px;color:#6b7280;margin:0;line-height:1.5}
+.op-static .warning{background:#fef3c7;border-left:4px solid #f59e0b;padding:16px 20px;border-radius:8px;margin:20px 0;font-size:14px;color:#92400e}
 .op-skeleton{display:none;max-width:1200px;margin:60px auto;padding:0 20px;text-align:center}
 .op-skeleton .spinner{width:60px;height:60px;border:4px solid #f3f4f6;border-top:4px solid #7c3aed;border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 20px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .op-skeleton h2{font-size:24px;font-weight:800;color:#1f2937;margin-bottom:12px}
 .op-skeleton p{color:#6b7280;font-size:15px}
+html[data-theme="dark"] .op-static h1,html[data-theme="dark"] .op-static .steps h3,html[data-theme="dark"] .op-static .privacy h4,html[data-theme="dark"] .op-static .feat h4{color:#f4f4fa}
+html[data-theme="dark"] .op-static .desc,html[data-theme="dark"] .op-static .step-text,html[data-theme="dark"] .op-static .privacy p,html[data-theme="dark"] .op-static .feat p{color:#b9b9cc}
+html[data-theme="dark"] .op-static .steps,html[data-theme="dark"] .op-static .privacy{background:#1b1b2b}
+html[data-theme="dark"] .op-static .feat,html[data-theme="dark"] .op-static .warning{background:#232336;border-color:#32324a}
+html[data-theme="dark"] .op-static .step-text b{color:#f4f4fa}
 </style>
 </head>
 <body>
@@ -72,11 +79,15 @@
 
 <!-- STATIC CONTENT (visible to crawlers without JS) -->
 <div class="op-static" id="opStatic">
-  <h1>OCR PDF Online Free</h1>
-  <p class="desc">Extract exact selectable text from any PDF in 90+ languages - English, Hindi, Urdu, Arabic, Bengali, Tamil, Chinese, Japanese and more. Auto-detects broken text from scanned documents and government forms, then switches to OCR using Tesseract.js for correct characters. Copy text or download as TXT. No upload required - 100% private and secure.</p>
+  <h1>OCR PDF Online</h1>
+  <p class="desc">Extract exact selectable text from any PDF in many languages - English, Hindi, Urdu, Arabic, Bengali, Tamil, Chinese, Japanese and more. Auto-detects broken text from scanned documents and government forms, then switches to OCR using Tesseract.js for correct characters. Copy text or download as TXT. Browser-based processing keeps your files on your device.</p>
+  
+  <div class="warning">
+    ⚠️ <b>Performance note:</b> OCR processing runs in your browser and depends on your device's CPU and RAM. Large PDFs or high page counts may take longer. Tesseract.js language models are downloaded on first use and cached for future sessions.
+  </div>
   
   <div class="features">
-    <div class="feat"><h4>🌍 90+ Languages</h4><p>English, Hindi, Urdu, Arabic, Bengali, Tamil, Telugu, Chinese, Japanese, Korean, Spanish, French, German, Russian and 80+ more languages supported.</p></div>
+    <div class="feat"><h4>🌍 Multi-Language Support</h4><p>Supports many languages via Tesseract.js including English, Hindi, Urdu, Arabic, Bengali, Tamil, Telugu, Chinese, Japanese, Korean, Spanish, French, German, Russian and more.</p></div>
     <div class="feat"><h4>🔍 Auto-Detect Script</h4><p>Automatically identifies Devanagari, Arabic, Cyrillic, CJK and other scripts to choose the right OCR language - no manual selection needed.</p></div>
     <div class="feat"><h4>🔧 Garbled Text Fix</h4><p>Auto-detects broken font encodings in scanned PDFs and government forms, then uses OCR to recover correct characters.</p></div>
     <div class="feat"><h4>📄 Copy or Download</h4><p>Copy extracted text to clipboard or download as TXT file. Choose specific page range for large documents.</p></div>
@@ -90,7 +101,7 @@
     </div>
     <div class="step">
       <div class="step-num">2</div>
-      <div class="step-text"><b>Choose language</b> — Leave on Auto-detect (recommended) to let the tool identify the script automatically, or manually select from 90+ supported languages including Hindi, Arabic, Chinese and more.</div>
+      <div class="step-text"><b>Choose language</b> — Leave on Auto-detect (recommended) to let the tool identify the script automatically, or manually select from supported languages including Hindi, Arabic, Chinese and more.</div>
     </div>
     <div class="step">
       <div class="step-num">3</div>
@@ -103,8 +114,8 @@
   </div>
   
   <div class="privacy">
-    <h4>🔒 100% Private & Secure</h4>
-    <p>TronoPDF processes all OCR operations directly in your browser using Tesseract.js, the leading open-source OCR engine. Your PDF files are never uploaded to any server - they stay on your device. This means your sensitive documents, government forms, legal papers, medical records and business files remain completely private and secure. No file size limits, no daily limits, no watermarks, no signup required - OCR as many PDFs as you need in any of 90+ supported languages.</p>
+    <h4>🔒 Private Processing</h4>
+    <p>TronoPDF processes all OCR operations directly in your browser using Tesseract.js, a widely-used open-source OCR engine. Your PDF files are never uploaded to any server - they stay on your device. This means your sensitive documents, government forms, legal papers, medical records and business files remain private. Free to use with no signup required - OCR as many PDFs as you need in supported languages.</p>
   </div>
 </div>
 
