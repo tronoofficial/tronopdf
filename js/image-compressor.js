@@ -13,7 +13,7 @@ var hasOffscreen = typeof OffscreenCanvas !== 'undefined';
 function drawToCanvas(img, maxD, isPng) {
   var sc = Math.min(1, maxD / Math.max(img.width, img.height));
   var w = Math.max(1, Math.round(img.width * sc));
-  var h = Math.max(1, Math.round(img.height * h));
+  var h = Math.max(1, Math.round(img.height * sc));
   
   var c, x;
   if (hasOffscreen) {
