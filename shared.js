@@ -1159,3 +1159,17 @@ if(document.readyState==='loading'){
   closeBtn.addEventListener('click',closeGd);
   document.addEventListener('keydown',function(e){if(e.key==='Escape')closeGd();});
 })();
+/* ===== TASK 23: PREMIUM LOGO COLOR (violet→blue, timeless) ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent=
+  '.lword b{'+
+  'background:linear-gradient(90deg,#7c3aed 0%,#4f46e5 45%,#2563eb 100%)!important;'+
+  '-webkit-background-clip:text!important;'+
+  'background-clip:text!important;'+
+  '-webkit-text-fill-color:transparent!important;'+
+  'color:#2563eb!important;'+
+  'font-weight:900;'+
+  '}';
+  document.head.appendChild(st);
+})();
