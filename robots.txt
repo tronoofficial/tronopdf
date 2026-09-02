@@ -1,4 +1,20 @@
 User-agent: *
 Allow: /
+Disallow: /js/
+Disallow: /sw.js
+Disallow: /manifest.json
 
 Sitemap: https://tronopdf.com/sitemap.xml
+
+# Block AI scrapers that don't respect robots
+User-agent: GPTBot
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /
