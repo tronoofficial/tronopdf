@@ -1118,3 +1118,44 @@ if(document.readyState==='loading'){
   '@media(max-width:380px){.rt-grid{grid-template-columns:1fr!important}}';
   document.head.appendChild(st);
 })();
+/* ===== TASK 22: COMPLETE GUIDE DRAWER (article hidden, click pe khule) ===== */
+(function(){
+  var seo=document.querySelector('div[class$="-seo"]');
+  if(!seo)return;
+
+  var st=document.createElement('style');
+  st.textContent=
+  'html,body{overflow-x:hidden}'+
+  'div[class$="-seo"]{position:fixed;top:0;right:0;bottom:0;width:min(780px,100%);max-width:none!important;margin:0!important;background:#fff;z-index:100000;overflow-y:auto;padding:20px 22px 70px;transform:translateX(105%);transition:transform .35s ease;box-shadow:-24px 0 70px rgba(0,0,0,.25)}'+
+  'body.gd-open div[class$="-seo"]{transform:translateX(0)}'+
+  'div[class$="-seo"] h2:first-of-type{margin-top:8px!important}'+
+  '.gd-close{position:sticky;top:0;margin-left:auto;display:block;background:#f3f4f6;border:none;font-size:20px;width:40px;height:40px;border-radius:10px;cursor:pointer;color:#374151;z-index:5}'+
+  '.gd-close:hover{background:#e5e7eb}'+
+  '.gd-btn{position:fixed;bottom:84px;right:24px;z-index:998;display:flex;align-items:center;gap:8px;padding:12px 20px;background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#fff;border:none;border-radius:999px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,.4);transition:all .3s}'+
+  '.gd-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(37,99,235,.5)}'+
+  'html[data-theme="dark"] div[class$="-seo"]{background:#171725}'+
+  'html[data-theme="dark"] .gd-close{background:#232336;color:#e8e8f0}'+
+  '@media(max-width:600px){.gd-btn{bottom:76px;right:16px;padding:10px 16px;font-size:13px}div[class$="-seo"]{padding:16px 14px 60px}}';
+  document.head.appendChild(st);
+
+  /* Close button drawer ke andar */
+  var closeBtn=document.createElement('button');
+  closeBtn.type='button';
+  closeBtn.className='gd-close';
+  closeBtn.setAttribute('aria-label','Close guide');
+  closeBtn.textContent='✕';
+  seo.insertBefore(closeBtn,seo.firstChild);
+
+  /* Floating "Complete Guide" button (How to use ke upar) */
+  var btn=document.createElement('button');
+  btn.type='button';
+  btn.className='gd-btn';
+  btn.innerHTML='📖 <span>Complete Guide</span>';
+  document.body.appendChild(btn);
+
+  function openGd(){document.body.classList.add('gd-open');document.body.style.overflow='hidden';}
+  function closeGd(){document.body.classList.remove('gd-open');document.body.style.overflow='';}
+  btn.addEventListener('click',function(e){e.stopPropagation();openGd();});
+  closeBtn.addEventListener('click',closeGd);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')closeGd();});
+})();
