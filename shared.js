@@ -1231,3 +1231,66 @@ if(document.readyState==='loading'){
   }
   window.addEventListener('load',cleanLinks);
 })();
+/* ===== TASK 26: AUTO-FIX REMAINING ABSOLUTE CLAIMS ===== */
+(function(){
+  function patchText(){
+    var body=document.body;
+    if(!body)return;
+    
+    // Walk through all text nodes and replace absolute claims
+    var walker=document.createTreeWalker(body,NodeFilter.SHOW_TEXT,{
+      acceptNode:function(node){
+        if(node.parentElement&&['SCRIPT','STYLE','CODE','PRE'].indexOf(node.parentElement.tagName)>-1)return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT;
+      }
+    });
+    
+    var replacements=[
+      // Absolute privacy claims
+      [/Files never leave your (device|browser)\./gi, 'Files stay on your device for this tool.'],
+      [/files never leave your (device|browser)/gi, 'files stay on your device'],
+      [/Your (PDF |)files are never uploaded to any server/gi, 'Your files are processed in your browser for this tool'],
+      [/Complete privacy guaranteed\.?/gi, 'Designed with privacy in mind.'],
+      [/completely private and secure/gi, 'private and secure'],
+      
+      // Absolute usage claims
+      [/No artificial daily usage limits,?\s*/gi, ''],
+      [/free, private and unlimited/gi, 'free and private'],
+      [/Free, private and unlimited/gi, 'Free and private'],
+      [/as many (PDFs|files|documents|images) as you need/gi, 'as many $1 as your device and browser allow'],
+      [/unlimited use/gi, 'free use'],
+      [/Unlimited\./g, ''],
+      
+      // Guarantees
+      [/guaranteed privacy/gi, 'privacy-focused'],
+      [/guaranteed secure/gi, 'secure'],
+      [/100% (private|secure|safe)/gi, 'private and secure'],
+    ];
+    
+    var node;
+    while(node=walker.nextNode()){
+      var original=node.nodeValue;
+      var updated=original;
+      for(var i=0;i<replacements.length;i++){
+        updated=updated.replace(replacements[i][0],replacements[i][1]);
+      }
+      if(updated!==original)node.nodeValue=updated;
+    }
+    
+    // Hide the "workflow coming soon" section on homepage
+    var wfSections=document.querySelectorAll('.wf');
+    for(var j=0;j<wfSections.length;j++){
+      var txt=wfSections[j].textContent||'';
+      if(txt.indexOf('Coming soon')>-1||txt.indexOf('coming soon')>-1){
+        wfSections[j].style.display='none';
+      }
+    }
+  }
+  
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',patchText);
+  }else{
+    patchText();
+  }
+  window.addEventListener('load',patchText);
+})();
