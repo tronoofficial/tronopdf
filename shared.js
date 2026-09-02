@@ -1173,3 +1173,9 @@ if(document.readyState==='loading'){
   '}';
   document.head.appendChild(st);
 })();
+/* ===== TASK 24: GUIDE DRAWER DISPLAY FIX ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent='body.gd-open div[class$="-seo"]{display:block!important}';
+  document.head.appendChild(st);
+})();
