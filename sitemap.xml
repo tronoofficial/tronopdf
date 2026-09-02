@@ -3,104 +3,79 @@
 
 <!-- CORE PAGES -->
 <url><loc>https://tronopdf.com/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
-<url><loc>https://tronopdf.com/all-tools.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/blog.html</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://tronopdf.com/all-tools</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/blog</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
 
 <!-- ORGANIZE PDF TOOLS -->
-<url><loc>https://tronopdf.com/merge-pdf.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/split-pdf.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/organize-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/rotate-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/crop-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/page-numbers.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/merge-pdf</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/split-pdf</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/organize-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/rotate-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/crop-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/page-numbers</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
 <!-- OPTIMIZE PDF TOOLS -->
-<url><loc>https://tronopdf.com/compress-pdf.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/repair-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/pdf-to-pdfa.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/compress-pdf</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/repair-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/pdf-to-pdfa</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
 <!-- CONVERT TO PDF -->
-<url><loc>https://tronopdf.com/word-to-pdf.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/excel-to-pdf.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/powerpoint-to-pdf.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/jpg-to-pdf.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/html-to-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/word-to-pdf</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/excel-to-pdf</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/powerpoint-to-pdf</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/jpg-to-pdf</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/html-to-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
 <!-- CONVERT FROM PDF -->
-<url><loc>https://tronopdf.com/pdf-to-word.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/pdf-to-excel.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/pdf-to-powerpoint.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/pdf-to-jpg.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/pdf-to-markdown.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/pdf-to-word</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/pdf-to-excel</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/pdf-to-powerpoint</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/pdf-to-jpg</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/pdf-to-markdown</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
 <!-- EDIT PDF -->
-<url><loc>https://tronopdf.com/edit-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/sign-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/watermark-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/pdf-forms.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/compare-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/redact-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/scan-to-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/edit-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/sign-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/watermark-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/pdf-forms</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/compare-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/redact-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/scan-to-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
 <!-- SECURITY -->
-<url><loc>https://tronopdf.com/protect-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/unlock-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/protect-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/unlock-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
 <!-- INTELLIGENCE (AI) -->
-<url><loc>https://tronopdf.com/ocr-pdf.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/ai-summarizer.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/translate-pdf.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/ocr-pdf</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/ai-summarizer</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/translate-pdf</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
 <!-- IMAGE TOOLS -->
-<url><loc>https://tronopdf.com/image-compressor.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/image-resizer.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/passport-photo.html</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
-<url><loc>https://tronopdf.com/signature-resize.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/image-converter.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/image-crop.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
-<url><loc>https://tronopdf.com/blur-photo.html</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/image-compressor</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/image-resizer</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/passport-photo</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+<url><loc>https://tronopdf.com/signature-resize</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/image-converter</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/image-crop</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+<url><loc>https://tronopdf.com/blur-photo</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
 <!-- LEGAL & INFO PAGES -->
-<url><loc>https://tronopdf.com/faq.html</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
-<url><loc>https://tronopdf.com/status.html</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
-<url><loc>https://tronopdf.com/about.html</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
-<url><loc>https://tronopdf.com/contact.html</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
-<url><loc>https://tronopdf.com/privacy.html</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
-<url><loc>https://tronopdf.com/terms.html</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
-<url><loc>https://tronopdf.com/disclaimer.html</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+<url><loc>https://tronopdf.com/faq</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+<url><loc>https://tronopdf.com/status</loc><changefreq>weekly</changefreq><priority>0.5</priority></url>
+<url><loc>https://tronopdf.com/about</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+<url><loc>https://tronopdf.com/contact</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+<url><loc>https://tronopdf.com/privacy</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+<url><loc>https://tronopdf.com/terms</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
+<url><loc>https://tronopdf.com/disclaimer</loc><changefreq>monthly</changefreq><priority>0.3</priority></url>
 
 <!-- BLOG ARTICLES (LIVE - 7) -->
-<url><loc>https://tronopdf.com/how-to-compress-pdf-to-100kb.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-merge-pdf-files.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-split-pdf-pages.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-password-protect-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-convert-jpg-to-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-convert-pdf-to-jpg.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-convert-pdf-to-word.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://tronopdf.com/how-to-compress-pdf-to-100kb</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://tronopdf.com/how-to-merge-pdf-files</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://tronopdf.com/how-to-split-pdf-pages</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://tronopdf.com/how-to-password-protect-pdf</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://tronopdf.com/how-to-convert-jpg-to-pdf</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://tronopdf.com/how-to-convert-pdf-to-jpg</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://tronopdf.com/how-to-convert-pdf-to-word</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 
-<!-- BLOG ARTICLES (FUTURE - 21) -->
-<url><loc>https://tronopdf.com/how-to-sign-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-rotate-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-ocr-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-add-watermark-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-unlock-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-edit-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-convert-pdf-to-excel.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-convert-word-to-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-convert-excel-to-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-convert-powerpoint-to-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-add-page-numbers-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-crop-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-organize-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-compare-pdfs.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-redact-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-scan-documents-to-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-translate-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-use-ai-summarizer.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-repair-pdf.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-convert-pdf-to-markdown.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-convert-pdf-to-powerpoint.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-make-passport-photo-online.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-compress-image-to-20kb.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://tronopdf.com/how-to-fill-pdf-forms.html</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 </urlset>
