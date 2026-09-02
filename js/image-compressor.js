@@ -391,7 +391,7 @@ html+='</style>';
 html+='<div class="ic-wrap">';
 html+='<div id="icPick"><div class="ic-hero"><h1>Image Compressor</h1><p>Compress JPG, PNG & WEBP to an exact KB size. Perfect for job applications, exams, visas and online forms worldwide. Free & private.</p>';
 html+='<div class="ic-zone" id="icZone"><button class="ic-big" id="icBtn" type="button">Select images</button><p class="ic-drop-hint">or drop images here</p></div></div></div>';
-html+='<div class="ic-work" id="icWork"><div class="ic-main"><div class="ic-list"><div class="ic-note">💡 Each image has its own Download button - files save directly to your phone or PC. No ZIP needed!</div><div class="ic-grid" id="icGrid"></div></div>';
+html+='<div class="ic-work" id="icWork"><div class="ic-main"><div class="ic-list"><div class="ic-grid" id="icGrid"></div></div>';
 html+='<aside class="ic-side"><h2>Compression settings</h2>';
 html+='<div class="ic-tabs"><div class="ic-tab active" id="icTabTarget">🎯 Target KB</div><div class="ic-tab" id="icTabQuality">⚙️ Quality</div></div>';
 html+='<div id="icTargetSec"><div class="ic-lbl">Exact size target</div><div class="ic-row"><input type="number" id="icTarget" min="5" value="50"/><select id="icUnit"><option value="KB">KB</option><option value="MB">MB</option></select></div>';
