@@ -1,4 +1,4 @@
-/* TronoPDF - Image Compressor v8 | EXACT Target Engine + Smart PNG/JPEG */
+/* TronoPDF - Image Compressor v9 | EXACT-Target Engine + Quality Fix */
 (function(){
 var root=document.getElementById('toolRoot');
 if(!root){return;}
@@ -33,7 +33,6 @@ function drawScaled(src, w, h, fillWhite) {
   return c;
 }
 
-/* Chhota sample lekar transparency check (fast) */
 function hasAlpha(src) {
   try {
     var w = 128;
@@ -53,50 +52,77 @@ function encode(canvas, mime, q) {
   });
 }
 
-/* 12-step binary search: target ke andar MAX quality (exact ke paas) */
-function search(c, mime, target, progressCb) {
-  if (mime === 'image/png') {
-    return encode(c, mime, 0.9).then(function(res) {
-      return {best: (res.bytes <= target) ? res : null, smallest: res};
-    });
-  }
-  var lo = 0.01, hi = 0.95, best = null, smallest = null;
-  var N = 12, chain = Promise.resolve();
+/* JPEG binary search: target ke andar MAX quality */
+function searchJPEG(c, target, progressCb) {
+  var lo = 0.01, hi = 0.95, best = null, smallest = null, N = 12;
+  var chain = Promise.resolve();
   for (var i = 0; i < N; i++) {
     (function(idx) {
       chain = chain.then(function() {
         var q = (lo + hi) / 2;
-        return encode(c, mime, q).then(function(res) {
+        return encode(c, 'image/jpeg', q).then(function(res) {
           if (!smallest || res.bytes < smallest.bytes) smallest = res;
           if (res.bytes <= target) { best = res; lo = q; } else { hi = q; }
-          if (progressCb) progressCb((idx + 1) / N);
+          if (progressCb) progressCb((idx + 1) / (N + 2));
         });
       });
     })(i);
   }
-  return chain.then(function() { return {best: best, smallest: smallest}; });
+  return chain.then(function() {
+    return encode(c, 'image/jpeg', 0.95).then(function(atMax) {
+      if (!smallest || atMax.bytes < smallest.bytes) smallest = atMax;
+      if (atMax.bytes <= target && (!best || atMax.bytes > best.bytes)) best = atMax;
+      if (progressCb) progressCb(1);
+      return {best: best, smallest: smallest, atMax: atMax};
+    });
+  });
 }
 
 function compressOne(base, transparent, opts, progressCb) {
-  /* Target mode: PNG sirf agar transparency hai; warna JPEG (chhota size) */
-  var isPngOut = (opts.format === 'png') && (opts.mode !== 'target' || transparent);
-  var mime = isPngOut ? 'image/png' : 'image/jpeg';
-
+  /* QUALITY mode: photo-PNG -> JPEG (slider kaam kare), transparent -> PNG */
   if (opts.mode === 'quality') {
-    var qmime = (opts.format === 'png') ? 'image/png' : 'image/jpeg';
+    var qmime = (opts.format === 'png' && transparent) ? 'image/png' : 'image/jpeg';
     return encode(base, qmime, opts.q);
   }
 
-  var smallest = null;
+  /* TARGET mode: exact ke paas, bina exceed kiye */
+  var target = opts.target;
+  var best = null, smallest = null;
   var scale = 1, attempts = 0;
+
+  function consider(r) {
+    if (!r) return;
+    if (!smallest || r.bytes < smallest.bytes) smallest = r;
+    if (r.bytes <= target && (!best || r.bytes > best.bytes)) best = r;
+  }
+
+  /* PNG dimension ladder: jab JPEG max quality bhi target se neeche ho */
+  function pngLadder(startS) {
+    var s = startS;
+    function go() {
+      var w = Math.max(32, Math.round(base.width * s));
+      var h = Math.max(32, Math.round(base.height * s));
+      var cc = drawScaled(base, w, h, false);
+      return encode(cc, 'image/png', 0.9).then(function(p) {
+        consider(p);
+        if (p.bytes <= target || w <= 48) return null;
+        s *= 0.9; return go();
+      });
+    }
+    return go();
+  }
 
   function step() {
     var w = Math.max(32, Math.round(base.width * scale));
     var h = Math.max(32, Math.round(base.height * scale));
-    var c = drawScaled(base, w, h, !isPngOut);
-    return search(c, mime, opts.target, progressCb).then(function(r) {
-      if (r.smallest && (!smallest || r.smallest.bytes < smallest.bytes)) smallest = r.smallest;
-      if (r.best) return r.best;
+    var cJ = drawScaled(base, w, h, true);
+    return searchJPEG(cJ, target, progressCb).then(function(res) {
+      consider(res.best); consider(res.smallest);
+      if (res.atMax && res.atMax.bytes <= target) {
+        /* Quality headroom: PNG ladder se target ke aur paas jao */
+        return pngLadder(scale).then(function() { return best || smallest; });
+      }
+      if (best) return best;
       if (w <= 48 || attempts >= 20) return smallest;
       attempts++; scale *= 0.85;
       return step();
@@ -129,7 +155,6 @@ self.onmessage = function(e) {
         var W = Math.max(1, Math.round(bitmap.width * sc));
         var H = Math.max(1, Math.round(bitmap.height * sc));
 
-        /* Pehle alpha-preserving base banakar transparency detect karo */
         var temp = drawScaled(bitmap, W, H, false);
         var transparent = hasAlpha(temp);
 
@@ -170,34 +195,35 @@ function compressMainThread(imgData, opts, progressCb) {
         var H = Math.max(1, Math.round(img.height * sc));
         var base = document.createElement('canvas');
         base.width = W; base.height = H;
-        var bx = base.getContext('2d');
-        bx.drawImage(img, 0, 0, W, H);
-
-        var mime = (isPngName && opts.mode !== 'target') ? 'image/png' : 'image/jpeg';
-
-        function readBlob(blob, cb) {
-          var r = new FileReader();
-          r.onload = function() { cb({dataURL: r.result, bytes: blob.size, mime: blob.type}); };
-          r.onerror = function() { cb(null); };
-          r.readAsDataURL(blob);
-        }
+        base.getContext('2d').drawImage(img, 0, 0, W, H);
 
         if (opts.mode === 'quality') {
-          base.toBlob(function(b) { b ? readBlob(b, resolve) : reject(new Error('Encode failed')); }, mime, opts.q);
+          var qmime = isPngName ? 'image/jpeg' : 'image/jpeg';
+          base.toBlob(function(b) {
+            if (!b) { reject(new Error('Encode failed')); return; }
+            var r = new FileReader();
+            r.onload = function() { resolve({dataURL: r.result, bytes: b.size, mime: b.type}); };
+            r.readAsDataURL(b);
+          }, 'image/jpeg', opts.q);
           return;
         }
 
-        var smallest = null, scale = 1, attempts = 0;
+        var smallest = null, best = null, scale = 1, attempts = 0;
+        var target = opts.target;
+        function consider(r) {
+          if (!r) return;
+          if (!smallest || r.bytes < smallest.bytes) smallest = r;
+          if (r.bytes <= target && (!best || r.bytes > best.bytes)) best = r;
+        }
         (function step() {
           var w = Math.max(32, Math.round(W * scale));
           var h = Math.max(32, Math.round(H * scale));
           var c = document.createElement('canvas');
           c.width = w; c.height = h;
           var x = c.getContext('2d');
-          if (mime === 'image/jpeg') { x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); }
+          x.fillStyle = '#fff'; x.fillRect(0, 0, w, h);
           x.drawImage(base, 0, 0, w, h);
-
-          var lo = 0.01, hi = 0.95, best = null, i = 0, N = 12;
+          var lo = 0.01, hi = 0.95, i = 0, N = 12;
           (function next() {
             if (i >= N) {
               if (best) { resolve(best); return; }
@@ -208,14 +234,16 @@ function compressMainThread(imgData, opts, progressCb) {
             var q = (lo + hi) / 2;
             c.toBlob(function(b) {
               if (!b) { i++; next(); return; }
-              readBlob(b, function(res) {
-                if (!res) { i++; next(); return; }
-                if (!smallest || res.bytes < smallest.bytes) smallest = res;
-                if (res.bytes <= opts.target) { best = res; lo = q; } else { hi = q; }
+              var r = new FileReader();
+              r.onload = function() {
+                var res = {dataURL: r.result, bytes: b.size, mime: b.type};
+                consider(res);
+                if (res.bytes <= target) { best = res; lo = q; } else { hi = q; }
                 if (progressCb) progressCb((i + 1) / N);
                 i++; next();
-              });
-            }, mime, q);
+              };
+              r.readAsDataURL(b);
+            }, 'image/jpeg', q);
           })();
         })();
       } catch (err) { reject(err); }
