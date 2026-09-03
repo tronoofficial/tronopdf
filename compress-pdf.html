@@ -26,7 +26,6 @@
   "applicationCategory": "UtilitiesApplication",
   "operatingSystem": "Web Browser",
   "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"},
-  "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.8", "ratingCount": "2341"},
   "featureList": ["3 Compression Levels", "Target Size in KB", "Before/After Stats", "Browser-based Processing", "No File Uploads"]
 }
 </script>
@@ -56,7 +55,7 @@
     {"@type": "Question", "name": "Can I compress a PDF to a specific size like 100KB?", "acceptedAnswer": {"@type": "Answer", "text": "Yes! Use the Target Size option to set an exact file size (e.g., 100KB, 200KB, 500KB). The tool will automatically adjust compression to reach your target while maintaining the best possible quality."}},
     {"@type": "Question", "name": "What's the best compression for scanned documents?", "acceptedAnswer": {"@type": "Answer", "text": "For scanned PDFs, use 'Extreme' compression or run OCR first with our OCR PDF tool to make text searchable, then compress. Scanned documents are often 5-10x larger than text-based PDFs."}},
     {"@type": "Question", "name": "Can I compress PDF for email attachment?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Most email services have 25MB attachment limits. Use Recommended compression for documents under 50MB, or Extreme for larger files. The tool shows before/after size so you know exactly how much you've reduced."}},
-    {"@type": "Question", "name": "Is it safe to compress PDF files online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, completely safe. All processing happens in your browser using JavaScript - your files are never uploaded to any server. Your data stays private and secure on your device throughout the compression process."}}
+    {"@type": "Question", "name": "Is it safe to compress PDF files online?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. All processing happens in your browser using JavaScript. Your files are processed locally and are not uploaded to TronoPDF servers. Your data stays private and secure on your device throughout the compression process."}}
   ]
 }
 </script>
@@ -110,7 +109,7 @@ html[data-theme="dark"] .cp-static .step-text b{color:#f4f4fa}
     <div class="feat"><h4>🎯 3 Compression Levels</h4><p>Extreme (smallest size), Recommended (balanced), or Less (highest quality) - choose what works best for your needs.</p></div>
     <div class="feat"><h4>📏 Target Size Option</h4><p>Set exact target size like 100KB, 200KB, 500KB - tool automatically adjusts compression to reach your goal.</p></div>
     <div class="feat"><h4>📊 Before/After Stats</h4><p>See exact file size reduction with percentage saved so you know how much space you gained.</p></div>
-    <div class="feat"><h4>🔒 Browser-based Processing</h4><p>All compression happens in your browser - files never leave your device, no upload to any server.</p></div>
+    <div class="feat"><h4>🔒 Browser-based Processing</h4><p>All compression happens in your browser - files stay on your device.</p></div>
   </div>
   
   <div class="steps">
@@ -135,7 +134,7 @@ html[data-theme="dark"] .cp-static .step-text b{color:#f4f4fa}
   
   <div class="privacy">
     <h4>🔒 Privacy-first Processing</h4>
-    <p>TronoPDF processes all compression directly in your browser using advanced PDF optimization libraries. Your PDF files are never uploaded to any server - they stay on your device throughout the process. This means your documents remain private and secure, even for sensitive legal, medical, financial or business files. No artificial daily usage limits, no watermarks - compress as many PDFs as you need.</p>
+    <p>TronoPDF processes all compression directly in your browser using advanced PDF optimization libraries. Your PDF files are processed locally and are not uploaded to TronoPDF servers - they stay on your device throughout the process. This means your documents remain private and secure, even for sensitive legal, medical, financial or business files. Free to use with no watermarks.</p>
   </div>
 </div>
 
@@ -148,11 +147,11 @@ html[data-theme="dark"] .cp-static .step-text b{color:#f4f4fa}
   <ul>
     <li><b>Use Target Size mode</b> — Enter 100 in the KB field and let the tool automatically adjust compression</li>
     <li><b>Start with text-based PDFs</b> — Text compresses much better than scanned images</li>
-    <li><b>For scanned PDFs</b> — Run OCR first with our <a href="/ocr-pdf.html">OCR PDF tool</a> to extract text, then compress</li>
+    <li><b>For scanned PDFs</b> — Run OCR first with our <a href="/ocr-pdf">OCR PDF tool</a> to extract text, then compress</li>
     <li><b>Check file properties</b> — Right-click → Properties to verify exact size before uploading</li>
   </ul>
   <div class="tip">
-    💡 <b>Pro tip:</b> If your PDF is still over 100KB after compression, try splitting it into smaller parts with our <a href="/split-pdf.html">Split PDF tool</a>, compress each part separately, then recombine only what you need.
+    💡 <b>Pro tip:</b> If your PDF is still over 100KB after compression, try splitting it into smaller parts with our <a href="/split-pdf">Split PDF tool</a>, compress each part separately, then recombine only what you need.
   </div>
   
   <h3>Common Use Cases for Small PDFs</h3>
@@ -170,9 +169,9 @@ html[data-theme="dark"] .cp-static .step-text b{color:#f4f4fa}
   <p>Scanned PDFs are often 5-10x larger than text-based PDFs because every page is essentially a high-resolution image. Here's how to compress them effectively:</p>
   <ul>
     <li><b>Use Extreme compression</b> — Scanned documents benefit most from aggressive compression</li>
-    <li><b>Run OCR first</b> — Convert image text to actual text with <a href="/ocr-pdf.html">OCR PDF</a>, then compress for 70-90% size reduction</li>
-    <li><b>Crop margins</b> — Remove scanner edges with <a href="/crop-pdf.html">Crop PDF</a> before compressing</li>
-    <li><b>Rotate if needed</b> — Fix sideways pages with <a href="/rotate-pdf.html">Rotate PDF</a> for cleaner compression</li>
+    <li><b>Run OCR first</b> — Convert image text to actual text with <a href="/ocr-pdf">OCR PDF</a>, then compress for 70-90% size reduction</li>
+    <li><b>Crop margins</b> — Remove scanner edges with <a href="/crop-pdf">Crop PDF</a> before compressing</li>
+    <li><b>Rotate if needed</b> — Fix sideways pages with <a href="/rotate-pdf">Rotate PDF</a> for cleaner compression</li>
   </ul>
   
   <h3>Compress PDF for Email Attachments</h3>
@@ -191,7 +190,7 @@ html[data-theme="dark"] .cp-static .step-text b{color:#f4f4fa}
   <p>Text-based PDFs (created from Word, Excel, or other applications) can be compressed significantly without quality loss:</p>
   <ul>
     <li><b>Images are the main size culprits</b> — Our smart compression reduces image quality only where it won't affect readability</li>
-    <li><b>Text stays crisp</b> — Vector text in PDFs is never compressed, so fonts remain sharp</li>
+    <li><b>Text stays crisp</b> — Text-based content is preserved, so fonts remain readable</li>
     <li><b>Recommended level works best</b> — For most text documents, 40-60% size reduction with no visible quality loss</li>
     <li><b>Test before sharing</b> — Download and open the compressed file to verify everything looks good</li>
   </ul>
@@ -199,16 +198,16 @@ html[data-theme="dark"] .cp-static .step-text b{color:#f4f4fa}
   <h3>Common Compression Scenarios</h3>
   
   <h4>📋 Job Applications & Resume Submissions</h4>
-  <p>Most online job portals (LinkedIn, Indeed, Glassdoor, company career sites) require PDFs under 100-500KB. Use Target Size mode with exact KB value. Combine multiple documents (resume, cover letter, certificates) into one PDF with <a href="/merge-pdf.html">Merge PDF</a>, then compress to meet size limits.</p>
+  <p>Most online job portals (LinkedIn, Indeed, Glassdoor, company career sites) require PDFs under 100-500KB. Use Target Size mode with exact KB value. Combine multiple documents (resume, cover letter, certificates) into one PDF with <a href="/merge-pdf">Merge PDF</a>, then compress to meet size limits.</p>
   
   <h4>📊 Business Reports & Proposals</h4>
-  <p>Use Recommended compression for documents with charts and images. Preserves professional appearance while reducing email attachment size. Add <a href="/protect-pdf.html">password protection</a> after compression for confidential reports.</p>
+  <p>Use Recommended compression for documents with charts and images. Preserves professional appearance while reducing email attachment size. Add <a href="/protect-pdf">password protection</a> after compression for confidential reports.</p>
   
   <h4>📚 Academic Papers & Theses</h4>
   <p>Large research papers (50-100+ pages) benefit from Less compression to maintain chart and graph quality. Use Extreme only for text-heavy documents without complex graphics.</p>
   
   <h4>🏛️ Legal Documents & Contracts</h4>
-  <p>Use Recommended or Less compression to preserve document integrity. After compression, add <a href="/sign-pdf.html">digital signatures</a> and <a href="/protect-pdf.html">password protection</a> for security.</p>
+  <p>Use Recommended or Less compression to preserve document integrity. After compression, add <a href="/sign-pdf">signatures</a> and <a href="/protect-pdf">password protection</a> for security.</p>
   
   <h4>🌍 Visa & Immigration Applications</h4>
   <p>Embassies and consulates worldwide (US, UK, Schengen, Canada, Australia, Japan, etc.) have strict file size limits. Use Target Size mode to hit exact requirements. Compress passport copies, financial statements, and supporting documents separately before combining.</p>
