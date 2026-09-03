@@ -1294,3 +1294,30 @@ if(document.readyState==='loading'){
   }
   window.addEventListener('load',patchText);
 })();
+/* ===== TASK 27: REMOVE FAKE AGGREGATE RATINGS (global) ===== */
+(function(){
+  function strip(){
+    var scripts=document.querySelectorAll('script[type="application/ld+json"]');
+    for(var i=0;i<scripts.length;i++){
+      var s=scripts[i];
+      var txt=s.textContent||'';
+      if(txt.indexOf('aggregateRating')===-1 && txt.indexOf('AggregateRating')===-1)continue;
+      try{
+        var data=JSON.parse(txt);
+        var changed=false;
+        (function clean(o){
+          if(!o)return;
+          if(Object.prototype.toString.call(o)==='[object Array]'){for(var j=0;j<o.length;j++)clean(o[j]);return;}
+          if(typeof o==='object'){
+            if(o.aggregateRating){delete o.aggregateRating;changed=true;}
+            if(o.review){delete o.review;changed=true;}
+            for(var k in o)clean(o[k]);
+          }
+        })(data);
+        if(changed)s.textContent=JSON.stringify(data);
+      }catch(e){}
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',strip);
+  else strip();
+})();
