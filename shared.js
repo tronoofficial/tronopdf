@@ -728,7 +728,7 @@ if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded',function(){setTimeout(apply,120);});
 })();
 
-/* ===== TASK 12: SEO ENHANCED (canonical + HowTo schema + meta + breadcrumbs) ===== */
+/* ===== TASK 12 v2: SEO (canonical + meta + schema, NO duplicates) ===== */
 (function(){
   var origin=location.origin, path=location.pathname;
 
@@ -738,33 +738,39 @@ if(document.readyState==='loading'){
   var file=path.split('/').pop().replace('.html','').replace('/','');
   var isHome=(!file||file==='index');
 
-  /* Page-specific SEO descriptions for high-traffic tools */
+  /* Detect schemas already present in static HTML (source of truth) */
+  var existing='';
+  document.querySelectorAll('script[type="application/ld+json"]').forEach(function(s){existing+=s.textContent;});
+  var hasApp=existing.indexOf('SoftwareApplication')>-1;
+  var hasHowTo=existing.indexOf('HowTo')>-1;
+  var hasSite=existing.indexOf('"WebSite"')>-1;
+
   var DESC={
-    'compress-pdf':'Compress PDF online to reduce file size. Browser-based, no uploads. Perfect for email, forms and applications worldwide.',
-    'merge-pdf':'Merge multiple PDF files into one document. Combine PDFs in any order. Fast, private and free.',
-    'split-pdf':'Split PDF into multiple files or extract specific pages. Browser-based processing, no uploads required.',
-    'pdf-to-word':'Convert PDF to Word (DOCX) online. Editable text with preserved formatting. Free and private.',
-    'jpg-to-pdf':'Convert JPG images to PDF. Combine multiple photos into one PDF document. A4 and custom sizes.',
-    'pdf-to-jpg':'Convert PDF pages to JPG images. High quality export for presentations and social media.',
-    'sign-pdf':'Add visual electronic signature to PDF documents. Draw, type or upload signature. Browser-based processing.',
-    'protect-pdf':'Password protect PDF files. Encrypt documents to prevent unauthorized access.',
+    'compress-pdf':'Compress PDF online to reduce file size. Browser-based, no uploads.',
+    'merge-pdf':'Merge multiple PDF files into one document. Combine PDFs in any order.',
+    'split-pdf':'Split PDF into multiple files or extract specific pages. Browser-based processing.',
+    'pdf-to-word':'Convert PDF to editable Word documents. Results may vary for complex layouts.',
+    'jpg-to-pdf':'Convert JPG images to PDF. Combine multiple photos into one PDF document.',
+    'pdf-to-jpg':'Convert PDF pages to JPG images. High quality export.',
+    'sign-pdf':'Add a visual electronic signature to your PDF directly in your browser.',
+    'protect-pdf':'Password protect PDF files with encryption provided by the PDF engine.',
     'ocr-pdf':'OCR PDF to make scanned documents searchable. Extract text from images.',
-    'edit-pdf':'Edit PDF online. Add text, images, shapes and annotations. Browser-based editing.',
-    'unlock-pdf':'Remove password protection from PDF files you own. Quick and secure.',
-    'rotate-pdf':'Rotate PDF pages to correct orientation. Fix sideways scans easily.',
-    'watermark-pdf':'Add text or image watermarks to PDF. Protect documents and add branding.',
-    'image-compressor':'Compress images to exact KB size. Perfect for forms and applications worldwide.',
-    'passport-photo':'Create passport-size photos online. Correct dimensions for various countries.',
-    'pdf-to-excel':'Convert PDF tables to Excel spreadsheets. Extract data for analysis.',
-    'pdf-to-powerpoint':'Convert PDF pages into editable PowerPoint slides for presentations.',
-    'word-to-pdf':'Convert Word documents to PDF with preserved formatting. Professional output.',
-    'excel-to-pdf':'Convert Excel spreadsheets to PDF format for easy sharing and printing.',
-    'redact-pdf':'Permanently remove sensitive information from PDF. True redaction, not just covering.',
-    'compare-pdf':'Compare two PDF documents side-by-side. See differences highlighted automatically.',
-    'pdf-forms':'Fill and create PDF forms online. Fillable and flat forms supported.',
-    'translate-pdf':'Translate PDF documents into 50+ languages using Google Translate. Extracted text sent via HTTPS.',
-    'ai-summarizer':'Summarize long PDF documents using AI. Get key points in seconds.',
-    'scan-to-pdf':'Scan documents to PDF using your phone camera. Multiple pages in one file.'
+    'edit-pdf':'Edit PDF online. Add text, images, shapes and annotations.',
+    'unlock-pdf':'Remove password protection from PDF files you own.',
+    'rotate-pdf':'Rotate PDF pages to correct orientation.',
+    'watermark-pdf':'Add text or image watermarks to PDF.',
+    'image-compressor':'Compress images to a target size in your browser.',
+    'passport-photo':'Create passport-size photos with presets and exact dimensions.',
+    'pdf-to-excel':'Convert PDF tables to Excel spreadsheets. Results may vary for complex tables.',
+    'pdf-to-powerpoint':'Convert PDF pages into PowerPoint slides (pages inserted as images).',
+    'word-to-pdf':'Convert Word documents to PDF.',
+    'excel-to-pdf':'Convert Excel spreadsheets to PDF.',
+    'redact-pdf':'Redact sensitive areas by rendering redacted pages as images.',
+    'compare-pdf':'Compare two PDF documents side-by-side.',
+    'pdf-forms':'Fill and create PDF forms online.',
+    'translate-pdf':'Translate PDF text using a third-party translation service. Extracted text is sent externally.',
+    'ai-summarizer':'Create concise summaries from PDF text using a browser-based extractive algorithm.',
+    'scan-to-pdf':'Scan documents to PDF using your phone camera.'
   };
 
   if(!document.querySelector('meta[name="description"]')){
@@ -774,27 +780,28 @@ if(document.readyState==='loading'){
   }
 
   var ld={"@context":"https://schema.org","@graph":[]};
-  ld["@graph"].push({
-    "@type":"WebSite","@id":origin+"/#website","url":origin+"/",
-    "name":"TronoPDF","description":"Fast, private PDF tools that work in your browser.",
-    "publisher":{"@type":"Organization","name":"TronoPDF","logo":{"@type":"ImageObject","url":origin+"/icon.svg"}}
-  });
+
+  if(!hasSite){
+    ld["@graph"].push({
+      "@type":"WebSite","@id":origin+"/#website","url":origin+"/",
+      "name":"TronoPDF","description":"Fast, private PDF tools that work in your browser."
+    });
+  }
 
   if(!isHome){
     var toolName=document.title.split('-')[0].trim()||document.title;
-    var toolDesc=DESC[file]||("Free online tool - "+toolName+". No signup, no watermark, private processing.");
-    
-    ld["@graph"].push({
-      "@type":"SoftwareApplication","@id":origin+path+"#app",
-      "name":toolName,
-      "url":origin+path,
-      "applicationCategory":"UtilitiesApplication",
-      "operatingSystem":"Any (Web)",
-      "description":toolDesc,
-      "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},
-      "featureList":["Browser-based processing","No file uploads","No signup required","Free to use","Privacy-focused"]
-    });
-    
+    var toolDesc=DESC[file]||("Free online tool - "+toolName+". No signup required.");
+
+    if(!hasApp){
+      ld["@graph"].push({
+        "@type":"SoftwareApplication","@id":origin+path+"#app",
+        "name":toolName,"url":origin+path,
+        "applicationCategory":"UtilitiesApplication","operatingSystem":"Any (Web)",
+        "description":toolDesc,
+        "offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}
+      });
+    }
+
     ld["@graph"].push({
       "@type":"BreadcrumbList",
       "itemListElement":[
@@ -804,30 +811,23 @@ if(document.readyState==='loading'){
       ]
     });
 
-    /* Add HowTo schema from GUIDES database if available */
-    if(typeof GUIDES !== 'undefined' && GUIDES[file]){
+    if(!hasHowTo && typeof GUIDES!=='undefined' && GUIDES[file]){
       var guide=GUIDES[file];
       ld["@graph"].push({
-        "@type":"HowTo",
-        "name":"How to "+toolName,
-        "description":toolDesc,
-        "totalTime":"PT2M",
+        "@type":"HowTo","name":"How to "+toolName,"description":toolDesc,"totalTime":"PT2M",
         "step":guide.steps.map(function(s,i){
-          return {
-            "@type":"HowToStep",
-            "position":i+1,
-            "name":"Step "+(i+1),
-            "text":s.text+(s.tip?" - "+s.tip:"")
-          };
+          return {"@type":"HowToStep","position":i+1,"name":"Step "+(i+1),"text":s.text+(s.tip?" - "+s.tip:"")};
         })
       });
     }
   }
 
-  var s=document.createElement('script');
-  s.type='application/ld+json';
-  s.textContent=JSON.stringify(ld);
-  document.head.appendChild(s);
+  if(ld["@graph"].length){
+    var s=document.createElement('script');
+    s.type='application/ld+json';
+    s.textContent=JSON.stringify(ld);
+    document.head.appendChild(s);
+  }
 })();
 
 /* ===== TASK 13: USER RATING / FEEDBACK WIDGET (English) ===== */
