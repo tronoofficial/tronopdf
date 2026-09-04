@@ -1321,3 +1321,44 @@ if(document.readyState==='loading'){
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',strip);
   else strip();
 })();
+/* ===== TASK 28: REMOVE LANGUAGE SELECTOR (Option A) ===== */
+(function(){
+  function kill(){
+    document.querySelectorAll('.lang-btn,.lang-panel,#google_translate_element').forEach(function(el){el.remove();});
+    document.querySelectorAll('.skiptranslate,.goog-te-banner-frame').forEach(function(el){el.remove();});
+    if(document.body)document.body.style.top='';
+  }
+  if(document.readyState==='complete')setTimeout(kill,200);
+  window.addEventListener('load',function(){setTimeout(kill,250);});
+  setTimeout(kill,1500);
+})();
+
+/* ===== TASK 29: HONEST STATUS BADGE ===== */
+(function(){
+  function fix(){
+    var s=document.querySelector('.pf-status');
+    if(s){
+      s.innerHTML='Service Status';
+      s.style.color='#9a9ab0';
+      s.style.borderColor='rgba(255,255,255,.15)';
+      s.style.background='rgba(255,255,255,.04)';
+    }
+  }
+  if(document.readyState==='complete')setTimeout(fix,300);
+  window.addEventListener('load',function(){setTimeout(fix,350);});
+})();
+
+/* ===== TASK 30: MOBILE iLovePDF-STYLE CARDS (icon + name ek line) ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent='html,body{overflow-x:hidden}'+
+  '@media(max-width:640px){'+
+  '.tgrid{grid-template-columns:1fr!important;gap:12px!important}'+
+  '.tcard{display:flex!important;flex-wrap:wrap;align-items:center;gap:12px!important;padding:16px!important}'+
+  '.tcard .tic{width:46px!important;height:46px!important;flex-shrink:0}'+
+  '.tcard .tic svg{width:46px!important;height:46px!important}'+
+  '.tcard h3{flex:1;font-size:16px!important;margin:0!important}'+
+  '.tcard p{flex-basis:100%;font-size:12.5px!important;margin:2px 0 0!important;line-height:1.5!important}'+
+  '}';
+  document.head.appendChild(st);
+})();
