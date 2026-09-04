@@ -1362,3 +1362,15 @@ if(document.readyState==='loading'){
   '}';
   document.head.appendChild(st);
 })();
+/* ===== TASK 31: MOBILE CARD ALIGNMENT FIX (iLovePDF jaisa) ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent='@media(max-width:640px){'+
+  '.tcard{row-gap:6px!important;padding:14px 16px!important}'+
+  '.tcard .tic{width:44px!important;height:44px!important;flex:0 0 44px}'+
+  '.tcard .tic svg{width:44px!important;height:44px!important}'+
+  '.tcard h3{flex:1 1 auto;font-size:16px!important;margin:0!important;line-height:44px!important;height:44px!important}'+
+  '.tcard p{flex-basis:100%;margin:0!important;font-size:12.5px!important;line-height:1.45!important}'+
+  '}';
+  document.head.appendChild(st);
+})();
