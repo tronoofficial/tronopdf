@@ -1417,3 +1417,22 @@ if(document.readyState==='loading'){
   if(document.readyState==='complete')setTimeout(fix,400);
   window.addEventListener('load',function(){setTimeout(fix,450);});
 })();
+/* ===== TASK 36: HEADER FINAL + HOVER POP ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent=
+  /* Hover pop on tool cards (desktop) */
+  '.tcard,.rt-card{transition:transform .2s ease,box-shadow .2s ease}'+
+  '.tcard:hover{transform:translateY(-4px);box-shadow:0 10px 26px rgba(124,58,237,.14)}'+
+  '.rt-card:hover{transform:translateY(-3px)}'+
+  /* Mobile: active press feedback */
+  '@media(max-width:640px){.tcard:active{transform:scale(.98)}}'+
+  /* Mobile header clean (force) */
+  '@media(max-width:900px){'+
+  '.hright{margin-left:auto!important;display:flex!important;align-items:center!important;gap:6px!important}'+
+  '.hright .hbtn,.hright .hlink{display:none!important}'+
+  '.theme-toggle{background:#f3f0ff!important;border-radius:10px!important;width:40px;height:40px;display:inline-flex!important;align-items:center;justify-content:center;font-size:18px}'+
+  'html[data-theme="dark"] .theme-toggle{background:#232336!important}'+
+  '}';
+  document.head.appendChild(st);
+})();
