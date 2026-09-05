@@ -1374,3 +1374,16 @@ if(document.readyState==='loading'){
   '}';
   document.head.appendChild(st);
 })();
+/* ===== TASK 32: MOBILE CARD FINAL FIX (margins reset + center) ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent='@media(max-width:640px){'+
+  '.tcard{display:flex!important;flex-wrap:wrap;align-items:center;column-gap:12px!important;row-gap:4px!important;padding:14px 16px!important}'+
+  '.tcard *{margin:0!important}'+
+  '.tcard .tic{width:44px!important;height:44px!important;flex:0 0 44px!important;margin:0!important}'+
+  '.tcard .tic svg{width:44px!important;height:44px!important}'+
+  '.tcard h3{flex:1 1 auto;font-size:16px!important;line-height:44px!important}'+
+  '.tcard p{flex-basis:100%;font-size:12.5px!important;line-height:1.45!important}'+
+  '}';
+  document.head.appendChild(st);
+})();
