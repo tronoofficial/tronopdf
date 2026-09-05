@@ -1348,55 +1348,20 @@ if(document.readyState==='loading'){
   window.addEventListener('load',function(){setTimeout(fix,350);});
 })();
 
-/* ===== TASK 30: MOBILE iLovePDF-STYLE CARDS (icon + name ek line) ===== */
+/* ===== TASK 30 (CLEAN): MOBILE CARDS + FILTER-SAFE ===== */
 (function(){
   var st=document.createElement('style');
   st.textContent='html,body{overflow-x:hidden}'+
   '@media(max-width:640px){'+
+  /* Filter hiding ko hamesha priority */
+  '.tcard[style*="none"],.tcard[hidden],.tcard.hide,.tcard.hidden{display:none!important}'+
   '.tgrid{grid-template-columns:1fr!important;gap:12px!important}'+
-  '.tcard{display:flex!important;flex-wrap:wrap;align-items:center;gap:12px!important;padding:16px!important}'+
-  '.tcard .tic{width:46px!important;height:46px!important;flex-shrink:0}'+
-  '.tcard .tic svg{width:46px!important;height:46px!important}'+
-  '.tcard h3{flex:1;font-size:16px!important;margin:0!important}'+
-  '.tcard p{flex-basis:100%;font-size:12.5px!important;margin:2px 0 0!important;line-height:1.5!important}'+
-  '}';
-  document.head.appendChild(st);
-})();
-/* ===== TASK 31: MOBILE CARD ALIGNMENT FIX (iLovePDF jaisa) ===== */
-(function(){
-  var st=document.createElement('style');
-  st.textContent='@media(max-width:640px){'+
-  '.tcard{row-gap:6px!important;padding:14px 16px!important}'+
-  '.tcard .tic{width:44px!important;height:44px!important;flex:0 0 44px}'+
-  '.tcard .tic svg{width:44px!important;height:44px!important}'+
-  '.tcard h3{flex:1 1 auto;font-size:16px!important;margin:0!important;line-height:44px!important;height:44px!important}'+
-  '.tcard p{flex-basis:100%;margin:0!important;font-size:12.5px!important;line-height:1.45!important}'+
-  '}';
-  document.head.appendChild(st);
-})();
-/* ===== TASK 32: MOBILE CARD FINAL FIX (margins reset + center) ===== */
-(function(){
-  var st=document.createElement('style');
-  st.textContent='@media(max-width:640px){'+
-  '.tcard{display:flex!important;flex-wrap:wrap;align-items:center;column-gap:12px!important;row-gap:4px!important;padding:14px 16px!important}'+
-  '.tcard *{margin:0!important}'+
+  /* Icon + Name ek line (NO !important on display → filter safe) */
+  '.tcard{display:flex;flex-wrap:wrap;align-items:center;column-gap:12px!important;row-gap:4px!important;padding:14px 16px!important}'+
   '.tcard .tic{width:44px!important;height:44px!important;flex:0 0 44px!important;margin:0!important}'+
   '.tcard .tic svg{width:44px!important;height:44px!important}'+
-  '.tcard h3{flex:1 1 auto;font-size:16px!important;line-height:44px!important}'+
-  '.tcard p{flex-basis:100%;font-size:12.5px!important;line-height:1.45!important}'+
-  '}';
-  document.head.appendChild(st);
-})();
-/* ===== TASK 33: RESTORE CATEGORY FILTER (mobile) ===== */
-(function(){
-  var st=document.createElement('style');
-  st.textContent='@media(max-width:640px){'+
-  '.tcard[style*="none"],.tcard[hidden],.tcard.hide,.tcard.hidden{display:none!important}'+
-  '.tcard{display:flex;flex-wrap:wrap;align-items:center;column-gap:12px;row-gap:4px;padding:14px 16px}'+
-  '.tcard .tic{width:44px;height:44px;flex:0 0 44px;margin:0}'+
-  '.tcard .tic svg{width:44px;height:44px}'+
-  '.tcard h3{flex:1;font-size:16px;margin:0;line-height:44px}'+
-  '.tcard p{flex-basis:100%;margin:0;font-size:12.5px;line-height:1.45}'+
+  '.tcard h3{flex:1 1 auto;font-size:16px!important;margin:0!important;line-height:44px!important}'+
+  '.tcard p{flex-basis:100%;margin:0!important;font-size:12.5px!important;line-height:1.45!important}'+
   '}';
   document.head.appendChild(st);
 })();
