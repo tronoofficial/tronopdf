@@ -1396,3 +1396,24 @@ if(document.readyState==='loading'){
   if(document.readyState==='complete')setTimeout(build,400);
   window.addEventListener('load',function(){setTimeout(build,450);});
 })();
+/* ===== TASK 35: MOBILE HEADER POLISH + REMOVE STATUS BADGE ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent=
+  '@media(max-width:900px){'+
+  '.hwrap{gap:8px}'+
+  '.hright{margin-left:auto;display:flex;align-items:center;gap:6px}'+
+  '.hright .hlink{display:none}'+
+  '.hright .hbtn{display:none}'+
+  '.theme-toggle{background:#f3f0ff!important;border-radius:10px!important;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;font-size:18px}'+
+  'html[data-theme="dark"] .theme-toggle{background:#232336!important}'+
+  '}';
+  document.head.appendChild(st);
+
+  function fix(){
+    var s=document.querySelector('.pf-status');
+    if(s)s.remove();
+  }
+  if(document.readyState==='complete')setTimeout(fix,400);
+  window.addEventListener('load',function(){setTimeout(fix,450);});
+})();
