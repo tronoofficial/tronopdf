@@ -1387,3 +1387,16 @@ if(document.readyState==='loading'){
   '}';
   document.head.appendChild(st);
 })();
+/* ===== TASK 33: RESTORE CATEGORY FILTER (mobile) ===== */
+(function(){
+  var st=document.createElement('style');
+  st.textContent='@media(max-width:640px){'+
+  '.tcard[style*="none"],.tcard[hidden],.tcard.hide,.tcard.hidden{display:none!important}'+
+  '.tcard{display:flex;flex-wrap:wrap;align-items:center;column-gap:12px;row-gap:4px;padding:14px 16px}'+
+  '.tcard .tic{width:44px;height:44px;flex:0 0 44px;margin:0}'+
+  '.tcard .tic svg{width:44px;height:44px}'+
+  '.tcard h3{flex:1;font-size:16px;margin:0;line-height:44px}'+
+  '.tcard p{flex-basis:100%;margin:0;font-size:12.5px;line-height:1.45}'+
+  '}';
+  document.head.appendChild(st);
+})();
